@@ -4,175 +4,125 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chris Movies</title>
+
 <style>
-body {
-  margin:0;
-  font-family: 'Arial', sans-serif;
-  background: #141414;
-  color: white;
-}
-header {
-  position: fixed;
-  top:0;
-  width:100%;
-  height:60px;
-  background:#141414;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 20px;
-  z-index:10;
-  border-bottom:1px solid #333;
-}
-header h1 {
-  color:#e50914;
-  font-size:24px;
-  margin:0;
-}
-.menu { cursor:pointer; font-size:24px; color:white; }
-.dropdown {
-  position:absolute;
-  right:20px;
-  top:60px;
-  background:#222;
-  border-radius:6px;
-  display:none;
-  min-width:150px;
-  z-index:20;
-}
-.dropdown button {
-  width:100%;
-  background:none;
-  border:none;
-  color:white;
-  padding:10px;
-  text-align:left;
-  cursor:pointer;
-}
-section, .admin-panel {
-  margin-top:80px;
-  padding:20px;
-}
-h2 { margin-bottom:10px; }
-.movies-grid {
-  display:grid;
-  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
-  gap:15px;
-}
-.movie-card {
-  background:#222;
-  border-radius:6px;
-  overflow:hidden;
-  cursor:pointer;
-  transition: transform 0.3s;
-  position: relative;
-}
-.movie-card:hover { transform: scale(1.05); }
-.movie-card video {
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  display:block;
-}
-.movie-title {
-  padding:5px;
-  text-align:center;
-  font-weight:bold;
-}
-.vip-label { color: gold; font-weight:bold; font-size:12px; text-align:center; }
-button, select, input {
-  border:none;
-  border-radius:6px;
-  padding:8px;
-  margin-top:5px;
-  width:100%;
-}
-button { background:#e50914; color:white; cursor:pointer; }
-.whatsapp-btn { background:#25D366; margin-top:10px; color:white; cursor:pointer; }
-.page { display:block; }
-.admin-panel { background:#222; padding:15px; border-radius:6px; max-width:400px; margin:20px auto; }
+body{margin:0;font-family:Arial;background:#141414;color:white}
+header{position:fixed;top:0;width:100%;height:60px;
+background:linear-gradient(to bottom,rgba(0,0,0,0.9),transparent);
+display:flex;justify-content:space-between;align-items:center;
+padding:0 20px;z-index:100}
+.logo{color:#e50914;font-size:24px;font-weight:bold}
+.menu{font-size:26px;cursor:pointer}
+.dropdown{position:absolute;right:20px;top:60px;background:#222;
+border-radius:8px;display:none;overflow:hidden}
+.dropdown button{background:none;border:none;color:white;
+padding:12px 20px;width:100%;text-align:left;cursor:pointer}
+.dropdown button:hover{background:#333}
 
-/* Lock overlay for VIP */
-.vip-card .lock {
-  position: absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:40px;
-  color: gold;
-  cursor:pointer;
-}
+.hero{height:60vh;
+background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;
+display:flex;align-items:flex-end;padding:40px 20px}
+.hero h1{font-size:40px;margin:0}
 
-/* Search and request bar styling */
-.search-request { margin-bottom:20px; display:flex; gap:10px; }
-.search-request input { flex:1; padding:8px; border-radius:6px; border:none; }
-.search-request button { width:auto; }
+section{padding:20px;margin-top:60px}
+.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px}
+.movie-card{background:#222;border-radius:8px;overflow:hidden;transition:.3s;position:relative}
+.movie-card:hover{transform:scale(1.05)}
+.movie-card img{width:100%;height:220px;object-fit:cover}
+.movie-card video{width:100%}
+
+.lock{position:absolute;inset:0;background:rgba(0,0,0,0.7);
+display:flex;align-items:center;justify-content:center;
+font-size:40px;color:gold;cursor:pointer}
+
+.bar{display:flex;gap:10px;margin-bottom:15px}
+input,select,button{padding:10px;border-radius:6px;border:none}
+button{background:#e50914;color:white;cursor:pointer}
+.whatsapp{background:#25D366}
+
+#adminPanel{display:none;background:#111;padding:20px;
+border-radius:10px;max-width:400px;margin:20px auto}
 </style>
 </head>
+
 <body>
 
 <header>
-  <h1>Chris Movies</h1>
+  <div class="logo">Chris Movies</div>
   <div class="menu" onclick="toggleMenu()">⋮</div>
   <div class="dropdown" id="menu">
-    <button onclick="showAdmin()">Admin Panel</button>
+    <button onclick="openAdmin()">Admin Panel</button>
   </div>
 </header>
 
-<section id="moviesPage">
-  <!-- Search bar -->
-  <div class="search-request">
-    <input type="text" id="searchMovie" placeholder="Search movies...">
-    <button onclick="filterMovies()">Search</button>
-  </div>
-  
-  <!-- Request bar -->
-  <div class="search-request">
-    <input type="text" id="requestMovie" placeholder="Request a movie">
-    <button class="whatsapp-btn" onclick="sendRequest()">Request via WhatsApp</button>
-  </div>
+<div class="hero">
+  <h1>Unlimited Movies, VIP & Free</h1>
+</div>
 
-  <h2>Free Movies</h2>
-  <div class="movies-grid" id="freeMovies"></div>
+<section>
 
-  <h2>VIP Movies 🔒</h2>
-  <div class="movies-grid" id="vipMovies"></div>
+<div class="bar">
+  <input id="request" placeholder="Request a movie">
+  <button class="whatsapp" onclick="requestMovie()">Request</button>
+</div>
 
-  <h3>Become VIP</h3>
-  <select id="vipPlan">
-    <option value="weekly">Weekly VIP - 6,000 UGX</option>
-    <option value="monthly">Monthly VIP - 25,000 UGX</option>
-  </select>
-  <button class="whatsapp-btn" onclick="becomeVIP()">Pay & Activate VIP</button>
+<div class="bar">
+  <input id="vipCode" placeholder="Enter VIP code">
+  <button onclick="unlockVIP()">Unlock VIP</button>
+</div>
+
+<h2>Free Movies</h2>
+<div class="movies-grid" id="free"></div>
+
+<h2>VIP Movies 🔒</h2>
+<div class="movies-grid" id="vip"></div>
+
+<h3>Become VIP</h3>
+<select>
+  <option>Weekly VIP – 6,000 UGX</option>
+  <option>Monthly VIP – 25,000 UGX</option>
+</select>
+<button class="whatsapp" onclick="payVIP()">Pay via WhatsApp</button>
+
 </section>
 
 <!-- ADMIN PANEL -->
-<div id="adminPanel" class="admin-panel" style="display:none;">
-  <h2>Admin Panel</h2>
-  <input type="password" id="adminPassword" placeholder="Admin Password">
-  <input type="file" id="adminFile" accept="video/*">
-  <input type="text" id="adminMovie" placeholder="Movie Name">
-  <select id="adminVIP">
-    <option value="true">VIP</option>
+<div id="adminPanel">
+  <h2>Admin Upload</h2>
+  <input type="password" id="pass" placeholder="Admin password"><br><br>
+
+  <input type="file" id="poster"><br><small>Poster image</small><br><br>
+  <input type="file" id="file"><br><small>Movie video</small><br><br>
+
+  <input id="name" placeholder="Movie name"><br><br>
+
+  <select id="isVip">
     <option value="false">Free</option>
-  </select>
-  <button onclick="adminLoginAndUpload()">Upload Movie</button>
-  <p id="adminMsg"></p>
+    <option value="true">VIP</option>
+  </select><br><br>
+
+  <button onclick="uploadMovie()">Upload Movie</button>
+
+  <hr>
+
+  <h3>Create VIP Code</h3>
+  <select id="vipType">
+    <option value="7">Weekly (7 days)</option>
+    <option value="30">Monthly (30 days)</option>
+  </select><br><br>
+
+  <button onclick="createVIP()">Generate VIP Code</button>
+
+  <p id="msg"></p>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// <<< YOUR FIREBASE CONFIG HERE >>>
 const firebaseConfig = {
-  apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+  apiKey: "AIzaSyASC5...",
   authDomain: "chris-movies-7ba0f.firebaseapp.com",
   projectId: "chris-movies-7ba0f",
   storageBucket: "chris-movies-7ba0f.appspot.com",
@@ -184,93 +134,121 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const adminPass = 'admin123';
+const ADMIN = "admin123";
 
-window.toggleMenu = ()=>{ 
-  const menu=document.getElementById('menu'); 
-  menu.style.display = menu.style.display==='block'?'none':'block';
-};
-window.showAdmin = ()=>{ document.getElementById('adminPanel').style.display='block'; document.getElementById('menu').style.display='none'; };
+/* MENU */
+window.toggleMenu = () => menu.style.display =
+  menu.style.display==="block"?"none":"block";
 
-window.becomeVIP = ()=>{
-  const plan=document.getElementById('vipPlan').value;
-  const phone='256753747474';
-  let text=`Hello Admin, I want to pay for ${plan} VIP plan.`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`,'_blank');
-  alert('Send payment via WhatsApp, then admin will activate your VIP.');
+window.openAdmin = () => {
+  adminPanel.style.display="block";
+  menu.style.display="none";
 };
 
-// Admin upload
-window.adminLoginAndUpload = async ()=>{
-  const pass=document.getElementById('adminPassword').value;
-  const movieName=document.getElementById('adminMovie').value;
-  const file=document.getElementById('adminFile').files[0];
-  const vip=document.getElementById('adminVIP').value==='true';
-  const msg=document.getElementById('adminMsg');
-  if(pass!==adminPass){ msg.textContent='Wrong password'; return; }
-  if(!movieName || !file){ msg.textContent='Enter movie name and select file'; return; }
-  const storageRef = ref(storage,'movies/'+file.name);
-  await uploadBytes(storageRef,file);
-  const url = await getDownloadURL(storageRef);
-  await setDoc(doc(db,'movies',movieName),{name:movieName,url,vip});
-  msg.textContent='Movie uploaded!';
-  document.getElementById('adminMovie').value='';
-  document.getElementById('adminFile').value='';
+/* WHATSAPP */
+window.payVIP = () =>
+  window.open("https://wa.me/256753747474?text=Hello%20I%20want%20VIP%20access");
+
+window.requestMovie = () => {
+  const name = request.value;
+  if(!name) return alert("Enter movie name");
+  window.open("https://wa.me/256753747474?text=Request:%20"+name);
+};
+
+/* VIP EXPIRY CHECK */
+function isVIPActive(){
+  const expiry = localStorage.getItem("vipExpiry");
+  return expiry && Date.now() < Number(expiry);
+}
+
+/* UPLOAD MOVIE */
+window.uploadMovie = async () => {
+  if(pass.value!==ADMIN) return alert("Wrong admin password");
+
+  const videoFile = file.files[0];
+  const posterFile = poster.files[0];
+  const nameVal = name.value;
+  const vipVal = isVip.value==="true";
+
+  if(!videoFile || !posterFile || !nameVal)
+    return alert("Fill all fields");
+
+  const videoRef = ref(storage,"movies/videos/"+videoFile.name);
+  await uploadBytes(videoRef,videoFile);
+  const videoURL = await getDownloadURL(videoRef);
+
+  const posterRef = ref(storage,"movies/posters/"+posterFile.name);
+  await uploadBytes(posterRef,posterFile);
+  const posterURL = await getDownloadURL(posterRef);
+
+  await setDoc(doc(db,"movies",nameVal),{
+    name:nameVal,url:videoURL,poster:posterURL,vip:vipVal
+  });
+
+  msg.innerText="Movie uploaded 🎬";
   loadMovies();
 };
 
-// Load movies
+/* CREATE VIP CODE */
+window.createVIP = async () => {
+  if(pass.value!==ADMIN) return alert("Wrong admin password");
+
+  const days = parseInt(vipType.value);
+  const code = Math.random().toString(36).substring(2,8).toUpperCase();
+  const expiry = Date.now()+days*86400000;
+
+  await addDoc(collection(db,"vipCodes"),{code,expiry});
+  msg.innerText="VIP Code: "+code;
+};
+
+/* UNLOCK VIP */
+window.unlockVIP = async () => {
+  const codeInput = vipCode.value.trim();
+  const snap = await getDocs(collection(db,"vipCodes"));
+
+  let valid=false, expiryTime=0;
+
+  snap.forEach(d=>{
+    const data=d.data();
+    if(data.code===codeInput && Date.now()<data.expiry){
+      valid=true;
+      expiryTime=data.expiry;
+    }
+  });
+
+  if(valid){
+    localStorage.setItem("vipExpiry",expiryTime);
+    alert("VIP unlocked 🎉");
+    loadMovies();
+  }else alert("Invalid or expired code");
+};
+
+/* LOAD MOVIES */
 async function loadMovies(){
-  const freeContainer=document.getElementById('freeMovies');
-  const vipContainer=document.getElementById('vipMovies');
-  freeContainer.innerHTML=''; vipContainer.innerHTML='';
-  const querySnapshot = await getDocs(collection(db,'movies'));
-  querySnapshot.forEach(docSnap=>{
-    const data = docSnap.data();
-    const card = document.createElement('div');
-    card.dataset.title = data.name.toLowerCase();
-    if(data.vip){
-      card.className='movie-card vip-card';
-      card.innerHTML = `
-        <video src='${data.url}'></video>
-        <div class="movie-title">${data.name}</div>
-        <div class="vip-label">VIP</div>
-        <div class="lock">🔒</div>
-      `;
-      vipContainer.appendChild(card);
-      card.querySelector('.lock').onclick = ()=>{
-        alert('This is a VIP movie! Pay via WhatsApp to unlock.');
-      };
-    } else{
-      card.className='movie-card';
-      card.innerHTML=`<video controls src='${data.url}'></video><div class="movie-title">${data.name}</div>`;
-      freeContainer.appendChild(card);
+  free.innerHTML=""; vip.innerHTML="";
+  const snap = await getDocs(collection(db,"movies"));
+
+  snap.forEach(d=>{
+    const m=d.data();
+    const card=document.createElement("div");
+    card.className="movie-card";
+
+    if(m.vip && !isVIPActive()){
+      card.innerHTML=`<img src="${m.poster}"><div class="lock">🔒</div>`;
+      card.onclick=()=>alert("Enter VIP code to watch");
+      vip.appendChild(card);
+    }else if(m.vip){
+      card.innerHTML=`<img src="${m.poster}"><video controls src="${m.url}"></video>`;
+      vip.appendChild(card);
+    }else{
+      card.innerHTML=`<img src="${m.poster}"><video controls src="${m.url}"></video>`;
+      free.appendChild(card);
     }
   });
 }
 
-// Search filter
-window.filterMovies = ()=>{
-  const keyword = document.getElementById('searchMovie').value.toLowerCase();
-  const freeContainer=document.getElementById('freeMovies');
-  const vipContainer=document.getElementById('vipMovies');
-  [...freeContainer.children, ...vipContainer.children].forEach(card=>{
-    card.style.display = card.dataset.title.includes(keyword)?'block':'none';
-  });
-};
-
-// Request movie via WhatsApp
-window.sendRequest = ()=>{
-  const movieName = document.getElementById('requestMovie').value.trim();
-  if(!movieName){ alert('Enter a movie name'); return; }
-  const phone = '256753747474';
-  const text = `Hello Admin, I want to request the movie: ${movieName}`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-  alert('Your request has been sent to WhatsApp!');
-  document.getElementById('requestMovie').value='';
-};
-
-setTimeout(loadMovies,1000);
+loadMovies();
 </script>
+
 </body>
-</html>
+                                  </html>
