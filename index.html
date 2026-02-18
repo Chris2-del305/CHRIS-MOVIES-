@@ -1,27 +1,37 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies</title>  <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: white; }
-    header { background: #020617; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1581905764498-4c38faea9c5b?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
+
+    header { background: rgba(0,0,0,0.7); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
     header h1 { margin: 0; color: #22c55e; }
 
     .menu { cursor: pointer; font-size: 22px; }
-    .dropdown { position: absolute; right: 15px; top: 60px; background: #020617; border-radius: 10px; display: none; }
+    .dropdown { position: absolute; right: 15px; top: 60px; background: rgba(0,0,0,0.9); border-radius: 10px; display: none; }
     .dropdown button { display: block; width: 100%; background: none; color: white; border: none; padding: 10px; text-align: left; }
 
-    .page { display: none; padding: 20px; }
+    .page { display: none; padding: 20px; background: rgba(0,0,0,0.6); border-radius: 10px; margin: 20px; }
     .active { display: block; }
 
     .movies { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-    .movie-card { background: #020617; border-radius: 10px; padding: 10px; text-align: center; }
+    .movie-card { background: rgba(0,0,0,0.7); border-radius: 10px; padding: 10px; text-align: center; }
     .vip { border: 2px solid gold; }
 
     input { width: 100%; padding: 8px; margin-top: 10px; border-radius: 6px; border: none; }
     button { margin-top: 8px; padding: 8px; border: none; border-radius: 6px; background: #22c55e; color: white; cursor: pointer; }
 
     .switch-link { margin-top: 10px; color: #38bdf8; cursor: pointer; display: inline-block; }
+    .whatsapp-btn { margin-top: 15px; padding: 10px; background: #25D366; border: none; border-radius: 6px; color: white; cursor: pointer; text-align: center; display: inline-block; }
+
+    video { width: 100%; max-height: 400px; border-radius: 10px; margin-top: 10px; }
   </style></head><body>
   <header>
     <h1>🎬 Chris Movies</h1>
@@ -29,6 +39,7 @@
     <div class="dropdown" id="menu">
       <button onclick="showPage('moviesPage')">Home</button>
       <button onclick="showPage('vipPage')">VIP</button>
+      <button onclick="showPage('adminPage')">Admin</button>
       <button onclick="logout()">Logout</button>
     </div>
   </header>  <!-- REGISTER PAGE -->  <div id="registerPage" class="page active">
@@ -47,16 +58,24 @@
     <p id="loginMsg"></p>
   </div>  <!-- MOVIES PAGE -->  <div id="moviesPage" class="page">
     <h2>Free Movies</h2>
-    <div class="movies">
-      <div class="movie-card">Movie 1<br /><button>Watch</button></div>
-      <div class="movie-card">Movie 2<br /><button>Watch</button></div>
+    <div class="movies" id="freeMovies">
+      <!-- Movie cards injected here -->
     </div>
   </div>  <!-- VIP PAGE -->  <div id="vipPage" class="page">
     <h2>VIP Movies 🔒</h2>
     <div class="movies" id="vipMovies"></div>
+    <button class="whatsapp-btn" onclick="contactAdmin()">Contact Admin via WhatsApp</button>
+  </div>  <!-- ADMIN PAGE -->  <div id="adminPage" class="page">
+    <h2>Admin Panel</h2>
+    <input type="password" id="adminPassword" placeholder="Enter admin password" />
+    <input type="text" id="adminMovie" placeholder="VIP Movie name" />
+    <input type="text" id="adminURL" placeholder="Movie Video URL" />
+    <button onclick="adminLoginAndUpload()">Upload VIP Movie</button>
+    <div id="adminMsg"></div>
   </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
@@ -70,10 +89,15 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    const adminPass = 'admin123';
 
     window.showPage = function(id) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
+      document.getElementById('menu').style.display = 'none';
     };
 
     window.toggleMenu = function() {
@@ -85,38 +109,62 @@
       const email = document.getElementById('regEmail').value;
       const pass = document.getElementById('regPass').value;
       const msg = document.getElementById('regMsg');
-
       try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        msg.textContent = "Account created!";
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        currentUser = userCredential.user;
+        await setDoc(doc(db, 'users', currentUser.uid), { email, vip: false });
         showPage('moviesPage');
-      } catch (e) {
-        msg.textContent = e.message;
-      }
+      } catch (e) { msg.textContent = e.message; }
     };
 
     window.login = async function() {
       const email = document.getElementById('loginEmail').value;
       const pass = document.getElementById('loginPass').value;
       const msg = document.getElementById('loginMsg');
-
       try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        msg.textContent = "Login successful!";
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        currentUser = userCredential.user;
         showPage('moviesPage');
-      } catch (e) {
-        msg.textContent = e.message;
-      }
+      } catch (e) { msg.textContent = e.message; }
     };
 
-    window.logout = function() {
-      signOut(auth);
-      showPage('loginPage');
+    window.logout = function() { signOut(auth); showPage('loginPage'); };
+
+    onAuthStateChanged(auth, user => { currentUser = user; if(user) showPage('moviesPage'); else showPage('loginPage'); });
+
+    window.contactAdmin = function() {
+      window.open('https://wa.me/256753747474', '_blank');
     };
 
-    onAuthStateChanged(auth, user => {
-      if (user) showPage('moviesPage');
-      else showPage('loginPage');
-    });
+    window.adminLoginAndUpload = async function() {
+      const pass = document.getElementById('adminPassword').value;
+      const movieName = document.getElementById('adminMovie').value;
+      const movieURL = document.getElementById('adminURL').value;
+      const msg = document.getElementById('adminMsg');
+      if(pass !== adminPass) return msg.textContent = 'Wrong admin password';
+      if(!movieName || !movieURL) return msg.textContent = 'Enter movie name and URL';
+      await setDoc(doc(db, 'movies', movieName), { name: movieName, url: movieURL, vip: true });
+      msg.textContent = 'VIP Movie uploaded!';
+      document.getElementById('adminMovie').value = '';
+      document.getElementById('adminURL').value = '';
+      loadMovies();
+    };
+
+    async function loadMovies() {
+      const freeContainer = document.getElementById('freeMovies');
+      const vipContainer = document.getElementById('vipMovies');
+      freeContainer.innerHTML = '';
+      vipContainer.innerHTML = '';
+      const querySnapshot = await getDocs(collection(db, 'movies'));
+      querySnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `<strong>${data.name}</strong><br/><video controls src='${data.url}'></video>`;
+        if(data.vip) vipContainer.appendChild(card); else freeContainer.appendChild(card);
+      });
+    }
+
+    setTimeout(loadMovies, 2000);
   </script></body>
   </html>
