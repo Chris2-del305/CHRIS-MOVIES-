@@ -49,7 +49,7 @@ header h1 {
   text-align:left;
   cursor:pointer;
 }
-section {
+section, .admin-panel, .login-panel, .register-panel {
   margin-top:80px;
   padding:20px;
 }
@@ -103,7 +103,26 @@ button { background:#e50914; color:white; cursor:pointer; }
   </div>
 </header>
 
-<section id="moviesPage" class="page active">
+<!-- LOGIN -->
+<section id="loginPage" class="page active">
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPass" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <div style="margin-top:10px;color:#38bdf8;cursor:pointer;" onclick="showRegister()">Create Account</div>
+</section>
+
+<!-- REGISTER -->
+<section id="registerPage" class="page">
+  <h2>Create Account</h2>
+  <input type="email" id="regEmail" placeholder="Email">
+  <input type="password" id="regPass" placeholder="Password">
+  <button onclick="register()">Register</button>
+  <div style="margin-top:10px;color:#38bdf8;cursor:pointer;" onclick="showLogin()">Already have account? Login</div>
+</section>
+
+<!-- MOVIES PAGE -->
+<section id="moviesPage" class="page">
   <h2>Free Movies</h2>
   <div class="movies-grid" id="freeMovies"></div>
 
@@ -118,9 +137,10 @@ button { background:#e50914; color:white; cursor:pointer; }
   <button class="whatsapp-btn" onclick="becomeVIP()">Pay & Activate VIP</button>
 </section>
 
+<!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel page">
   <h2>Admin Panel</h2>
-  <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+  <input type="password" id="adminPassword" placeholder="Admin Password">
   <input type="file" id="adminFile" accept="video/*">
   <input type="text" id="adminMovie" placeholder="Movie Name">
   <select id="adminVIP">
@@ -158,14 +178,53 @@ window.toggleMenu = ()=>{
   const menu=document.getElementById('menu'); 
   menu.style.display = menu.style.display==='block'?'none':'block';
 };
-
-window.showAdmin = ()=>{ 
+window.showAdmin = ()=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('adminPanel').classList.add('active');
   document.getElementById('menu').style.display='none';
 };
 
-onAuthStateChanged(auth,user=>{currentUser=user;});
+function showLogin(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('loginPage').classList.add('active');
+}
+function showRegister(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('registerPage').classList.add('active');
+}
+function showMovies(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('moviesPage').classList.add('active');
+}
+
+window.register = async ()=>{
+  const email=document.getElementById('regEmail').value;
+  const pass=document.getElementById('regPass').value;
+  try{
+    const userCredential = await createUserWithEmailAndPassword(auth,email,pass);
+    currentUser=userCredential.user;
+    await setDoc(doc(db,'users',currentUser.uid),{email, vip:false, vipExpiry:null});
+    showMovies();
+    loadMovies();
+  }catch(e){alert(e.message);}
+};
+
+window.login = async ()=>{
+  const email=document.getElementById('loginEmail').value;
+  const pass=document.getElementById('loginPass').value;
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth,email,pass);
+    currentUser=userCredential.user;
+    showMovies();
+    loadMovies();
+  }catch(e){alert(e.message);}
+};
+
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  if(user) showMovies();
+  else showLogin();
+});
 
 window.becomeVIP = ()=>{
   const plan=document.getElementById('vipPlan').value;
@@ -194,12 +253,12 @@ window.adminLoginAndUpload = async ()=>{
 };
 
 async function loadMovies(){
+  if(!currentUser) return;
   const freeContainer=document.getElementById('freeMovies');
   const vipContainer=document.getElementById('vipMovies');
   freeContainer.innerHTML=''; vipContainer.innerHTML='';
   const querySnapshot = await getDocs(collection(db,'movies'));
-  const usersRef = doc(db,'users',currentUser.uid);
-  const userSnap = await getDoc(usersRef);
+  const userSnap = await getDoc(doc(db,'users',currentUser.uid));
   const userData = userSnap.exists()?userSnap.data():{vip:false, vipExpiry:null};
   const now = new Date();
   querySnapshot.forEach(docSnap=>{
