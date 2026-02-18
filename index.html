@@ -49,7 +49,7 @@ header h1 {
   text-align:left;
   cursor:pointer;
 }
-section, .admin-panel, .login-panel, .register-panel {
+section, .admin-panel {
   margin-top:80px;
   padding:20px;
 }
@@ -65,6 +65,7 @@ h2 { margin-bottom:10px; }
   overflow:hidden;
   cursor:pointer;
   transition: transform 0.3s;
+  position: relative;
 }
 .movie-card:hover { transform: scale(1.05); }
 .movie-card video {
@@ -88,9 +89,29 @@ button, select, input {
 }
 button { background:#e50914; color:white; cursor:pointer; }
 .whatsapp-btn { background:#25D366; margin-top:10px; color:white; cursor:pointer; }
-.page { display:none; }
-.active { display:block; }
+.page { display:block; }
 .admin-panel { background:#222; padding:15px; border-radius:6px; max-width:400px; margin:20px auto; }
+
+/* Lock overlay for VIP */
+.vip-card .lock {
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:40px;
+  color: gold;
+  cursor:pointer;
+}
+
+/* Search and request bar styling */
+.search-request { margin-bottom:20px; display:flex; gap:10px; }
+.search-request input { flex:1; padding:8px; border-radius:6px; border:none; }
+.search-request button { width:auto; }
 </style>
 </head>
 <body>
@@ -103,26 +124,19 @@ button { background:#e50914; color:white; cursor:pointer; }
   </div>
 </header>
 
-<!-- LOGIN -->
-<section id="loginPage" class="page active">
-  <h2>Login</h2>
-  <input type="email" id="loginEmail" placeholder="Email">
-  <input type="password" id="loginPass" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <div style="margin-top:10px;color:#38bdf8;cursor:pointer;" onclick="showRegister()">Create Account</div>
-</section>
+<section id="moviesPage">
+  <!-- Search bar -->
+  <div class="search-request">
+    <input type="text" id="searchMovie" placeholder="Search movies...">
+    <button onclick="filterMovies()">Search</button>
+  </div>
+  
+  <!-- Request bar -->
+  <div class="search-request">
+    <input type="text" id="requestMovie" placeholder="Request a movie">
+    <button class="whatsapp-btn" onclick="sendRequest()">Request via WhatsApp</button>
+  </div>
 
-<!-- REGISTER -->
-<section id="registerPage" class="page">
-  <h2>Create Account</h2>
-  <input type="email" id="regEmail" placeholder="Email">
-  <input type="password" id="regPass" placeholder="Password">
-  <button onclick="register()">Register</button>
-  <div style="margin-top:10px;color:#38bdf8;cursor:pointer;" onclick="showLogin()">Already have account? Login</div>
-</section>
-
-<!-- MOVIES PAGE -->
-<section id="moviesPage" class="page">
   <h2>Free Movies</h2>
   <div class="movies-grid" id="freeMovies"></div>
 
@@ -138,7 +152,7 @@ button { background:#e50914; color:white; cursor:pointer; }
 </section>
 
 <!-- ADMIN PANEL -->
-<div id="adminPanel" class="admin-panel page">
+<div id="adminPanel" class="admin-panel" style="display:none;">
   <h2>Admin Panel</h2>
   <input type="password" id="adminPassword" placeholder="Admin Password">
   <input type="file" id="adminFile" accept="video/*">
@@ -153,11 +167,10 @@ button { background:#e50914; color:white; cursor:pointer; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// <<< USE YOUR FIREBASE CONFIG HERE >>>
+// <<< YOUR FIREBASE CONFIG HERE >>>
 const firebaseConfig = {
   apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
   authDomain: "chris-movies-7ba0f.firebaseapp.com",
@@ -168,64 +181,16 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let currentUser = null;
 const adminPass = 'admin123';
 
 window.toggleMenu = ()=>{ 
   const menu=document.getElementById('menu'); 
   menu.style.display = menu.style.display==='block'?'none':'block';
 };
-window.showAdmin = ()=>{
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('adminPanel').classList.add('active');
-  document.getElementById('menu').style.display='none';
-};
-
-function showLogin(){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('loginPage').classList.add('active');
-}
-function showRegister(){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('registerPage').classList.add('active');
-}
-function showMovies(){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('moviesPage').classList.add('active');
-}
-
-window.register = async ()=>{
-  const email=document.getElementById('regEmail').value;
-  const pass=document.getElementById('regPass').value;
-  try{
-    const userCredential = await createUserWithEmailAndPassword(auth,email,pass);
-    currentUser=userCredential.user;
-    await setDoc(doc(db,'users',currentUser.uid),{email, vip:false, vipExpiry:null});
-    showMovies();
-    loadMovies();
-  }catch(e){alert(e.message);}
-};
-
-window.login = async ()=>{
-  const email=document.getElementById('loginEmail').value;
-  const pass=document.getElementById('loginPass').value;
-  try{
-    const userCredential = await signInWithEmailAndPassword(auth,email,pass);
-    currentUser=userCredential.user;
-    showMovies();
-    loadMovies();
-  }catch(e){alert(e.message);}
-};
-
-onAuthStateChanged(auth,user=>{
-  currentUser=user;
-  if(user) showMovies();
-  else showLogin();
-});
+window.showAdmin = ()=>{ document.getElementById('adminPanel').style.display='block'; document.getElementById('menu').style.display='none'; };
 
 window.becomeVIP = ()=>{
   const plan=document.getElementById('vipPlan').value;
@@ -235,6 +200,7 @@ window.becomeVIP = ()=>{
   alert('Send payment via WhatsApp, then admin will activate your VIP.');
 };
 
+// Admin upload
 window.adminLoginAndUpload = async ()=>{
   const pass=document.getElementById('adminPassword').value;
   const movieName=document.getElementById('adminMovie').value;
@@ -253,34 +219,58 @@ window.adminLoginAndUpload = async ()=>{
   loadMovies();
 };
 
+// Load movies
 async function loadMovies(){
-  if(!currentUser) return;
   const freeContainer=document.getElementById('freeMovies');
   const vipContainer=document.getElementById('vipMovies');
   freeContainer.innerHTML=''; vipContainer.innerHTML='';
   const querySnapshot = await getDocs(collection(db,'movies'));
-  const userSnap = await getDoc(doc(db,'users',currentUser.uid));
-  const userData = userSnap.exists()?userSnap.data():{vip:false, vipExpiry:null};
-  const now = new Date();
   querySnapshot.forEach(docSnap=>{
     const data = docSnap.data();
     const card = document.createElement('div');
-    card.className='movie-card';
-    const vipActive = data.vip ? userData.vip && userData.vipExpiry && new Date(userData.vipExpiry) > now : true;
-    if(data.vip && !vipActive){
-      card.innerHTML=`<div class="movie-title">${data.name}</div><div class="vip-label">VIP Only</div>`;
+    card.dataset.title = data.name.toLowerCase();
+    if(data.vip){
+      card.className='movie-card vip-card';
+      card.innerHTML = `
+        <video src='${data.url}'></video>
+        <div class="movie-title">${data.name}</div>
+        <div class="vip-label">VIP</div>
+        <div class="lock">🔒</div>
+      `;
       vipContainer.appendChild(card);
-    } else if(data.vip){
-      card.innerHTML=`<video controls src='${data.url}'></video><div class="movie-title">${data.name}</div><div class="vip-label">VIP</div>`;
-      vipContainer.appendChild(card);
+      card.querySelector('.lock').onclick = ()=>{
+        alert('This is a VIP movie! Pay via WhatsApp to unlock.');
+      };
     } else{
+      card.className='movie-card';
       card.innerHTML=`<video controls src='${data.url}'></video><div class="movie-title">${data.name}</div>`;
       freeContainer.appendChild(card);
     }
   });
 }
 
-setTimeout(loadMovies,2000);
+// Search filter
+window.filterMovies = ()=>{
+  const keyword = document.getElementById('searchMovie').value.toLowerCase();
+  const freeContainer=document.getElementById('freeMovies');
+  const vipContainer=document.getElementById('vipMovies');
+  [...freeContainer.children, ...vipContainer.children].forEach(card=>{
+    card.style.display = card.dataset.title.includes(keyword)?'block':'none';
+  });
+};
+
+// Request movie via WhatsApp
+window.sendRequest = ()=>{
+  const movieName = document.getElementById('requestMovie').value.trim();
+  if(!movieName){ alert('Enter a movie name'); return; }
+  const phone = '256753747474';
+  const text = `Hello Admin, I want to request the movie: ${movieName}`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+  alert('Your request has been sent to WhatsApp!');
+  document.getElementById('requestMovie').value='';
+};
+
+setTimeout(loadMovies,1000);
 </script>
 </body>
 </html>
