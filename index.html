@@ -1,0 +1,122 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chris Movies</title>  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: white; }
+    header { background: #020617; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; color: #22c55e; }
+
+    .menu { cursor: pointer; font-size: 22px; }
+    .dropdown { position: absolute; right: 15px; top: 60px; background: #020617; border-radius: 10px; display: none; }
+    .dropdown button { display: block; width: 100%; background: none; color: white; border: none; padding: 10px; text-align: left; }
+
+    .page { display: none; padding: 20px; }
+    .active { display: block; }
+
+    .movies { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+    .movie-card { background: #020617; border-radius: 10px; padding: 10px; text-align: center; }
+    .vip { border: 2px solid gold; }
+
+    input { width: 100%; padding: 8px; margin-top: 10px; border-radius: 6px; border: none; }
+    button { margin-top: 8px; padding: 8px; border: none; border-radius: 6px; background: #22c55e; color: white; cursor: pointer; }
+
+    .switch-link { margin-top: 10px; color: #38bdf8; cursor: pointer; display: inline-block; }
+  </style></head><body>
+  <header>
+    <h1>🎬 Chris Movies</h1>
+    <div class="menu" onclick="toggleMenu()">⋮</div>
+    <div class="dropdown" id="menu">
+      <button onclick="showPage('moviesPage')">Home</button>
+      <button onclick="showPage('vipPage')">VIP</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>  <!-- REGISTER PAGE -->  <div id="registerPage" class="page active">
+    <h2>Create Account</h2>
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPass" placeholder="Password" />
+    <button onclick="register()">Register</button>
+    <div class="switch-link" onclick="showPage('loginPage')">Already have an account? Login</div>
+    <p id="regMsg"></p>
+  </div>  <!-- LOGIN PAGE -->  <div id="loginPage" class="page">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPass" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <div class="switch-link" onclick="showPage('registerPage')">Create new account</div>
+    <p id="loginMsg"></p>
+  </div>  <!-- MOVIES PAGE -->  <div id="moviesPage" class="page">
+    <h2>Free Movies</h2>
+    <div class="movies">
+      <div class="movie-card">Movie 1<br /><button>Watch</button></div>
+      <div class="movie-card">Movie 2<br /><button>Watch</button></div>
+    </div>
+  </div>  <!-- VIP PAGE -->  <div id="vipPage" class="page">
+    <h2>VIP Movies 🔒</h2>
+    <div class="movies" id="vipMovies"></div>
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+      authDomain: "chris-movies-7ba0f.firebaseapp.com",
+      projectId: "chris-movies-7ba0f",
+      storageBucket: "chris-movies-7ba0f.firebasestorage.app",
+      messagingSenderId: "867998448675",
+      appId: "1:867998448675:web:3166effb3c6c402ee78596",
+      measurementId: "G-257NKYSFTE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.showPage = function(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    };
+
+    window.toggleMenu = function() {
+      const menu = document.getElementById('menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    };
+
+    window.register = async function() {
+      const email = document.getElementById('regEmail').value;
+      const pass = document.getElementById('regPass').value;
+      const msg = document.getElementById('regMsg');
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        msg.textContent = "Account created!";
+        showPage('moviesPage');
+      } catch (e) {
+        msg.textContent = e.message;
+      }
+    };
+
+    window.login = async function() {
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPass').value;
+      const msg = document.getElementById('loginMsg');
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        msg.textContent = "Login successful!";
+        showPage('moviesPage');
+      } catch (e) {
+        msg.textContent = e.message;
+      }
+    };
+
+    window.logout = function() {
+      signOut(auth);
+      showPage('loginPage');
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (user) showPage('moviesPage');
+      else showPage('loginPage');
+    });
+  </script></body>
+  </html>
