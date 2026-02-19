@@ -5,38 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chris Movies</title>
 <style>
-body{margin:0;font-family:Arial;background:#141414;color:white}
+body{margin:0;font-family:Arial;background:#141414;color:white;}
 header{position:fixed;top:0;width:100%;height:60px;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 15px;z-index:1000;}
-.logo{color:#e50914;font-size:22px;font-weight:bold}
-.menu{font-size:28px;cursor:pointer;padding:5px 10px}
+.logo{color:#e50914;font-size:22px;font-weight:bold;}
+.menu{font-size:28px;cursor:pointer;padding:5px 10px;}
 
 /* Dropdown always visible */
 .dropdown{position:absolute;right:10px;top:60px;background:#222;border-radius:8px;overflow:hidden;display:block;}
-.dropdown button{background:none;border:none;color:white;padding:12px 20px;width:100%;text-align:left;cursor:pointer}
-.dropdown button:hover{background:#333}
+.dropdown button{background:none;border:none;color:white;padding:12px 20px;width:100%;text-align:left;cursor:pointer;}
+.dropdown button:hover{background:#333;}
 
-.top-search{margin-top:70px;padding:10px}
-.top-search input{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px}
+.top-search{margin-top:70px;padding:10px;}
+.top-search input{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px;}
 
-.hero{height:45vh;background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;display:flex;align-items:flex-end;padding:20px}
-.hero h1{margin:0;font-size:32px}
-section{padding:15px}
+.hero{height:45vh;background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;display:flex;align-items:flex-end;padding:20px;}
+.hero h1{margin:0;font-size:32px;}
+section{padding:15px;}
 
-.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-.movie-card{background:#222;border-radius:8px;overflow:hidden;position:relative;cursor:pointer;transition:transform 0.3s}
-.movie-card:hover{transform:scale(1.05)}
-.movie-card img{width:100%;height:200px;object-fit:cover}
+.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.movie-card{background:#222;border-radius:8px;overflow:hidden;position:relative;cursor:pointer;transition:transform 0.3s;}
+.movie-card:hover{transform:scale(1.05);}
+.movie-card img{width:100%;height:200px;object-fit:cover;}
 
-.vip-ball{position:absolute;top:8px;right:8px;width:25px;height:25px;background:gold;color:black;border-radius:50%;text-align:center;line-height:25px;font-weight:bold;font-size:12px;cursor:pointer;z-index:5}
+.vip-ball{position:absolute;top:8px;right:8px;width:25px;height:25px;background:gold;color:black;border-radius:50%;text-align:center;line-height:25px;font-weight:bold;font-size:12px;cursor:pointer;z-index:5;}
 
-.become-vip-ball{position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:gold;color:black;border-radius:50%;text-align:center;line-height:50px;font-weight:bold;font-size:18px;cursor:pointer;z-index:1001;display:flex;align-items:center;justify-content:center;}
+/* Become VIP floating ball always visible */
+.become-vip-ball{position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:gold;color:black;border-radius:50%;text-align:center;line-height:50px;font-weight:bold;font-size:18px;cursor:pointer;z-index:1001;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px #fff;}
 
-#adminPanel{display:none;background:#111;padding:20px;margin:20px;border-radius:10px;position:fixed;top:10%;left:50%;transform:translateX(-50%);z-index:1000;width:90%;max-width:400px}
+#adminPanel{display:none;background:#111;padding:20px;margin:20px;border-radius:10px;position:fixed;top:10%;left:50%;transform:translateX(-50%);z-index:1002;width:90%;max-width:400px;}
 
-.bar{display:flex;gap:10px;margin:15px 0}
-input,select,button{padding:10px;border:none;border-radius:6px}
-button{background:#e50914;color:white;cursor:pointer}
-.whatsapp{background:#25D366}
+.bar{display:flex;gap:10px;margin:15px 0;}
+input,select,button{padding:10px;border:none;border-radius:6px;}
+button{background:#e50914;color:white;cursor:pointer;}
+.whatsapp{background:#25D366;}
 </style>
 </head>
 <body>
@@ -45,7 +46,7 @@ button{background:#e50914;color:white;cursor:pointer}
   <div class="logo">Chris Movies</div>
   <div class="menu">⋮</div>
   <div class="dropdown">
-    <button onclick="openAdmin()">Admin Panel</button>
+    <button onclick="toggleAdminPanel()">Admin Panel</button>
   </div>
 </header>
 
@@ -75,14 +76,13 @@ button{background:#e50914;color:white;cursor:pointer}
 <div class="movies-grid" id="vip"></div>
 
 <!-- Become VIP Ball -->
-<div class="become-vip-ball" onclick="payVIP()">VIP</div>
-</section>
+<div class="become-vip-ball" onclick="openVIPPopup()">VIP</div>
 
 <!-- VIP Popup -->
-<div id="vipPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#222;padding:20px;border-radius:10px;z-index:1002;text-align:center;">
+<div id="vipPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#222;padding:20px;border-radius:10px;z-index:1003;text-align:center;">
 <h3>VIP Movie 🔒</h3>
-<p>Weekly: 6k</p>
-<p>Monthly: 25k</p>
+<p>Weekly: 6,000 UGX</p>
+<p>Monthly: 25,000 UGX</p>
 <p><a href="https://wa.me/256753747474" target="_blank" style="color:lime;">Request VIP on WhatsApp</a></p>
 <button onclick="document.getElementById('vipPopup').style.display='none'">Close</button>
 </div>
@@ -144,9 +144,9 @@ async function loadMovies(){
     const isVipActive = vipData.expiry && new Date(vipData.expiry) > new Date();
     if(m.vip==="true" && !isVipActive){
       const vipBall = document.createElement("div"); vipBall.className="vip-ball"; vipBall.innerText="i";
-      vipBall.onclick=(e)=>{ e.stopPropagation(); document.getElementById("vipPopup").style.display='block'; };
+      vipBall.onclick=(e)=>{ e.stopPropagation(); openVIPPopup(); };
       div.appendChild(vipBall);
-      div.onclick=()=>{ document.getElementById("vipPopup").style.display='block'; };
+      div.onclick=()=>{ openVIPPopup(); };
       vipDiv.appendChild(div);
     } else {
       div.onclick=()=>{ window.open(videoUrl,"_blank"); };
@@ -174,7 +174,7 @@ async function uploadMovie(){
   loadMovies();
 }
 
-// Generate VIP code
+// VIP
 async function createVIP(){
   const type = document.getElementById("vipType").value;
   const code = "VIP"+Math.floor(Math.random()*100000);
@@ -182,7 +182,6 @@ async function createVIP(){
   document.getElementById("msg").innerText="VIP code: "+code;
 }
 
-// Unlock VIP with expiry
 async function unlockVIP(){
   const codeInput = document.getElementById("vipCode").value;
   if(!codeInput) return alert("Enter VIP code");
@@ -198,9 +197,17 @@ async function unlockVIP(){
 }
 
 // Menu & WhatsApp
-function openAdmin(){ document.getElementById("adminPanel").style.display="block"; }
-function requestMovie(){ const name=document.getElementById("request").value; if(!name) return alert("Enter movie"); window.open("https://wa.me/256753747474?text=Request: "+name); }
-function payVIP(){ const plan=document.getElementById("vipPlan").value; window.open("https://wa.me/256753747474?text=Hello I want VIP "+plan); }
+function toggleAdminPanel(){ 
+  const panel=document.getElementById("adminPanel");
+  panel.style.display = panel.style.display==="block"?"none":"block"; 
+}
+function requestMovie(){ 
+  const name=document.getElementById("request").value; 
+  if(!name) return alert("Enter movie"); 
+  window.open("https://wa.me/256753747474?text=Request: "+name); 
+}
+function payVIP(){ window.open("https://wa.me/256753747474?text=Hello I want VIP"); }
+function openVIPPopup(){ document.getElementById("vipPopup").style.display='block'; }
 
 // Search
 document.getElementById("searchInput").addEventListener("input", async ()=>{
@@ -218,9 +225,9 @@ document.getElementById("searchInput").addEventListener("input", async ()=>{
     const isVipActive = vipData.expiry && new Date(vipData.expiry) > new Date();
     if(m.vip==="true" && !isVipActive){
       const vipBall=document.createElement("div"); vipBall.className="vip-ball"; vipBall.innerText="i";
-      vipBall.onclick=(e)=>{ e.stopPropagation(); document.getElementById("vipPopup").style.display='block'; };
+      vipBall.onclick=(e)=>{ e.stopPropagation(); openVIPPopup(); };
       div.appendChild(vipBall);
-      div.onclick=()=>{ document.getElementById("vipPopup").style.display='block'; };
+      div.onclick=()=>{ openVIPPopup(); };
       vipDiv.appendChild(div);
     } else {
       div.onclick=()=>{ window.open(videoUrl,"_blank"); };
@@ -232,4 +239,4 @@ document.getElementById("searchInput").addEventListener("input", async ()=>{
 loadMovies();
 </script>
 </body>
-</html>
+  </html>
