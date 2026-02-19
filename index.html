@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- all styles exactly as before (kept for brevity, but they are unchanged) ----- */
+    /* ----- all styles exactly as before ----- */
     * {
       margin: 0;
       padding: 0;
@@ -441,26 +441,26 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal (no code generator) -->
+<!-- Admin Modal – now with URL inputs instead of file uploads -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
-  <h3>🛠️ Admin Upload</h3>
-  <input type="file" id="poster" accept="image/*">
-  <input type="file" id="file" accept="video/*">
-  <input id="name" placeholder="Movie name">
+  <h3>🛠️ Add Movie</h3>
+  <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)">
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link)">
+  <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
     <option value="true">VIP</option>
   </select>
-  <button onclick="uploadMovie()">Upload Movie</button>
-  <!-- VIP code generation section completely removed -->
+  <button onclick="uploadMovie()">Add Movie</button>
+  <hr>
+  <p style="color:#aaa; font-size:14px;">Use direct links from any hosting (Google Drive, ImgBB, etc.)</p>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
@@ -473,14 +473,12 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const storage = getStorage(app);
 
   const freeDiv = document.getElementById("free");
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
 
-  // ---------- Helper: show toast ----------
   function showToast(msg) {
     toastDiv.innerText = msg;
     toastDiv.style.display = "block";
@@ -496,7 +494,6 @@
   }
   window.showToast = showToast;
 
-  // ---------- Check VIP status from localStorage ----------
   function isVipActive() {
     const data = localStorage.getItem("vipData");
     if (!data) return false;
@@ -508,7 +505,7 @@
     }
   }
 
-  // ---------- Load movies ----------
+  // Load movies from Firestore (direct URLs)
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -525,40 +522,28 @@
       showToast("This movie is not yet uploaded. You can request it!");
     }
 
-    const promises = filtered.map(async (movie) => {
-      try {
-        const posterUrl = await getDownloadURL(ref(storage, movie.poster));
-        const videoUrl = await getDownloadURL(ref(storage, movie.file));
-        return { ...movie, posterUrl, videoUrl };
-      } catch {
-        return null;
-      }
-    });
-
-    const movieCards = (await Promise.all(promises)).filter(m => m !== null);
-
-    for (const m of movieCards) {
+    for (const m of filtered) {
       const card = document.createElement("div");
       card.className = "movie-card";
-      card.innerHTML = `<img src="${m.posterUrl}" alt="${m.title}">`;
+      card.innerHTML = `<img src="${m.poster}" alt="${m.title}">`;
 
       if (m.vip === "true") {
         card.onclick = () => {
           if (isVipActive()) {
-            window.open(m.videoUrl, "_blank");
+            window.open(m.video, "_blank");
           } else {
             showToast("VIP movie! Tap the gold VIP button to buy access.");
           }
         };
         vipDiv.appendChild(card);
       } else {
-        card.onclick = () => window.open(m.videoUrl, "_blank");
+        card.onclick = () => window.open(m.video, "_blank");
         freeDiv.appendChild(card);
       }
     }
   }
 
-  // ---------- Admin login ----------
+  // Admin login
   window.adminLogin = function() {
     const password = prompt("Enter admin password:");
     if (password === "admin123") {
@@ -580,39 +565,42 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // ---------- Upload movie ----------
+  // Add movie using URLs
   window.uploadMovie = async function() {
-    const posterFile = document.getElementById("poster").files[0];
-    const videoFile = document.getElementById("file").files[0];
+    const posterUrl = document.getElementById("posterUrl").value.trim();
+    const videoUrl = document.getElementById("videoUrl").value.trim();
     const title = document.getElementById("name").value.trim();
     const vipStatus = document.getElementById("isVip").value;
 
-    if (!posterFile || !videoFile || !title) return showToast("Fill all fields");
+    if (!posterUrl || !videoUrl || !title) {
+      showToast("Please fill all fields");
+      return;
+    }
 
     try {
-      const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
-      await uploadBytes(posterRef, posterFile);
-
-      const videoRef = ref(storage, `movies/${Date.now()}_${videoFile.name}`);
-      await uploadBytes(videoRef, videoFile);
-
       await addDoc(collection(db, "movies"), {
         title: title,
-        poster: posterRef.fullPath,
-        file: videoRef.fullPath,
+        poster: posterUrl,
+        video: videoUrl,
         vip: vipStatus
       });
 
-      showToast("Movie uploaded successfully");
+      showToast("✅ Movie added successfully!");
       loadMovies(searchInput.value);
-    } catch (err) {
-      showToast("Upload failed: " + err.message);
+      
+      // Clear inputs
+      document.getElementById("posterUrl").value = "";
+      document.getElementById("videoUrl").value = "";
+      document.getElementById("name").value = "";
+    } catch (error) {
+      console.error("Error adding movie:", error);
+      showToast("❌ Error: " + error.message);
     }
   };
 
-  // ---------- Two master passwords: one for 7 days, one for 30 days ----------
-  const WEEKLY_CODE = "WEEK2025";   // <-- change to your preferred weekly password
-  const MONTHLY_CODE = "MONTH2025"; // <-- change to your preferred monthly password
+  // Two master passwords
+  const WEEKLY_CODE = "WEEK2025";
+  const MONTHLY_CODE = "MONTH2025";
 
   window.unlockVIP = async function() {
     const codeInput = document.getElementById("vipCode").value.trim();
@@ -621,31 +609,24 @@
     const expiry = new Date();
     if (codeInput === WEEKLY_CODE) {
       expiry.setDate(expiry.getDate() + 7);
-      localStorage.setItem("vipData", JSON.stringify({ 
-        code: codeInput, 
-        expiry: expiry.toISOString() 
-      }));
+      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
       showToast("VIP unlocked for 7 days! Enjoy.");
     } else if (codeInput === MONTHLY_CODE) {
       expiry.setDate(expiry.getDate() + 30);
-      localStorage.setItem("vipData", JSON.stringify({ 
-        code: codeInput, 
-        expiry: expiry.toISOString() 
-      }));
+      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
       showToast("VIP unlocked for 30 days! Enjoy.");
     } else {
       showToast("Incorrect VIP password. Get it via WhatsApp.");
     }
   };
 
-  // ---------- Request movie via WhatsApp ----------
   window.requestMovie = function() {
     const name = document.getElementById("request").value.trim();
     if (!name) return showToast("Enter movie name");
     window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
   };
 
-  // ---------- VIP Purchase Panel ----------
+  // VIP Purchase Panel
   const vipBall = document.getElementById("vipBall");
   const purchasePanel = document.getElementById("vipPurchasePanel");
   const vipOverlay = document.getElementById("vipOverlay");
@@ -681,7 +662,7 @@
     hidePurchasePanel();
   });
 
-  // ---------- Dropdown menu toggle ----------
+  // Dropdown
   const menuBtn = document.getElementById("menuBtn");
   const dropdown = document.getElementById("dropdownMenu");
 
@@ -696,7 +677,7 @@
     }
   });
 
-  // ---------- Search with debounce ----------
+  // Search
   let searchTimeout;
   searchInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);
@@ -705,9 +686,8 @@
     }, 300);
   });
 
-  // ---------- Initial load ----------
   loadMovies();
   window.loadMovies = loadMovies;
 </script>
 </body>
-</html>
+  </html>
