@@ -5,16 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chris Movies</title>
 <style>
-  body { margin:0; font-family:Arial,sans-serif; background-color:#141414; color:white; }
-  header { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:#1f1f1f; }
-  header h1 { color:red; margin:0; }
-  #searchBar { padding:5px 10px; border-radius:5px; border:none; width:200px; background:#333; color:white; }
-  #moviesGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; padding:10px; }
-  .movie { position:relative; cursor:pointer; border-radius:5px; overflow:hidden; }
-  .movie img { width:100%; display:block; }
-  .vip { position:absolute; top:5px; right:5px; background:gold; color:black; padding:2px 5px; border-radius:50%; font-size:12px; font-weight:bold; }
-  .vip-info { position:absolute; bottom:5px; right:5px; width:20px; height:20px; background:gold; border-radius:50%; text-align:center; line-height:20px; font-weight:bold; cursor:pointer; font-size:12px; }
-  #adminBtn { cursor:pointer; color:white; font-size:20px; }
+body { margin:0; font-family: Arial, sans-serif; background: #141414; color:white; }
+header { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:#1f1f1f; position:fixed; top:0; width:100%; z-index:100; }
+header h1 { color:red; margin:0; font-size:22px; }
+#searchBar { padding:5px 10px; border-radius:5px; border:none; width:200px; background:#333; color:white; }
+#adminBtn { font-size:28px; cursor:pointer; padding:5px; }
+#moviesGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; padding:80px 10px 10px 10px; }
+
+/* Movie card style */
+.movie { position:relative; border-radius:10px; overflow:hidden; cursor:pointer; transition: transform 0.3s; }
+.movie img { width:100%; height:220px; object-fit:cover; display:block; }
+.movie:hover { transform: scale(1.05); }
+.overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; font-size:30px; color:white; opacity:0; transition:opacity 0.3s; }
+.movie:hover .overlay { opacity:1; }
+
+/* VIP ball */
+.vip { position:absolute; top:8px; right:8px; width:25px; height:25px; background:gold; color:black; border-radius:50%; text-align:center; line-height:25px; font-weight:bold; font-size:12px; cursor:pointer; z-index:5; }
+
+/* Admin panel */
+#adminPanel { display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#222; padding:20px; border-radius:10px; z-index:1000; width:90%; max-width:400px; }
+#adminPanel input, #adminPanel button { width:100%; padding:10px; margin:5px 0; border:none; border-radius:5px; }
+#adminPanel button { background:red; color:white; font-weight:bold; cursor:pointer; }
+
+/* VIP popup */
+#vipPopup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:20px; border-radius:10px; z-index:1001; text-align:center; }
+#vipPopup a { color:lime; text-decoration:none; font-weight:bold; }
+
 </style>
 </head>
 <body>
@@ -27,19 +43,18 @@
 
 <div id="moviesGrid"></div>
 
-<!-- VIP payment info -->
-<div id="vipPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:20px; border-radius:10px; z-index:100;">
-  <h3>VIP Plans</h3>
+<!-- VIP Popup -->
+<div id="vipPopup">
+  <h3>VIP Movie 🔒</h3>
   <p>Weekly: 6k</p>
   <p>Monthly: 25k</p>
-  <p><a href="https://wa.me/256753747474" target="_blank" style="color:lime;">Request VIP on WhatsApp</a></p>
+  <p><a href="https://wa.me/256753747474" target="_blank">Request VIP on WhatsApp</a></p>
   <button onclick="document.getElementById('vipPopup').style.display='none'">Close</button>
 </div>
 
-<!-- Admin panel (hidden) -->
-<div id="adminPanel" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#222; padding:20px; border-radius:10px; z-index:100;">
+<!-- Admin Panel -->
+<div id="adminPanel">
   <h3>Admin Panel</h3>
-  <p>Password protected:</p>
   <input type="password" id="adminPass" placeholder="Enter password">
   <button onclick="checkAdmin()">Login</button>
   <div id="adminContent" style="display:none; margin-top:10px;">
@@ -49,79 +64,94 @@
   <button onclick="document.getElementById('adminPanel').style.display='none'">Close</button>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-  import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
-    authDomain: "chris-movies-7ba0f.firebaseapp.com",
-    projectId: "chris-movies-7ba0f",
-    storageBucket: "chris-movies-7ba0f.appspot.com",
-    messagingSenderId: "867998448675",
-    appId: "1:867998448675:web:3166effb3c6c402ee78596",
-    measurementId: "G-257NKYSFTE"
-  };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+  authDomain: "chris-movies-7ba0f.firebaseapp.com",
+  projectId: "chris-movies-7ba0f",
+  storageBucket: "chris-movies-7ba0f.appspot.com",
+  messagingSenderId: "867998448675",
+  appId: "1:867998448675:web:3166effb3c6c402ee78596",
+  measurementId: "G-257NKYSFTE"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-  const moviesGrid = document.getElementById("moviesGrid");
-  const searchBar = document.getElementById("searchBar");
+const moviesGrid = document.getElementById("moviesGrid");
+const searchBar = document.getElementById("searchBar");
+const vipPopup = document.getElementById("vipPopup");
 
-  // Load movies from Firestore
-  async function loadMovies() {
-    moviesGrid.innerHTML = "";
-    const querySnapshot = await getDocs(collection(db, "movies"));
-    querySnapshot.forEach(async (doc) => {
-      const data = doc.data();
-      const movieUrl = await getDownloadURL(ref(storage, data.filePath));
-      const movieDiv = document.createElement("div");
-      movieDiv.classList.add("movie");
-      movieDiv.innerHTML = `
-        <img src="${data.thumbnail}" alt="${data.title}">
-        ${data.vip ? '<div class="vip">VIP</div><div class="vip-info" title="VIP Movie">i</div>' : ''}
-      `;
-      movieDiv.onclick = () => {
-        if(data.vip){
-          document.getElementById('vipPopup').style.display='block';
-        } else {
-          window.open(movieUrl, "_blank");
-        }
-      };
-      moviesGrid.appendChild(movieDiv);
-    });
-  }
-
-  loadMovies();
-
-  // Search
-  searchBar.addEventListener("input", () => {
-    const filter = searchBar.value.toLowerCase();
-    document.querySelectorAll(".movie").forEach(div => {
-      const title = div.querySelector("img").alt.toLowerCase();
-      div.style.display = title.includes(filter) ? "block" : "none";
-    });
+// Load movies from Firestore
+let allMovies = [];
+async function loadMovies() {
+  moviesGrid.innerHTML = "";
+  const snap = await getDocs(collection(db, "movies"));
+  allMovies = [];
+  snap.forEach(doc => {
+    const m = doc.data();
+    allMovies.push(m);
+    createMovieCard(m);
   });
+}
 
-  // Admin panel toggle
-  document.getElementById("adminBtn").onclick = () => {
-    document.getElementById("adminPanel").style.display = "block";
-  };
-
-  function checkAdmin(){
-    const pass = document.getElementById("adminPass").value;
-    if(pass === "Admin123"){ // change to your password
-      document.getElementById("adminContent").style.display = "block";
-      alert("Welcome Admin");
-    } else {
-      alert("Wrong password");
+function createMovieCard(m) {
+  getDownloadURL(ref(storage, m.filePath)).then(url => {
+    const card = document.createElement("div");
+    card.classList.add("movie");
+    card.innerHTML = `
+      <img src="${m.thumbnail}" alt="${m.title}">
+      <div class="overlay">▶</div>
+      ${m.vip ? '<div class="vip">i</div>' : ''}
+    `;
+    // Play movie or show VIP
+    card.onclick = (e) => {
+      if(m.vip){
+        vipPopup.style.display='block';
+      } else {
+        window.open(url, "_blank");
+      }
     }
+    // VIP ball click
+    const vipBall = card.querySelector(".vip");
+    if(vipBall){
+      vipBall.onclick = (e)=>{
+        e.stopPropagation();
+        vipPopup.style.display='block';
+      }
+    }
+    moviesGrid.appendChild(card);
+  });
+}
+
+// Search filter
+searchBar.addEventListener("input", ()=>{
+  const q = searchBar.value.toLowerCase();
+  moviesGrid.innerHTML = "";
+  allMovies.filter(m=>m.title.toLowerCase().includes(q)).forEach(createMovieCard);
+});
+
+loadMovies();
+
+// Admin panel toggle
+const adminBtn = document.getElementById("adminBtn");
+const adminPanel = document.getElementById("adminPanel");
+adminBtn.onclick = ()=>{ adminPanel.style.display='block'; }
+function checkAdmin(){
+  const pass = document.getElementById("adminPass").value;
+  if(pass === "Admin123"){ // Change to your password
+    document.getElementById("adminContent").style.display='block';
+    alert("Welcome Admin");
+  } else {
+    alert("Wrong password");
   }
+}
 </script>
 
 </body>
