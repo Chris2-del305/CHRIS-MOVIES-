@@ -1,212 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chris Movies</title>
-
 <style>
-body{margin:0;font-family:Arial;background:#141414;color:white}
-
-/* HEADER */
-header{
-  position:fixed;top:0;width:100%;height:60px;background:#000;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 15px;z-index:1000;
-}
-.logo{color:#e50914;font-size:22px;font-weight:bold}
-.menu{font-size:26px;cursor:pointer}
-
-/* SEARCH */
-#search{
-  margin-top:60px;
-  width:100%;padding:12px;border:none;outline:none;
-  background:#222;color:white;font-size:16px;
-}
-
-/* MOVIES */
-section{padding:15px}
-.movies-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:12px;
-}
-.movie-card{
-  position:relative;border-radius:10px;overflow:hidden;background:#222;
-}
-.movie-card img{width:100%;height:220px;object-fit:cover}
-.play{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.6);font-size:30px;opacity:0;transition:0.3s;
-}
-.movie-card:hover .play{opacity:1}
-
-/* VIP */
-.lock{
-  position:absolute;top:8px;right:8px;background:red;
-  padding:4px 6px;border-radius:6px;font-size:12px;
-}
-
-/* ADMIN */
-#adminPanel{
-  display:none;background:#111;padding:15px;margin:15px;border-radius:10px;
-}
-input,button,select{
-  width:100%;padding:10px;margin:6px 0;border:none;border-radius:6px;
-}
-button{background:#e50914;color:white;font-weight:bold}
-
-/* PLAYER */
-#player{
-  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-  background:black;align-items:center;justify-content:center;z-index:2000;
-}
-#player video{width:100%;max-height:100%}
+  body { margin:0; font-family:Arial,sans-serif; background-color:#141414; color:white; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:#1f1f1f; }
+  header h1 { color:red; margin:0; }
+  #searchBar { padding:5px 10px; border-radius:5px; border:none; width:200px; background:#333; color:white; }
+  #moviesGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; padding:10px; }
+  .movie { position:relative; cursor:pointer; border-radius:5px; overflow:hidden; }
+  .movie img { width:100%; display:block; }
+  .vip { position:absolute; top:5px; right:5px; background:gold; color:black; padding:2px 5px; border-radius:50%; font-size:12px; font-weight:bold; }
+  .vip-info { position:absolute; bottom:5px; right:5px; width:20px; height:20px; background:gold; border-radius:50%; text-align:center; line-height:20px; font-weight:bold; cursor:pointer; font-size:12px; }
+  #adminBtn { cursor:pointer; color:white; font-size:20px; }
 </style>
 </head>
-
 <body>
 
 <header>
-  <div class="logo">Chris Movies</div>
-  <div class="menu" onclick="toggleAdmin()">⋮</div>
+  <h1>Chris Movies</h1>
+  <input type="text" id="searchBar" placeholder="Search movie...">
+  <div id="adminBtn">⋮</div>
 </header>
 
-<input id="search" placeholder="Search movie..." onkeyup="searchMovie()">
+<div id="moviesGrid"></div>
 
-<section>
-  <div class="movies-grid" id="movies"></div>
-</section>
-
-<!-- PLAYER -->
-<div id="player" onclick="closePlayer()">
-  <video controls id="videoPlayer"></video>
+<!-- VIP payment info -->
+<div id="vipPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#222; padding:20px; border-radius:10px; z-index:100;">
+  <h3>VIP Plans</h3>
+  <p>Weekly: 6k</p>
+  <p>Monthly: 25k</p>
+  <p><a href="https://wa.me/256753747474" target="_blank" style="color:lime;">Request VIP on WhatsApp</a></p>
+  <button onclick="document.getElementById('vipPopup').style.display='none'">Close</button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-<h3>Upload Movie</h3>
-
-<input type="password" id="pass" placeholder="Admin password">
-<input type="text" id="name" placeholder="Movie name">
-<input type="file" id="poster" accept="image/*">
-<input type="file" id="file" accept="video/*">
-
-<select id="vip">
-<option value="no">Free Movie</option>
-<option value="yes">VIP Movie</option>
-</select>
-
-<button onclick="uploadMovie()">Upload Movie</button>
-<p id="msg"></p>
+<!-- Admin panel (hidden) -->
+<div id="adminPanel" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#222; padding:20px; border-radius:10px; z-index:100;">
+  <h3>Admin Panel</h3>
+  <p>Password protected:</p>
+  <input type="password" id="adminPass" placeholder="Enter password">
+  <button onclick="checkAdmin()">Login</button>
+  <div id="adminContent" style="display:none; margin-top:10px;">
+    <p>Upload movies via Firebase console</p>
+    <p>Manage VIP users</p>
+  </div>
+  <button onclick="document.getElementById('adminPanel').style.display='none'">Close</button>
 </div>
 
-<!-- FIREBASE -->
+<!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
-  authDomain: "chris-movies-7ba0f.firebaseapp.com",
-  projectId: "chris-movies-7ba0f",
-  storageBucket: "chris-movies-7ba0f.appspot.com",
-  messagingSenderId: "867998448675",
-  appId: "1:867998448675:web:3166effb3c6c402ee78596"
-};
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+    authDomain: "chris-movies-7ba0f.firebaseapp.com",
+    projectId: "chris-movies-7ba0f",
+    storageBucket: "chris-movies-7ba0f.appspot.com",
+    messagingSenderId: "867998448675",
+    appId: "1:867998448675:web:3166effb3c6c402ee78596",
+    measurementId: "G-257NKYSFTE"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-const ADMIN="1234";
+  const moviesGrid = document.getElementById("moviesGrid");
+  const searchBar = document.getElementById("searchBar");
 
-/* ADMIN TOGGLE */
-window.toggleAdmin=()=>{
- adminPanel.style.display =
-  adminPanel.style.display==="block"?"none":"block";
-};
+  // Load movies from Firestore
+  async function loadMovies() {
+    moviesGrid.innerHTML = "";
+    const querySnapshot = await getDocs(collection(db, "movies"));
+    querySnapshot.forEach(async (doc) => {
+      const data = doc.data();
+      const movieUrl = await getDownloadURL(ref(storage, data.filePath));
+      const movieDiv = document.createElement("div");
+      movieDiv.classList.add("movie");
+      movieDiv.innerHTML = `
+        <img src="${data.thumbnail}" alt="${data.title}">
+        ${data.vip ? '<div class="vip">VIP</div><div class="vip-info" title="VIP Movie">i</div>' : ''}
+      `;
+      movieDiv.onclick = () => {
+        if(data.vip){
+          document.getElementById('vipPopup').style.display='block';
+        } else {
+          window.open(movieUrl, "_blank");
+        }
+      };
+      moviesGrid.appendChild(movieDiv);
+    });
+  }
 
-/* UPLOAD */
-window.uploadMovie=async()=>{
- if(pass.value!==ADMIN) return alert("Wrong password");
+  loadMovies();
 
- const video=file.files[0];
- const posterImg=poster.files[0];
- const movieName=name.value;
- const isVip=vip.value==="yes";
+  // Search
+  searchBar.addEventListener("input", () => {
+    const filter = searchBar.value.toLowerCase();
+    document.querySelectorAll(".movie").forEach(div => {
+      const title = div.querySelector("img").alt.toLowerCase();
+      div.style.display = title.includes(filter) ? "block" : "none";
+    });
+  });
 
- if(!video||!posterImg||!movieName) return alert("Fill all fields");
+  // Admin panel toggle
+  document.getElementById("adminBtn").onclick = () => {
+    document.getElementById("adminPanel").style.display = "block";
+  };
 
- msg.innerText="Uploading...";
-
- const vRef=ref(storage,"movies/"+Date.now()+video.name);
- await uploadBytes(vRef,video);
- const videoURL=await getDownloadURL(vRef);
-
- const pRef=ref(storage,"posters/"+Date.now()+posterImg.name);
- await uploadBytes(pRef,posterImg);
- const posterURL=await getDownloadURL(pRef);
-
- await addDoc(collection(db,"movies"),{
-   name:movieName,
-   url:videoURL,
-   poster:posterURL,
-   vip:isVip
- });
-
- msg.innerText="✅ Uploaded!";
- loadMovies();
-};
-
-/* LOAD MOVIES */
-let allMovies=[];
-
-async function loadMovies(){
- const snap=await getDocs(collection(db,"movies"));
- movies.innerHTML="";
- allMovies=[];
-
- snap.forEach(doc=>{
-   const m=doc.data();
-   allMovies.push(m);
-   drawMovie(m);
- });
-}
-
-function drawMovie(m){
- movies.innerHTML+=`
-  <div class="movie-card" onclick="playMovie('${m.url}',${m.vip})">
-    <img src="${m.poster}">
-    ${m.vip?'<div class="lock">VIP</div>':""}
-    <div class="play">▶</div>
-  </div>`;
-}
-
-/* PLAY */
-window.playMovie=(url,vip)=>{
- if(vip){
-   alert("VIP movie 🔒\nPay on WhatsApp: 0753747474");
-   return;
- }
- videoPlayer.src=url;
- player.style.display="flex";
-};
-
-window.closePlayer=()=>{
- player.style.display="none";
- videoPlayer.pause();
-};
-
-/* SEARCH */
-window.searchMovie=()=>{
- const q=search.value.toLowerCase();
- movies.innerHTML="";
- allMovies.filter(m=>m.name.toLowerCase().includes(q)).forEach(drawMovie);
-};
-
-loadMovies();
+  function checkAdmin(){
+    const pass = document.getElementById("adminPass").value;
+    if(pass === "Admin123"){ // change to your password
+      document.getElementById("adminContent").style.display = "block";
+      alert("Welcome Admin");
+    } else {
+      alert("Wrong password");
+    }
+  }
 </script>
 
 </body>
