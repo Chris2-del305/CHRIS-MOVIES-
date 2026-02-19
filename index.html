@@ -1,169 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chris Movies</title>
-<style>
-body{margin:0;font-family:Arial;background:#141414;color:white}
-
-/* HEADER */
-header{
-  position:fixed;
-  top:0;
-  width:100%;
-  height:60px;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 15px;
-  z-index:1000;
-}
-
-.logo{color:#e50914;font-size:22px;font-weight:bold}
-
-/* THREE DOTS */
-.menu{
-  font-size:28px;
-  cursor:pointer;
-  padding:5px 10px;
-}
-
-/* DROPDOWN */
-.dropdown{
-  position:absolute;
-  right:10px;
-  top:60px;
-  background:#222;
-  border-radius:8px;
-  display:block;
-  overflow:hidden;
-}
-
-.dropdown button{
-  background:none;
-  border:none;
-  color:white;
-  padding:12px 20px;
-  width:100%;
-  text-align:left;
-  cursor:pointer;
-}
-
-.dropdown button:hover{background:#333}
-
-/* SEARCH BAR TOP */
-.top-search{
-  margin-top:70px;
-  padding:10px;
-}
-
-.top-search input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  font-size:16px;
-}
-
-/* HERO */
-.hero{
-  height:45vh;
-  background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;
-  display:flex;
-  align-items:flex-end;
-  padding:20px;
-}
-
-.hero h1{margin:0;font-size:32px}
-
-/* CONTENT */
-section{padding:15px}
-.movies-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:12px;
-  position:relative;
-}
-
-.movie-card{
-  background:#222;
-  border-radius:8px;
-  overflow:hidden;
-  position:relative;
-  cursor:pointer;
-}
-
-.movie-card img{width:100%;height:200px;object-fit:cover}
-.movie-card video{width:100%}
-
-/* SINGLE VIP BALL */
-#vipBall{
-  position:absolute;
-  top:-20px;
-  right:10px;
-  width:50px;
-  height:50px;
-  background:gold;
-  color:black;
-  font-weight:bold;
-  font-size:14px;
-  border-radius:50%;
-  text-align:center;
-  line-height:50px;
-  cursor:pointer;
-  box-shadow:0 0 10px gold;
-  z-index:1000;
-}
-
-/* BARS */
-.bar{display:flex;gap:10px;margin:15px 0}
-input,select,button{padding:10px;border:none;border-radius:6px}
-button{background:#e50914;color:white;cursor:pointer}
-.whatsapp{background:#25D366}
-
-/* ADMIN PANEL */
-#adminPanel{
-  display:none;
-  background:#111;
-  padding:20px;
-  margin:20px;
-  border-radius:10px;
-}
-
-/* TOAST MESSAGE */
-#toast{
-  position:fixed;
-  bottom:50px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.8);
-  color:white;
-  padding:12px 20px;
-  border-radius:25px;
-  font-size:14px;
-  display:none;
-  z-index:1005;
-  text-align:center;
-  box-shadow:0 2px 8px rgba(0,0,0,0.7);
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chris Movies</title>
+  <style>
+    /* (your existing styles - keep them exactly as you had) */
+    body{margin:0;font-family:Arial;background:#141414;color:white}
+    header{
+      position:fixed; top:0; width:100%; height:60px; background:#000;
+      display:flex; align-items:center; justify-content:space-between; padding:0 15px; z-index:1000;
+    }
+    .logo{color:#e50914;font-size:22px;font-weight:bold}
+    .menu{font-size:28px;cursor:pointer;padding:5px 10px;}
+    .dropdown{
+      position:absolute; right:10px; top:60px; background:#222; border-radius:8px;
+      display:none; overflow:hidden; z-index:1001;
+    }
+    .dropdown button{
+      background:none; border:none; color:white; padding:12px 20px;
+      width:100%; text-align:left; cursor:pointer;
+    }
+    .dropdown button:hover{background:#333}
+    .top-search{margin-top:70px;padding:10px;}
+    .top-search input{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px;}
+    .hero{
+      height:45vh; background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;
+      display:flex; align-items:flex-end; padding:20px;
+    }
+    .hero h1{margin:0;font-size:32px}
+    section{padding:15px}
+    .movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+    .movie-card{background:#222;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+    .movie-card:hover{transform:scale(1.05);}
+    .movie-card img{width:100%;height:200px;object-fit:cover}
+    .movie-card video{width:100%}
+    #vipBall{
+      position:absolute; top:-20px; right:10px; width:50px; height:50px; background:gold;
+      color:black; font-weight:bold; font-size:14px; border-radius:50%; text-align:center;
+      line-height:50px; cursor:pointer; box-shadow:0 0 10px gold; z-index:1000;
+    }
+    .bar{display:flex;gap:10px;margin:15px 0}
+    input,select,button{padding:10px;border:none;border-radius:6px}
+    button{background:#e50914;color:white;cursor:pointer}
+    .whatsapp{background:#25D366}
+    #adminPanel{display:none;background:#111;padding:20px;margin:20px;border-radius:10px;}
+    #toast{
+      position:fixed; bottom:50px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.8); color:white; padding:12px 20px; border-radius:25px;
+      font-size:14px; display:none; z-index:1005; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.7);
+    }
+  </style>
 </head>
-
 <body>
 
 <header>
   <div class="logo">Chris Movies</div>
-
-  <div class="menu">⋮</div>
-
-  <div class="dropdown">
+  <div class="menu" id="menuBtn">⋮</div>
+  <div class="dropdown" id="dropdownMenu">
     <button onclick="toggleAdminPanel()">Admin Panel</button>
   </div>
 </header>
 
-<!-- SEARCH -->
 <div class="top-search">
   <input id="searchInput" placeholder="Search movies...">
 </div>
@@ -173,56 +71,44 @@ button{background:#e50914;color:white;cursor:pointer}
 </div>
 
 <section>
+  <div class="bar">
+    <input id="request" placeholder="Request a movie">
+    <button class="whatsapp" onclick="requestMovie()">Request</button>
+  </div>
+  <div class="bar">
+    <input id="vipCode" placeholder="Enter VIP code">
+    <button onclick="unlockVIP()">Unlock VIP</button>
+  </div>
 
-<div class="bar">
-  <input id="request" placeholder="Request a movie">
-  <button class="whatsapp" onclick="requestMovie()">Request</button>
-</div>
+  <h2>Free Movies</h2>
+  <div class="movies-grid" id="free"></div>
 
-<div class="bar">
-  <input id="vipCode" placeholder="Enter VIP code">
-  <button onclick="unlockVIP()">Unlock VIP</button>
-</div>
-
-<h2>Free Movies</h2>
-<div class="movies-grid" id="free"></div>
-
-<h2 style="position:relative;">VIP Movies 🔒
-  <div id="vipBall">VIP</div>
-</h2>
-<div class="movies-grid" id="vip"></div>
-
+  <h2 style="position:relative;">VIP Movies 🔒
+    <div id="vipBall">VIP</div>
+  </h2>
+  <div class="movies-grid" id="vip"></div>
 </section>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel">
   <h2>Admin Upload</h2>
-
   <input type="password" id="pass" placeholder="Admin password"><br><br>
-  <input type="file" id="poster"><br><br>
-  <input type="file" id="file"><br><br>
+  <input type="file" id="poster" accept="image/*"><br><br>
+  <input type="file" id="file" accept="video/*"><br><br>
   <input id="name" placeholder="Movie name"><br><br>
-
   <select id="isVip">
     <option value="false">Free</option>
     <option value="true">VIP</option>
   </select><br><br>
-
   <button onclick="uploadMovie()">Upload Movie</button>
-
   <hr>
-
   <h3>Create VIP Code</h3>
   <select id="vipType">
-    <option value="7">Weekly</option>
-    <option value="30">Monthly</option>
+    <option value="7">Weekly (7 days)</option>
+    <option value="30">Monthly (30 days)</option>
   </select><br><br>
-
   <button onclick="createVIP()">Generate VIP Code</button>
-
   <p id="msg"></p>
 </div>
 
@@ -233,160 +119,230 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 
 // Firebase config
 const firebaseConfig = {
-  apiKey:"AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
-  authDomain:"chris-movies-7ba0f.firebaseapp.com",
-  projectId:"chris-movies-7ba0f",
-  storageBucket:"chris-movies-7ba0f.appspot.com",
-  messagingSenderId:"867998448675",
-  appId:"1:867998448675:web:3166effb3c6c402ee78596"
+  apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+  authDomain: "chris-movies-7ba0f.firebaseapp.com",
+  projectId: "chris-movies-7ba0f",
+  storageBucket: "chris-movies-7ba0f.appspot.com",
+  messagingSenderId: "867998448675",
+  appId: "1:867998448675:web:3166effb3c6c402ee78596"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const freeDiv=document.getElementById("free");
-const vipDiv=document.getElementById("vip");
+const freeDiv = document.getElementById("free");
+const vipDiv = document.getElementById("vip");
+const searchInput = document.getElementById("searchInput");
+const toastDiv = document.getElementById("toast");
 
-// Load movies from Firebase
-async function loadMovies(){
-  freeDiv.innerHTML="";
-  vipDiv.innerHTML="";
+// ---------- Helper: show toast ----------
+function showToast(msg) {
+  toastDiv.innerText = msg;
+  toastDiv.style.display = "block";
+  toastDiv.style.opacity = "1";
+  setTimeout(() => {
+    toastDiv.style.transition = "opacity 0.5s";
+    toastDiv.style.opacity = "0";
+    setTimeout(() => {
+      toastDiv.style.display = "none";
+      toastDiv.style.transition = "";
+    }, 500);
+  }, 3000);
+}
+window.showToast = showToast; // make global for inline handlers
 
-  const snap = await getDocs(collection(db,"movies"));
-  let vipExists=false;
-  snap.forEach(async docSnap=>{
-    const m = docSnap.data();
-    const posterUrl = await getDownloadURL(ref(storage,m.poster));
-    const videoUrl = await getDownloadURL(ref(storage,m.file));
+// ---------- Check VIP status from localStorage ----------
+function isVipActive() {
+  const data = localStorage.getItem("vipData");
+  if (!data) return false;
+  try {
+    const { expiry } = JSON.parse(data);
+    return new Date(expiry) > new Date();
+  } catch {
+    return false;
+  }
+}
 
-    const div = document.createElement("div");
-    div.className="movie-card";
-    div.innerHTML = `<img src="${posterUrl}">`;
+// ---------- Load movies with proper async handling ----------
+async function loadMovies(filterTitle = "") {
+  freeDiv.innerHTML = "";
+  vipDiv.innerHTML = "";
 
-    if(m.vip==="true"){
-      div.onclick=()=>{ showToast("VIP movie! Unlock via WhatsApp or VIP code"); };
-      vipDiv.appendChild(div);
-      vipExists=true;
+  const querySnapshot = await getDocs(collection(db, "movies"));
+  const movies = [];
+
+  // First collect all movie data
+  querySnapshot.forEach(doc => {
+    movies.push({ id: doc.id, ...doc.data() });
+  });
+
+  // Filter by title if needed
+  const filtered = filterTitle
+    ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
+    : movies;
+
+  if (filterTitle && filtered.length === 0) {
+    showToast("This movie is not yet uploaded. You can request it!");
+  }
+
+  // Process each movie: get poster and video URLs concurrently
+  const promises = filtered.map(async (movie) => {
+    try {
+      const posterUrl = await getDownloadURL(ref(storage, movie.poster));
+      const videoUrl = await getDownloadURL(ref(storage, movie.file));
+      return { ...movie, posterUrl, videoUrl };
+    } catch (err) {
+      console.warn("Error loading movie", movie.title, err);
+      return null;
+    }
+  });
+
+  const movieCards = (await Promise.all(promises)).filter(m => m !== null);
+
+  // Render cards
+  for (const m of movieCards) {
+    const card = document.createElement("div");
+    card.className = "movie-card";
+    card.innerHTML = `<img src="${m.posterUrl}" alt="${m.title}">`;
+
+    if (m.vip === "true") {
+      // VIP movie: check if unlocked
+      card.onclick = () => {
+        if (isVipActive()) {
+          window.open(m.videoUrl, "_blank");
+        } else {
+          showToast("VIP movie! Unlock via WhatsApp or enter VIP code");
+        }
+      };
+      vipDiv.appendChild(card);
     } else {
-      div.onclick=()=>{ window.open(videoUrl,"_blank"); };
-      freeDiv.appendChild(div);
+      card.onclick = () => window.open(m.videoUrl, "_blank");
+      freeDiv.appendChild(card);
     }
-  });
+  }
 }
 
-// Admin Panel
-const ADMIN="admin123";
-function toggleAdminPanel(){
-  const panel=document.getElementById("adminPanel");
-  panel.style.display=panel.style.display==="block"?"none":"block";
-}
+// ---------- Admin Panel toggle ----------
+window.toggleAdminPanel = function() {
+  const panel = document.getElementById("adminPanel");
+  panel.style.display = panel.style.display === "block" ? "none" : "block";
+  // Hide dropdown after clicking
+  document.getElementById("dropdownMenu").style.display = "none";
+};
 
-// Admin upload
-async function uploadMovie(){
-  if(document.getElementById("pass").value!==ADMIN){ return showToast("Wrong admin password"); }
+// ---------- Upload movie ----------
+window.uploadMovie = async function() {
+  const pass = document.getElementById("pass").value;
+  if (pass !== "admin123") return showToast("Wrong admin password");
 
-  const posterFile=document.getElementById("poster").files[0];
-  const videoFile=document.getElementById("file").files[0];
-  const title=document.getElementById("name").value;
-  const vipStatus=document.getElementById("isVip").value;
+  const posterFile = document.getElementById("poster").files[0];
+  const videoFile = document.getElementById("file").files[0];
+  const title = document.getElementById("name").value.trim();
+  const vipStatus = document.getElementById("isVip").value;
 
-  if(!posterFile||!videoFile||!title) return showToast("Fill all fields");
+  if (!posterFile || !videoFile || !title) return showToast("Fill all fields");
 
-  const posterRef = ref(storage, `posters/${posterFile.name}`);
-  await uploadBytes(posterRef,posterFile);
+  try {
+    // Upload poster
+    const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
+    await uploadBytes(posterRef, posterFile);
 
-  const videoRef = ref(storage, `movies/${videoFile.name}`);
-  await uploadBytes(videoRef,videoFile);
+    // Upload video
+    const videoRef = ref(storage, `movies/${Date.now()}_${videoFile.name}`);
+    await uploadBytes(videoRef, videoFile);
 
-  await addDoc(collection(db,"movies"),{
-    title:title,
-    poster:`posters/${posterFile.name}`,
-    file:`movies/${videoFile.name}`,
-    vip:vipStatus
-  });
-
-  showToast("Movie uploaded successfully");
-  loadMovies();
-}
-
-// VIP codes
-function createVIP(){
-  const type=document.getElementById("vipType").value;
-  const code="VIP"+Math.floor(Math.random()*90000+10000);
-  addDoc(collection(db,"vipCodes"),{code:code,type:type,expiry:null});
-  document.getElementById("msg").innerText=`VIP Code: ${code}`;
-}
-
-// Unlock VIP
-function unlockVIP(){
-  const codeInput=document.getElementById("vipCode").value.trim();
-  if(!codeInput) return showToast("Enter VIP code");
-
-  getDocs(query(collection(db,"vipCodes"),where("code","==",codeInput))).then(snap=>{
-    if(snap.empty){ return showToast("Invalid VIP code"); }
-    snap.forEach(docSnap=>{
-      const type=docSnap.data().type;
-      const expiry=new Date();
-      expiry.setDate(expiry.getDate()+parseInt(type));
-      localStorage.setItem("vipData",JSON.stringify({code:codeInput,expiry:expiry}));
-      showToast("VIP unlocked!");
+    // Save to Firestore
+    await addDoc(collection(db, "movies"), {
+      title: title,
+      poster: posterRef.fullPath,
+      file: videoRef.fullPath,
+      vip: vipStatus
     });
-  });
-}
 
-// Request movie
-function requestMovie(){
-  const name=document.getElementById("request").value;
-  if(!name) return showToast("Enter movie name");
-  window.open("https://wa.me/256753747474?text=Request: "+name);
-}
+    showToast("Movie uploaded successfully");
+    loadMovies(searchInput.value);
+  } catch (err) {
+    showToast("Upload failed: " + err.message);
+  }
+};
 
-// VIP Ball in VIP section
-document.getElementById("vipBall").addEventListener("click", ()=>{
-    showToast("Become VIP!\nWeekly: 6,000 UGX\nMonthly: 25,000 UGX\nPay via WhatsApp");
+// ---------- Create VIP code ----------
+window.createVIP = async function() {
+  const type = document.getElementById("vipType").value;
+  const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
+  await addDoc(collection(db, "vipCodes"), { code, type, used: false });
+  document.getElementById("msg").innerText = `VIP Code: ${code}`;
+};
+
+// ---------- Unlock VIP with code ----------
+window.unlockVIP = async function() {
+  const codeInput = document.getElementById("vipCode").value.trim();
+  if (!codeInput) return showToast("Enter VIP code");
+
+  const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
+  const snap = await getDocs(q);
+
+  if (snap.empty) return showToast("Invalid or already used VIP code");
+
+  const docSnap = snap.docs[0];
+  const type = docSnap.data().type; // "7" or "30"
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + parseInt(type));
+
+  // Mark code as used (optional, prevents re-use)
+  await addDoc(collection(db, "usedCodes"), { code: codeInput, usedAt: new Date() });
+  // Optionally delete or update the original code – here we simply store used status in another collection
+  // For simplicity, we just rely on the query checking 'used' field. But we didn't add 'used' to original doc.
+  // Let's update the original doc to mark used.
+  await docSnap.ref.update({ used: true });
+
+  localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
+  showToast("VIP unlocked! You can now watch VIP movies.");
+};
+
+// ---------- Request movie via WhatsApp ----------
+window.requestMovie = function() {
+  const name = document.getElementById("request").value.trim();
+  if (!name) return showToast("Enter movie name");
+  window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
+};
+
+// ---------- VIP Ball click ----------
+document.getElementById("vipBall").addEventListener("click", () => {
+  showToast("Become VIP!\nWeekly: 6,000 UGX\nMonthly: 25,000 UGX\nPay via WhatsApp");
 });
 
-// Toast
-function showToast(msg){
-  const toast=document.getElementById("toast");
-  toast.innerText=msg;
-  toast.style.display="block";
-  toast.style.opacity="1";
-  setTimeout(()=>{
-    toast.style.transition="opacity 0.5s";
-    toast.style.opacity="0";
-    setTimeout(()=>{ toast.style.display="none"; toast.style.transition=""; },500);
-  },3000);
-}
+// ---------- Dropdown menu toggle ----------
+const menuBtn = document.getElementById("menuBtn");
+const dropdown = document.getElementById("dropdownMenu");
 
-// Search
-document.getElementById("searchInput").addEventListener("input", async ()=>{
-  const q=document.getElementById("searchInput").value.toLowerCase();
-  if(!q) return loadMovies();
-
-  const snap = await getDocs(collection(db,"movies"));
-  let found=false;
-  freeDiv.innerHTML=""; vipDiv.innerHTML="";
-  snap.forEach(async docSnap=>{
-    const m=docSnap.data();
-    if(m.title.toLowerCase().includes(q)){
-      found=true;
-      const posterUrl = await getDownloadURL(ref(storage,m.poster));
-      const div = document.createElement("div");
-      div.className="movie-card";
-      div.innerHTML=`<img src="${posterUrl}">`;
-      if(m.vip==="true"){
-        div.onclick=()=>{ showToast("VIP movie! Unlock via WhatsApp or VIP code"); };
-        vipDiv.appendChild(div);
-      } else { freeDiv.appendChild(div); }
-    }
-  });
-
-  if(!found){ showToast("This movie is not yet uploaded. You can request it!"); }
+menuBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
 });
 
+// Close dropdown when clicking outside
+document.addEventListener("click", (e) => {
+  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+// ---------- Search with debounce ----------
+let searchTimeout;
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadMovies(searchInput.value);
+  }, 300);
+});
+
+// ---------- Initial load ----------
 loadMovies();
+
+// Expose loadMovies for admin panel refresh (optional)
+window.loadMovies = loadMovies;
 </script>
 </body>
   </html>
