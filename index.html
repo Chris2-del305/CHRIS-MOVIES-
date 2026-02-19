@@ -84,6 +84,7 @@ section{padding:15px}
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:12px;
+  position:relative;
 }
 
 .movie-card{
@@ -97,22 +98,23 @@ section{padding:15px}
 .movie-card img{width:100%;height:200px;object-fit:cover}
 .movie-card video{width:100%}
 
-/* VIP BALL INSIDE CARD */
-.vip-ball{
+/* SINGLE VIP BALL */
+#vipBall{
   position:absolute;
-  top:10px;
+  top:-20px;
   right:10px;
-  width:28px;
-  height:28px;
+  width:50px;
+  height:50px;
   background:gold;
   color:black;
-  border-radius:50%;
-  text-align:center;
-  line-height:28px;
   font-weight:bold;
   font-size:14px;
+  border-radius:50%;
+  text-align:center;
+  line-height:50px;
   cursor:pointer;
-  box-shadow:0 0 5px gold;
+  box-shadow:0 0 10px gold;
+  z-index:1000;
 }
 
 /* BARS */
@@ -154,7 +156,6 @@ button{background:#e50914;color:white;cursor:pointer}
 <header>
   <div class="logo">Chris Movies</div>
 
-  <!-- THREE DOTS -->
   <div class="menu">⋮</div>
 
   <div class="dropdown">
@@ -162,7 +163,7 @@ button{background:#e50914;color:white;cursor:pointer}
   </div>
 </header>
 
-<!-- SEARCH AT TOP -->
+<!-- SEARCH -->
 <div class="top-search">
   <input id="searchInput" placeholder="Search movies...">
 </div>
@@ -186,7 +187,9 @@ button{background:#e50914;color:white;cursor:pointer}
 <h2>Free Movies</h2>
 <div class="movies-grid" id="free"></div>
 
-<h2>VIP Movies 🔒</h2>
+<h2 style="position:relative;">VIP Movies 🔒
+  <div id="vipBall">VIP</div>
+</h2>
 <div class="movies-grid" id="vip"></div>
 
 </section>
@@ -225,7 +228,7 @@ button{background:#e50914;color:white;cursor:pointer}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 // Firebase config
@@ -251,6 +254,7 @@ async function loadMovies(){
   vipDiv.innerHTML="";
 
   const snap = await getDocs(collection(db,"movies"));
+  let vipExists=false;
   snap.forEach(async docSnap=>{
     const m = docSnap.data();
     const posterUrl = await getDownloadURL(ref(storage,m.poster));
@@ -261,23 +265,15 @@ async function loadMovies(){
     div.innerHTML = `<img src="${posterUrl}">`;
 
     if(m.vip==="true"){
-      const vipBall=document.createElement("div");
-      vipBall.className="vip-ball";
-      vipBall.innerText="i";
-      vipBall.onclick = (e)=>{
-        e.stopPropagation();
-        showToast(`VIP Movie 🔒\nWeekly: 6,000 UGX | Monthly: 25,000 UGX\nRequest via WhatsApp!`);
-      };
-      div.appendChild(vipBall);
+      div.onclick=()=>{ showToast("VIP movie! Unlock via WhatsApp or VIP code"); };
       vipDiv.appendChild(div);
+      vipExists=true;
     } else {
       div.onclick=()=>{ window.open(videoUrl,"_blank"); };
       freeDiv.appendChild(div);
     }
   });
 }
-
-loadMovies();
 
 // Admin Panel
 const ADMIN="admin123";
@@ -346,6 +342,11 @@ function requestMovie(){
   window.open("https://wa.me/256753747474?text=Request: "+name);
 }
 
+// VIP Ball in VIP section
+document.getElementById("vipBall").addEventListener("click", ()=>{
+    showToast("Become VIP!\nWeekly: 6,000 UGX\nMonthly: 25,000 UGX\nPay via WhatsApp");
+});
+
 // Toast
 function showToast(msg){
   const toast=document.getElementById("toast");
@@ -376,11 +377,7 @@ document.getElementById("searchInput").addEventListener("input", async ()=>{
       div.className="movie-card";
       div.innerHTML=`<img src="${posterUrl}">`;
       if(m.vip==="true"){
-        const vipBall=document.createElement("div");
-        vipBall.className="vip-ball";
-        vipBall.innerText="i";
-        vipBall.onclick=(e)=>{ e.stopPropagation(); showToast("VIP Movie 🔒. Request via WhatsApp!"); };
-        div.appendChild(vipBall);
+        div.onclick=()=>{ showToast("VIP movie! Unlock via WhatsApp or VIP code"); };
         vipDiv.appendChild(div);
       } else { freeDiv.appendChild(div); }
     }
@@ -388,6 +385,8 @@ document.getElementById("searchInput").addEventListener("input", async ()=>{
 
   if(!found){ showToast("This movie is not yet uploaded. You can request it!"); }
 });
+
+loadMovies();
 </script>
 </body>
-</html>
+  </html>
