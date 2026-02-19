@@ -3,116 +3,402 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chris Movies</title>
+  <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- your existing styles (keep exactly as before) ----- */
-    body{margin:0;font-family:Arial;background:#141414;color:white}
-    header{
-      position:fixed; top:0; width:100%; height:60px; background:#000;
-      display:flex; align-items:center; justify-content:space-between; padding:0 15px; z-index:1000;
-    }
-    .logo{color:#e50914;font-size:22px;font-weight:bold}
-    .menu{font-size:28px;cursor:pointer;padding:5px 10px;}
-    .dropdown{
-      position:absolute; right:10px; top:60px; background:#222; border-radius:8px;
-      display:none; overflow:hidden; z-index:1001;
-    }
-    .dropdown button{
-      background:none; border:none; color:white; padding:12px 20px;
-      width:100%; text-align:left; cursor:pointer;
-    }
-    .dropdown button:hover{background:#333}
-    .top-search{margin-top:70px;padding:10px;}
-    .top-search input{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px;}
-    .hero{
-      height:45vh; background:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200") center/cover no-repeat;
-      display:flex; align-items:flex-end; padding:20px;
-    }
-    .hero h1{margin:0;font-size:32px}
-    section{padding:15px}
-    .movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-    .movie-card{background:#222;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
-    .movie-card:hover{transform:scale(1.05);}
-    .movie-card img{width:100%;height:200px;object-fit:cover}
-    .movie-card video{width:100%}
-    #vipBall{
-      position:absolute; top:-20px; right:10px; width:50px; height:50px; background:gold;
-      color:black; font-weight:bold; font-size:14px; border-radius:50%; text-align:center;
-      line-height:50px; cursor:pointer; box-shadow:0 0 10px gold; z-index:1000;
-    }
-    .bar{display:flex;gap:10px;margin:15px 0}
-    input,select,button{padding:10px;border:none;border-radius:6px}
-    button{background:#e50914;color:white;cursor:pointer}
-    .whatsapp{background:#25D366}
-    #toast{
-      position:fixed; bottom:50px; left:50%; transform:translateX(-50%);
-      background:rgba(0,0,0,0.8); color:white; padding:12px 20px; border-radius:25px;
-      font-size:14px; display:none; z-index:1005; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.7);
-    }
-    /* VIP purchase panel (same as before) */
-    #vipPurchasePanel {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #222; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      z-index: 2000; text-align: center; display: none; width: 260px; border: 1px solid #444;
-    }
-    #vipPurchasePanel h3 { margin-top: 0; color: gold; }
-    #vipPurchasePanel button { width: 100%; margin: 8px 0; padding: 12px; font-size: 16px; border: none; border-radius: 6px; font-weight: bold; }
-    #vipPurchasePanel .weekly { background: #e50914; color: white; }
-    #vipPurchasePanel .monthly { background: #7209b7; color: white; }
-    #vipPurchasePanel .close { background: #333; color: #ccc; margin-top: 15px; }
-    #overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-      z-index: 1999; display: none;
+    /* ----- CSS Variables for easy theming ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* ----- NEW: Admin panel as a centered modal ----- */
-    #adminPanel {
+    body {
+      background: #0b0b0b;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #f5f5f5;
+      line-height: 1.5;
+    }
+
+    /* smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* ----- Header ----- */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.9) 90%);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      color: #e50914;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(229,9,20,0.3);
+    }
+
+    .menu {
+      font-size: 32px;
+      cursor: pointer;
+      padding: 5px 15px;
+      color: #fff;
+      transition: 0.2s;
+      line-height: 1;
+    }
+    .menu:hover {
+      color: #e50914;
+    }
+
+    /* ----- Dropdown (three dots) ----- */
+    .dropdown {
+      position: absolute;
+      right: 20px;
+      top: 70px;
+      background: #1f1f1f;
+      border-radius: 12px;
       display: none;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid #333;
+      z-index: 1001;
+      min-width: 160px;
+    }
+    .dropdown button {
+      background: none;
+      border: none;
+      color: #eee;
+      padding: 14px 20px;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.15s;
+    }
+    .dropdown button:hover {
+      background: #2e2e2e;
+      color: #e50914;
+    }
+
+    /* ----- Search bar (top) ----- */
+    .top-search {
+      margin-top: 90px;
+      padding: 0 30px;
+    }
+    .top-search input {
+      width: 100%;
+      max-width: 600px;
+      padding: 15px 20px;
+      border-radius: 40px;
+      border: none;
+      background: #2a2a2a;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: 0.2s;
+      border: 1px solid #3a3a3a;
+      display: block;
+      margin: 0 auto;
+    }
+    .top-search input:focus {
+      border-color: #e50914;
+      background: #222;
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    /* ----- Hero section ----- */
+    .hero {
+      height: 60vh;
+      min-height: 400px;
+      background: linear-gradient(0deg, rgba(11,11,11,1) 0%, rgba(11,11,11,0.7) 100%), 
+                  url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200') center/cover no-repeat;
+      display: flex;
+      align-items: flex-end;
+      padding: 0 30px 60px 30px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      max-width: 800px;
+      line-height: 1.2;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.7);
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span {
+      color: #e50914;
+    }
+
+    /* ----- Main content sections ----- */
+    section {
+      padding: 10px 30px 30px;
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 30px 0 20px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 i {
+      font-size: 24px;
+      color: #e50914;
+    }
+
+    /* ----- Movie grid ----- */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+    }
+
+    .movie-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border: 1px solid #2c2c2c;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+      border-color: #e50914;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ----- VIP ball (styled) ----- */
+    #vipBall {
+      position: absolute;
+      top: -15px;
+      right: 0;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800);
+      color: black;
+      font-weight: 800;
+      font-size: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255,215,0,0.5);
+      transition: 0.2s;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+    #vipBall:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px gold;
+    }
+
+    /* ----- Action bars (request, unlock) ----- */
+    .bar {
+      display: flex;
+      gap: 15px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .bar input {
+      flex: 1;
+      min-width: 200px;
+      padding: 14px 18px;
+      border-radius: 40px;
+      border: none;
+      background: #262626;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      border: 1px solid #3a3a3a;
+      transition: 0.2s;
+    }
+    .bar input:focus {
+      border-color: #e50914;
+    }
+    .bar button {
+      padding: 14px 28px;
+      border-radius: 40px;
+      border: none;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #e50914;
+      color: white;
+      box-shadow: 0 4px 12px rgba(229,9,20,0.3);
+    }
+    .bar button:hover {
+      background: #f40612;
+      transform: scale(1.02);
+    }
+    .whatsapp {
+      background: #25D366 !important;
+      box-shadow: 0 4px 12px rgba(37,211,102,0.3) !important;
+    }
+    .whatsapp:hover {
+      background: #20b859 !important;
+    }
+
+    /* ----- Toast message ----- */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,20,0.95);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-size: 16px;
+      display: none;
+      z-index: 3000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid #333;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* ----- Modals (VIP purchase & Admin) ----- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+    }
+    .modal {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #111;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      z-index: 2000;
-      width: 320px;
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+      z-index: 2100;
+      display: none;
+      width: 340px;
       max-width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
       border: 1px solid #333;
+      color: #fff;
     }
-    #adminPanel h2, #adminPanel h3 {
-      margin-top: 0;
+    .modal h3 {
+      margin: 0 0 20px;
+      font-size: 24px;
+      font-weight: 600;
       color: #e50914;
     }
-    #adminPanel input, #adminPanel select, #adminPanel button {
+    .modal button {
       width: 100%;
-      margin-bottom: 10px;
-      box-sizing: border-box;
+      margin: 8px 0;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
     }
-    #adminPanel .close-btn {
+    .modal .btn-weekly {
+      background: #e50914;
+      color: white;
+    }
+    .modal .btn-monthly {
+      background: #7209b7;
+      color: white;
+    }
+    .modal .btn-close {
+      background: #2a2a2a;
+      color: #aaa;
+      margin-top: 20px;
+    }
+    .modal .btn-close:hover {
+      background: #333;
+      color: white;
+    }
+    .modal .close-icon {
       position: absolute;
-      top: 10px;
-      right: 15px;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
       background: none;
       border: none;
       color: #aaa;
-      font-size: 24px;
       cursor: pointer;
       width: auto;
       padding: 0;
     }
-    #adminPanel .close-btn:hover {
+    .modal .close-icon:hover {
       color: white;
     }
-    #adminOverlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 1999;
-      display: none;
+
+    /* Admin modal (larger) */
+    #adminPanel {
+      width: 400px;
+      max-width: 95%;
+    }
+    #adminPanel input, #adminPanel select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #262626;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      color: white;
+      font-size: 15px;
+    }
+    #adminPanel hr {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 20px 0;
+    }
+    #msg {
+      margin-top: 15px;
+      color: #4caf50;
+      font-weight: 500;
+    }
+
+    /* ----- Footer ----- */
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #777;
+      font-size: 14px;
+      border-top: 1px solid #222;
+      margin-top: 30px;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      header { padding: 0 15px; }
+      .hero { padding: 0 15px 40px; }
+      section { padding: 0 15px 20px; }
+      h2 { font-size: 24px; }
+      .bar button { width: 100%; }
     }
   </style>
 </head>
@@ -127,322 +413,323 @@
 </header>
 
 <div class="top-search">
-  <input id="searchInput" placeholder="Search movies...">
+  <input id="searchInput" placeholder="Search for movies...">
 </div>
 
 <div class="hero">
-  <h1>Unlimited Movies, VIP & Free</h1>
+  <h1>Unlimited <span>Movies</span>, VIP & Free</h1>
 </div>
 
 <section>
+  <!-- Request & VIP unlock bars -->
   <div class="bar">
-    <input id="request" placeholder="Request a movie">
-    <button class="whatsapp" onclick="requestMovie()">Request</button>
+    <input id="request" placeholder="Request a movie (e.g., Avengers)">
+    <button class="whatsapp" onclick="requestMovie()">Request via WhatsApp</button>
   </div>
   <div class="bar">
     <input id="vipCode" placeholder="Enter VIP code">
     <button onclick="unlockVIP()">Unlock VIP</button>
   </div>
 
-  <h2>Free Movies</h2>
+  <h2><i>🎬</i> Free Movies</h2>
   <div class="movies-grid" id="free"></div>
 
-  <h2 style="position:relative;">VIP Movies 🔒
+  <h2 style="position:relative;">
+    <i>👑</i> VIP Movies <span style="font-size: 16px; margin-left: 10px; color: #e50914;">🔒</span>
     <div id="vipBall">VIP</div>
   </h2>
   <div class="movies-grid" id="vip"></div>
 </section>
 
+<footer>
+  © 2025 Chris Movies · Stream your favorites
+</footer>
+
 <!-- Toast message -->
 <div id="toast"></div>
 
-<!-- Admin Panel (modal) -->
-<div id="adminOverlay"></div>
-<div id="adminPanel">
-  <button class="close-btn" id="closeAdminPanel">&times;</button>
-  <h2>Admin Upload</h2>
-  <input type="file" id="poster" accept="image/*"><br>
-  <input type="file" id="file" accept="video/*"><br>
-  <input id="name" placeholder="Movie name"><br>
+<!-- VIP Purchase Modal -->
+<div class="modal-overlay" id="vipOverlay"></div>
+<div class="modal" id="vipPurchasePanel">
+  <button class="close-icon" id="closePurchasePanel">&times;</button>
+  <h3>✨ Choose VIP Plan</h3>
+  <button class="btn-weekly" id="buyWeekly">Weekly – 6,000 UGX</button>
+  <button class="btn-monthly" id="buyMonthly">Monthly – 25,000 UGX</button>
+  <button class="btn-close" id="closePurchasePanel2">Close</button>
+</div>
+
+<!-- Admin Modal -->
+<div class="modal-overlay" id="adminOverlay"></div>
+<div class="modal" id="adminPanel">
+  <button class="close-icon" id="closeAdminPanel">&times;</button>
+  <h3>🛠️ Admin Upload</h3>
+  <input type="file" id="poster" accept="image/*" placeholder="Poster image">
+  <input type="file" id="file" accept="video/*" placeholder="Movie file">
+  <input id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
     <option value="true">VIP</option>
-  </select><br>
+  </select>
   <button onclick="uploadMovie()">Upload Movie</button>
   <hr>
-  <h3>Create VIP Code</h3>
+  <h4>Generate VIP Code</h4>
   <select id="vipType">
     <option value="7">Weekly (7 days)</option>
     <option value="30">Monthly (30 days)</option>
-  </select><br>
-  <button onclick="createVIP()">Generate VIP Code</button>
+  </select>
+  <button onclick="createVIP()">Generate Code</button>
   <p id="msg"></p>
 </div>
 
-<!-- VIP Purchase Panel -->
-<div id="overlay"></div>
-<div id="vipPurchasePanel">
-  <h3>✨ Choose VIP Plan</h3>
-  <button class="weekly" id="buyWeekly">Weekly – 6,000 UGX</button>
-  <button class="monthly" id="buyMonthly">Monthly – 25,000 UGX</button>
-  <button class="close" id="closePurchasePanel">Close</button>
-</div>
-
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+  // (Firebase and functionality – exactly the same as before, just with updated element IDs)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
-  authDomain: "chris-movies-7ba0f.firebaseapp.com",
-  projectId: "chris-movies-7ba0f",
-  storageBucket: "chris-movies-7ba0f.appspot.com",
-  messagingSenderId: "867998448675",
-  appId: "1:867998448675:web:3166effb3c6c402ee78596"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+    authDomain: "chris-movies-7ba0f.firebaseapp.com",
+    projectId: "chris-movies-7ba0f",
+    storageBucket: "chris-movies-7ba0f.appspot.com",
+    messagingSenderId: "867998448675",
+    appId: "1:867998448675:web:3166effb3c6c402ee78596"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-const freeDiv = document.getElementById("free");
-const vipDiv = document.getElementById("vip");
-const searchInput = document.getElementById("searchInput");
-const toastDiv = document.getElementById("toast");
+  const freeDiv = document.getElementById("free");
+  const vipDiv = document.getElementById("vip");
+  const searchInput = document.getElementById("searchInput");
+  const toastDiv = document.getElementById("toast");
 
-// ---------- Helper: show toast ----------
-function showToast(msg) {
-  toastDiv.innerText = msg;
-  toastDiv.style.display = "block";
-  toastDiv.style.opacity = "1";
-  setTimeout(() => {
-    toastDiv.style.transition = "opacity 0.5s";
-    toastDiv.style.opacity = "0";
+  function showToast(msg) {
+    toastDiv.innerText = msg;
+    toastDiv.style.display = "block";
+    toastDiv.style.opacity = "1";
     setTimeout(() => {
-      toastDiv.style.display = "none";
-      toastDiv.style.transition = "";
-    }, 500);
-  }, 3000);
-}
-window.showToast = showToast;
-
-// ---------- Check VIP status from localStorage ----------
-function isVipActive() {
-  const data = localStorage.getItem("vipData");
-  if (!data) return false;
-  try {
-    const { expiry } = JSON.parse(data);
-    return new Date(expiry) > new Date();
-  } catch {
-    return false;
+      toastDiv.style.transition = "opacity 0.5s";
+      toastDiv.style.opacity = "0";
+      setTimeout(() => {
+        toastDiv.style.display = "none";
+        toastDiv.style.transition = "";
+      }, 500);
+    }, 3000);
   }
-}
+  window.showToast = showToast;
 
-// ---------- Load movies ----------
-async function loadMovies(filterTitle = "") {
-  freeDiv.innerHTML = "";
-  vipDiv.innerHTML = "";
-
-  const querySnapshot = await getDocs(collection(db, "movies"));
-  const movies = [];
-  querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
-
-  const filtered = filterTitle
-    ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
-    : movies;
-
-  if (filterTitle && filtered.length === 0) {
-    showToast("This movie is not yet uploaded. You can request it!");
-  }
-
-  const promises = filtered.map(async (movie) => {
+  function isVipActive() {
+    const data = localStorage.getItem("vipData");
+    if (!data) return false;
     try {
-      const posterUrl = await getDownloadURL(ref(storage, movie.poster));
-      const videoUrl = await getDownloadURL(ref(storage, movie.file));
-      return { ...movie, posterUrl, videoUrl };
+      const { expiry } = JSON.parse(data);
+      return new Date(expiry) > new Date();
     } catch {
-      return null;
+      return false;
+    }
+  }
+
+  async function loadMovies(filterTitle = "") {
+    freeDiv.innerHTML = "";
+    vipDiv.innerHTML = "";
+
+    const querySnapshot = await getDocs(collection(db, "movies"));
+    const movies = [];
+    querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
+
+    const filtered = filterTitle
+      ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
+      : movies;
+
+    if (filterTitle && filtered.length === 0) {
+      showToast("This movie is not yet uploaded. You can request it!");
+    }
+
+    const promises = filtered.map(async (movie) => {
+      try {
+        const posterUrl = await getDownloadURL(ref(storage, movie.poster));
+        const videoUrl = await getDownloadURL(ref(storage, movie.file));
+        return { ...movie, posterUrl, videoUrl };
+      } catch {
+        return null;
+      }
+    });
+
+    const movieCards = (await Promise.all(promises)).filter(m => m !== null);
+
+    for (const m of movieCards) {
+      const card = document.createElement("div");
+      card.className = "movie-card";
+      card.innerHTML = `<img src="${m.posterUrl}" alt="${m.title}">`;
+
+      if (m.vip === "true") {
+        card.onclick = () => {
+          if (isVipActive()) {
+            window.open(m.videoUrl, "_blank");
+          } else {
+            showToast("VIP movie! Tap the gold VIP button to buy access.");
+          }
+        };
+        vipDiv.appendChild(card);
+      } else {
+        card.onclick = () => window.open(m.videoUrl, "_blank");
+        freeDiv.appendChild(card);
+      }
+    }
+  }
+
+  // Admin login
+  window.adminLogin = function() {
+    const password = prompt("Enter admin password:");
+    if (password === "admin123") {
+      document.getElementById("adminOverlay").style.display = "block";
+      document.getElementById("adminPanel").style.display = "block";
+      document.getElementById("dropdownMenu").style.display = "none";
+    } else {
+      showToast("Incorrect password");
+    }
+  };
+
+  // Close admin modal
+  document.getElementById("closeAdminPanel").addEventListener("click", () => {
+    document.getElementById("adminOverlay").style.display = "none";
+    document.getElementById("adminPanel").style.display = "none";
+  });
+  document.getElementById("adminOverlay").addEventListener("click", () => {
+    document.getElementById("adminOverlay").style.display = "none";
+    document.getElementById("adminPanel").style.display = "none";
+  });
+
+  // Upload movie
+  window.uploadMovie = async function() {
+    const posterFile = document.getElementById("poster").files[0];
+    const videoFile = document.getElementById("file").files[0];
+    const title = document.getElementById("name").value.trim();
+    const vipStatus = document.getElementById("isVip").value;
+
+    if (!posterFile || !videoFile || !title) return showToast("Fill all fields");
+
+    try {
+      const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
+      await uploadBytes(posterRef, posterFile);
+
+      const videoRef = ref(storage, `movies/${Date.now()}_${videoFile.name}`);
+      await uploadBytes(videoRef, videoFile);
+
+      await addDoc(collection(db, "movies"), {
+        title: title,
+        poster: posterRef.fullPath,
+        file: videoRef.fullPath,
+        vip: vipStatus
+      });
+
+      showToast("Movie uploaded successfully");
+      loadMovies(searchInput.value);
+    } catch (err) {
+      showToast("Upload failed: " + err.message);
+    }
+  };
+
+  // Create VIP code
+  window.createVIP = async function() {
+    const type = document.getElementById("vipType").value;
+    const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
+    await addDoc(collection(db, "vipCodes"), { code, type, used: false });
+    document.getElementById("msg").innerText = `VIP Code: ${code}`;
+  };
+
+  // Unlock VIP
+  window.unlockVIP = async function() {
+    const codeInput = document.getElementById("vipCode").value.trim();
+    if (!codeInput) return showToast("Enter VIP code");
+
+    const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
+    const snap = await getDocs(q);
+
+    if (snap.empty) return showToast("Invalid or already used VIP code");
+
+    const docSnap = snap.docs[0];
+    const type = docSnap.data().type;
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + parseInt(type));
+
+    await docSnap.ref.update({ used: true });
+
+    localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
+    showToast("VIP unlocked! You can now watch VIP movies.");
+  };
+
+  // Request movie
+  window.requestMovie = function() {
+    const name = document.getElementById("request").value.trim();
+    if (!name) return showToast("Enter movie name");
+    window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
+  };
+
+  // VIP Purchase Panel
+  const vipBall = document.getElementById("vipBall");
+  const purchasePanel = document.getElementById("vipPurchasePanel");
+  const vipOverlay = document.getElementById("vipOverlay");
+  const closePurchase = document.getElementById("closePurchasePanel");
+  const closePurchase2 = document.getElementById("closePurchasePanel2");
+  const buyWeekly = document.getElementById("buyWeekly");
+  const buyMonthly = document.getElementById("buyMonthly");
+
+  function showPurchasePanel() {
+    purchasePanel.style.display = "block";
+    vipOverlay.style.display = "block";
+  }
+  function hidePurchasePanel() {
+    purchasePanel.style.display = "none";
+    vipOverlay.style.display = "none";
+  }
+
+  vipBall.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showPurchasePanel();
+  });
+
+  vipOverlay.addEventListener("click", hidePurchasePanel);
+  closePurchase.addEventListener("click", hidePurchasePanel);
+  closePurchase2.addEventListener("click", hidePurchasePanel);
+
+  buyWeekly.addEventListener("click", () => {
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me a code.")}`, "_blank");
+    hidePurchasePanel();
+  });
+  buyMonthly.addEventListener("click", () => {
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me a code.")}`, "_blank");
+    hidePurchasePanel();
+  });
+
+  // Dropdown menu
+  const menuBtn = document.getElementById("menuBtn");
+  const dropdown = document.getElementById("dropdownMenu");
+
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
     }
   });
 
-  const movieCards = (await Promise.all(promises)).filter(m => m !== null);
+  // Search debounce
+  let searchTimeout;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      loadMovies(searchInput.value);
+    }, 300);
+  });
 
-  for (const m of movieCards) {
-    const card = document.createElement("div");
-    card.className = "movie-card";
-    card.innerHTML = `<img src="${m.posterUrl}" alt="${m.title}">`;
-
-    if (m.vip === "true") {
-      card.onclick = () => {
-        if (isVipActive()) {
-          window.open(m.videoUrl, "_blank");
-        } else {
-          showToast("VIP movie! Tap the gold VIP button to buy access.");
-        }
-      };
-      vipDiv.appendChild(card);
-    } else {
-      card.onclick = () => window.open(m.videoUrl, "_blank");
-      freeDiv.appendChild(card);
-    }
-  }
-}
-
-// ---------- Admin login: prompt for password, then show modal ----------
-window.adminLogin = function() {
-  const password = prompt("Enter admin password:");
-  if (password === "admin123") {
-    document.getElementById("adminOverlay").style.display = "block";
-    document.getElementById("adminPanel").style.display = "block";
-    document.getElementById("dropdownMenu").style.display = "none"; // hide dropdown
-  } else {
-    showToast("Incorrect password");
-  }
-};
-
-// ---------- Close admin modal ----------
-document.getElementById("closeAdminPanel").addEventListener("click", () => {
-  document.getElementById("adminOverlay").style.display = "none";
-  document.getElementById("adminPanel").style.display = "none";
-});
-
-// Also close when clicking on overlay
-document.getElementById("adminOverlay").addEventListener("click", () => {
-  document.getElementById("adminOverlay").style.display = "none";
-  document.getElementById("adminPanel").style.display = "none";
-});
-
-// ---------- Upload movie (no password check inside) ----------
-window.uploadMovie = async function() {
-  const posterFile = document.getElementById("poster").files[0];
-  const videoFile = document.getElementById("file").files[0];
-  const title = document.getElementById("name").value.trim();
-  const vipStatus = document.getElementById("isVip").value;
-
-  if (!posterFile || !videoFile || !title) return showToast("Fill all fields");
-
-  try {
-    const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
-    await uploadBytes(posterRef, posterFile);
-
-    const videoRef = ref(storage, `movies/${Date.now()}_${videoFile.name}`);
-    await uploadBytes(videoRef, videoFile);
-
-    await addDoc(collection(db, "movies"), {
-      title: title,
-      poster: posterRef.fullPath,
-      file: videoRef.fullPath,
-      vip: vipStatus
-    });
-
-    showToast("Movie uploaded successfully");
-    loadMovies(searchInput.value);
-  } catch (err) {
-    showToast("Upload failed: " + err.message);
-  }
-};
-
-// ---------- Create VIP code ----------
-window.createVIP = async function() {
-  const type = document.getElementById("vipType").value;
-  const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
-  await addDoc(collection(db, "vipCodes"), { code, type, used: false });
-  document.getElementById("msg").innerText = `VIP Code: ${code}`;
-};
-
-// ---------- Unlock VIP with code ----------
-window.unlockVIP = async function() {
-  const codeInput = document.getElementById("vipCode").value.trim();
-  if (!codeInput) return showToast("Enter VIP code");
-
-  const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
-  const snap = await getDocs(q);
-
-  if (snap.empty) return showToast("Invalid or already used VIP code");
-
-  const docSnap = snap.docs[0];
-  const type = docSnap.data().type;
-  const expiry = new Date();
-  expiry.setDate(expiry.getDate() + parseInt(type));
-
-  await docSnap.ref.update({ used: true });
-
-  localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
-  showToast("VIP unlocked! You can now watch VIP movies.");
-};
-
-// ---------- Request movie via WhatsApp ----------
-window.requestMovie = function() {
-  const name = document.getElementById("request").value.trim();
-  if (!name) return showToast("Enter movie name");
-  window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
-};
-
-// ---------- VIP Purchase Panel ----------
-const vipBall = document.getElementById("vipBall");
-const purchasePanel = document.getElementById("vipPurchasePanel");
-const overlay = document.getElementById("overlay");
-const closeBtn = document.getElementById("closePurchasePanel");
-const buyWeekly = document.getElementById("buyWeekly");
-const buyMonthly = document.getElementById("buyMonthly");
-
-function showPurchasePanel() {
-  purchasePanel.style.display = "block";
-  overlay.style.display = "block";
-}
-function hidePurchasePanel() {
-  purchasePanel.style.display = "none";
-  overlay.style.display = "none";
-}
-
-vipBall.addEventListener("click", (e) => {
-  e.stopPropagation();
-  showPurchasePanel();
-});
-
-overlay.addEventListener("click", hidePurchasePanel);
-closeBtn.addEventListener("click", hidePurchasePanel);
-
-buyWeekly.addEventListener("click", () => {
-  window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me a code.")}`, "_blank");
-  hidePurchasePanel();
-});
-buyMonthly.addEventListener("click", () => {
-  window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me a code.")}`, "_blank");
-  hidePurchasePanel();
-});
-
-// ---------- Dropdown menu toggle ----------
-const menuBtn = document.getElementById("menuBtn");
-const dropdown = document.getElementById("dropdownMenu");
-
-menuBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-});
-
-document.addEventListener("click", (e) => {
-  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.style.display = "none";
-  }
-});
-
-// ---------- Search with debounce ----------
-let searchTimeout;
-searchInput.addEventListener("input", () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    loadMovies(searchInput.value);
-  }, 300);
-});
-
-// ---------- Initial load ----------
-loadMovies();
-
-// Expose for admin panel refresh (optional)
-window.loadMovies = loadMovies;
+  loadMovies();
+  window.loadMovies = loadMovies;
 </script>
 </body>
-</html>
+  </html>
