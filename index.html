@@ -97,19 +97,6 @@ section{padding:15px}
 .movie-card img{width:100%;height:200px;object-fit:cover}
 .movie-card video{width:100%}
 
-/* VIP LOCK */
-.lock{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:38px;
-  color:gold;
-  cursor:pointer;
-}
-
 /* VIP BALL INSIDE CARD */
 .vip-ball{
   position:absolute;
@@ -141,28 +128,6 @@ button{background:#e50914;color:white;cursor:pointer}
   padding:20px;
   margin:20px;
   border-radius:10px;
-}
-
-/* FLOATING VIP BALL */
-.become-vip-ball{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:60px;
-  height:60px;
-  background:gold;
-  color:black;
-  border-radius:50%;
-  text-align:center;
-  line-height:60px;
-  font-weight:bold;
-  font-size:18px;
-  cursor:pointer;
-  z-index:1001;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 0 15px gold;
 }
 
 /* TOAST MESSAGE */
@@ -224,20 +189,10 @@ button{background:#e50914;color:white;cursor:pointer}
 <h2>VIP Movies 🔒</h2>
 <div class="movies-grid" id="vip"></div>
 
-<h3>Become VIP</h3>
-<select>
-  <option>Weekly VIP – 6,000 UGX</option>
-  <option>Monthly VIP – 25,000 UGX</option>
-</select>
-<button class="whatsapp" onclick="payVIP()">Pay via WhatsApp</button>
-
 </section>
 
-<!-- Floating VIP Ball -->
-<div class="become-vip-ball" onclick="openVIPPopup()">VIP</div>
-
 <!-- TOAST -->
-<div id="toast">Movie not uploaded yet. You can request it!</div>
+<div id="toast"></div>
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
@@ -270,7 +225,7 @@ button{background:#e50914;color:white;cursor:pointer}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 // Firebase config
@@ -290,59 +245,108 @@ const storage = getStorage(app);
 const freeDiv=document.getElementById("free");
 const vipDiv=document.getElementById("vip");
 
-// DEMO MOVIES
-const freeMovies=[{poster:"https://via.placeholder.com/300x450",video:""}];
-const vipMovies=[{poster:"https://via.placeholder.com/300x450",video:""}];
-
-function loadMovies(){
+// Load movies from Firebase
+async function loadMovies(){
   freeDiv.innerHTML="";
   vipDiv.innerHTML="";
 
-  freeMovies.forEach(m=>{
-    freeDiv.innerHTML+=`<div class="movie-card"><img src="${m.poster}"></div>`;
-  });
+  const snap = await getDocs(collection(db,"movies"));
+  snap.forEach(async docSnap=>{
+    const m = docSnap.data();
+    const posterUrl = await getDownloadURL(ref(storage,m.poster));
+    const videoUrl = await getDownloadURL(ref(storage,m.file));
 
-  vipMovies.forEach(m=>{
-    vipDiv.innerHTML+=`
-      <div class="movie-card">
-        <img src="${m.poster}">
-        <div class="vip-ball" onclick="openVIPPopup()">i</div>
-      </div>`;
+    const div = document.createElement("div");
+    div.className="movie-card";
+    div.innerHTML = `<img src="${posterUrl}">`;
+
+    if(m.vip==="true"){
+      const vipBall=document.createElement("div");
+      vipBall.className="vip-ball";
+      vipBall.innerText="i";
+      vipBall.onclick = (e)=>{
+        e.stopPropagation();
+        showToast(`VIP Movie 🔒\nWeekly: 6,000 UGX | Monthly: 25,000 UGX\nRequest via WhatsApp!`);
+      };
+      div.appendChild(vipBall);
+      vipDiv.appendChild(div);
+    } else {
+      div.onclick=()=>{ window.open(videoUrl,"_blank"); };
+      freeDiv.appendChild(div);
+    }
   });
 }
 
 loadMovies();
 
-// ADMIN PANEL
+// Admin Panel
 const ADMIN="admin123";
 function toggleAdminPanel(){
   const panel=document.getElementById("adminPanel");
   panel.style.display=panel.style.display==="block"?"none":"block";
 }
 
-// WhatsApp functions
-function payVIP(){ window.open("https://wa.me/256753747474?text=Hello I want VIP access"); }
+// Admin upload
+async function uploadMovie(){
+  if(document.getElementById("pass").value!==ADMIN){ return showToast("Wrong admin password"); }
+
+  const posterFile=document.getElementById("poster").files[0];
+  const videoFile=document.getElementById("file").files[0];
+  const title=document.getElementById("name").value;
+  const vipStatus=document.getElementById("isVip").value;
+
+  if(!posterFile||!videoFile||!title) return showToast("Fill all fields");
+
+  const posterRef = ref(storage, `posters/${posterFile.name}`);
+  await uploadBytes(posterRef,posterFile);
+
+  const videoRef = ref(storage, `movies/${videoFile.name}`);
+  await uploadBytes(videoRef,videoFile);
+
+  await addDoc(collection(db,"movies"),{
+    title:title,
+    poster:`posters/${posterFile.name}`,
+    file:`movies/${videoFile.name}`,
+    vip:vipStatus
+  });
+
+  showToast("Movie uploaded successfully");
+  loadMovies();
+}
+
+// VIP codes
+function createVIP(){
+  const type=document.getElementById("vipType").value;
+  const code="VIP"+Math.floor(Math.random()*90000+10000);
+  addDoc(collection(db,"vipCodes"),{code:code,type:type,expiry:null});
+  document.getElementById("msg").innerText=`VIP Code: ${code}`;
+}
+
+// Unlock VIP
+function unlockVIP(){
+  const codeInput=document.getElementById("vipCode").value.trim();
+  if(!codeInput) return showToast("Enter VIP code");
+
+  getDocs(query(collection(db,"vipCodes"),where("code","==",codeInput))).then(snap=>{
+    if(snap.empty){ return showToast("Invalid VIP code"); }
+    snap.forEach(docSnap=>{
+      const type=docSnap.data().type;
+      const expiry=new Date();
+      expiry.setDate(expiry.getDate()+parseInt(type));
+      localStorage.setItem("vipData",JSON.stringify({code:codeInput,expiry:expiry}));
+      showToast("VIP unlocked!");
+    });
+  });
+}
+
+// Request movie
 function requestMovie(){
   const name=document.getElementById("request").value;
   if(!name) return showToast("Enter movie name");
   window.open("https://wa.me/256753747474?text=Request: "+name);
 }
-function openVIPPopup(){ document.getElementById("toast").innerText="VIP Movie 🔒. Request via WhatsApp!"; showToast("VIP Movie 🔒. Request via WhatsApp!"); }
 
-// Search with TikTok-style toast
-document.getElementById("searchInput").addEventListener("input", ()=>{
-  const q=document.getElementById("searchInput").value.toLowerCase();
-  if(q!==""){
-    // Here you can query Firebase later, for demo we use freeMovies + vipMovies
-    const allTitles = freeMovies.map(m=>"demo").concat(vipMovies.map(m=>"vip"));
-    const found = allTitles.some(title=>title.toLowerCase().includes(q));
-    if(!found){
-      showToast("This movie is not yet uploaded. You can request it!");
-    }
-  }
-});
-
-// Toast function
+// Toast
 function showToast(msg){
   const toast=document.getElementById("toast");
   toast.innerText=msg;
@@ -352,13 +356,38 @@ function showToast(msg){
     toast.style.transition="opacity 0.5s";
     toast.style.opacity="0";
     setTimeout(()=>{ toast.style.display="none"; toast.style.transition=""; },500);
-  },2000);
+  },3000);
 }
 
-// VIP and Admin upload placeholders
-function uploadMovie(){ alert("Admin upload demo"); }
-function createVIP(){ document.getElementById("msg").innerText="VIP code: VIP12345"; }
-function unlockVIP(){ alert("VIP unlocked demo"); }
+// Search
+document.getElementById("searchInput").addEventListener("input", async ()=>{
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  if(!q) return loadMovies();
+
+  const snap = await getDocs(collection(db,"movies"));
+  let found=false;
+  freeDiv.innerHTML=""; vipDiv.innerHTML="";
+  snap.forEach(async docSnap=>{
+    const m=docSnap.data();
+    if(m.title.toLowerCase().includes(q)){
+      found=true;
+      const posterUrl = await getDownloadURL(ref(storage,m.poster));
+      const div = document.createElement("div");
+      div.className="movie-card";
+      div.innerHTML=`<img src="${posterUrl}">`;
+      if(m.vip==="true"){
+        const vipBall=document.createElement("div");
+        vipBall.className="vip-ball";
+        vipBall.innerText="i";
+        vipBall.onclick=(e)=>{ e.stopPropagation(); showToast("VIP Movie 🔒. Request via WhatsApp!"); };
+        div.appendChild(vipBall);
+        vipDiv.appendChild(div);
+      } else { freeDiv.appendChild(div); }
+    }
+  });
+
+  if(!found){ showToast("This movie is not yet uploaded. You can request it!"); }
+});
 </script>
 </body>
-  </html>
+</html>
