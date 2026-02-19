@@ -360,6 +360,8 @@
     #adminPanel {
       width: 400px;
       max-width: 95%;
+      max-height: 80vh;
+      overflow-y: auto;
     }
     #adminPanel input, #adminPanel select {
       width: 100%;
@@ -380,6 +382,7 @@
       margin-top: 15px;
       color: #4caf50;
       font-weight: 500;
+      word-break: break-all;
     }
 
     /* ----- Footer ----- */
@@ -463,8 +466,8 @@
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Admin Upload</h3>
-  <input type="file" id="poster" accept="image/*" placeholder="Poster image">
-  <input type="file" id="file" accept="video/*" placeholder="Movie file">
+  <input type="file" id="poster" accept="image/*">
+  <input type="file" id="file" accept="video/*">
   <input id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -482,7 +485,7 @@
 </div>
 
 <script type="module">
-  // (Firebase and functionality – exactly the same as before, just with updated element IDs)
+  // Firebase initialization
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
@@ -500,11 +503,13 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
+  // DOM elements
   const freeDiv = document.getElementById("free");
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
 
+  // ---------- Helper: show toast ----------
   function showToast(msg) {
     toastDiv.innerText = msg;
     toastDiv.style.display = "block";
@@ -520,6 +525,7 @@
   }
   window.showToast = showToast;
 
+  // ---------- Check VIP status from localStorage ----------
   function isVipActive() {
     const data = localStorage.getItem("vipData");
     if (!data) return false;
@@ -531,6 +537,7 @@
     }
   }
 
+  // ---------- Load movies with proper async handling ----------
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -580,7 +587,7 @@
     }
   }
 
-  // Admin login
+  // ---------- Admin login ----------
   window.adminLogin = function() {
     const password = prompt("Enter admin password:");
     if (password === "admin123") {
@@ -602,7 +609,7 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Upload movie
+  // ---------- Upload movie ----------
   window.uploadMovie = async function() {
     const posterFile = document.getElementById("poster").files[0];
     const videoFile = document.getElementById("file").files[0];
@@ -632,43 +639,58 @@
     }
   };
 
-  // Create VIP code
+  // ---------- Create VIP code (with error handling) ----------
   window.createVIP = async function() {
-    const type = document.getElementById("vipType").value;
-    const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
-    await addDoc(collection(db, "vipCodes"), { code, type, used: false });
-    document.getElementById("msg").innerText = `VIP Code: ${code}`;
+    try {
+      const type = document.getElementById("vipType").value;
+      const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
+      await addDoc(collection(db, "vipCodes"), { 
+        code, 
+        type, 
+        used: false,
+        createdAt: new Date() 
+      });
+      document.getElementById("msg").innerText = `✅ VIP Code: ${code}`;
+      showToast("VIP code created successfully!");
+    } catch (error) {
+      console.error("Error creating VIP code:", error);
+      showToast("Error: " + error.message);
+    }
   };
 
-  // Unlock VIP
+  // ---------- Unlock VIP with code ----------
   window.unlockVIP = async function() {
     const codeInput = document.getElementById("vipCode").value.trim();
     if (!codeInput) return showToast("Enter VIP code");
 
-    const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
-    const snap = await getDocs(q);
+    try {
+      const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
+      const snap = await getDocs(q);
 
-    if (snap.empty) return showToast("Invalid or already used VIP code");
+      if (snap.empty) return showToast("Invalid or already used VIP code");
 
-    const docSnap = snap.docs[0];
-    const type = docSnap.data().type;
-    const expiry = new Date();
-    expiry.setDate(expiry.getDate() + parseInt(type));
+      const docSnap = snap.docs[0];
+      const type = docSnap.data().type;
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + parseInt(type));
 
-    await docSnap.ref.update({ used: true });
+      await docSnap.ref.update({ used: true });
 
-    localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
-    showToast("VIP unlocked! You can now watch VIP movies.");
+      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
+      showToast("VIP unlocked! You can now watch VIP movies.");
+    } catch (error) {
+      showToast("Error: " + error.message);
+    }
   };
 
-  // Request movie
+  // ---------- Request movie via WhatsApp ----------
   window.requestMovie = function() {
     const name = document.getElementById("request").value.trim();
     if (!name) return showToast("Enter movie name");
     window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
   };
 
-  // VIP Purchase Panel
+  // ---------- VIP Purchase Panel ----------
   const vipBall = document.getElementById("vipBall");
   const purchasePanel = document.getElementById("vipPurchasePanel");
   const vipOverlay = document.getElementById("vipOverlay");
@@ -704,7 +726,7 @@
     hidePurchasePanel();
   });
 
-  // Dropdown menu
+  // ---------- Dropdown menu toggle ----------
   const menuBtn = document.getElementById("menuBtn");
   const dropdown = document.getElementById("dropdownMenu");
 
@@ -719,7 +741,7 @@
     }
   });
 
-  // Search debounce
+  // ---------- Search with debounce ----------
   let searchTimeout;
   searchInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);
@@ -728,8 +750,23 @@
     }, 300);
   });
 
+  // ---------- Initial load ----------
   loadMovies();
   window.loadMovies = loadMovies;
 </script>
+
+<!-- 
+  IMPORTANT: If "Generate VIP Code" still doesn't work, 
+  go to Firebase Console → Firestore Database → Rules and set:
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      match /{document=**} {
+        allow read, write: if true;
+      }
+    }
+  }
+  Then click Publish.
+-->
 </body>
   </html>
