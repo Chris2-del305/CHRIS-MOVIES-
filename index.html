@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies</title>
   <style>
-    /* (your existing styles - keep them exactly as you had) */
+    /* ----- your existing styles (keep them exactly as you had) ----- */
     body{margin:0;font-family:Arial;background:#141414;color:white}
     header{
       position:fixed; top:0; width:100%; height:60px; background:#000;
@@ -50,6 +50,60 @@
       background:rgba(0,0,0,0.8); color:white; padding:12px 20px; border-radius:25px;
       font-size:14px; display:none; z-index:1005; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.7);
     }
+
+    /* ----- new VIP purchase panel (appears when clicking the VIP ball) ----- */
+    #vipPurchasePanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 2000;
+      text-align: center;
+      display: none;
+      width: 260px;
+      border: 1px solid #444;
+    }
+    #vipPurchasePanel h3 {
+      margin-top: 0;
+      color: gold;
+    }
+    #vipPurchasePanel button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    #vipPurchasePanel .weekly {
+      background: #e50914;
+      color: white;
+    }
+    #vipPurchasePanel .monthly {
+      background: #7209b7;
+      color: white;
+    }
+    #vipPurchasePanel .close {
+      background: #333;
+      color: #ccc;
+      margin-top: 15px;
+    }
+    #vipPurchasePanel .close:hover {
+      background: #444;
+    }
+    /* overlay background when panel is open */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1999;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -89,8 +143,10 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
+<!-- Toast message -->
 <div id="toast"></div>
 
+<!-- Admin panel -->
 <div id="adminPanel">
   <h2>Admin Upload</h2>
   <input type="password" id="pass" placeholder="Admin password"><br><br>
@@ -110,6 +166,15 @@
   </select><br><br>
   <button onclick="createVIP()">Generate VIP Code</button>
   <p id="msg"></p>
+</div>
+
+<!-- VIP Purchase Panel (hidden by default) -->
+<div id="overlay"></div>
+<div id="vipPurchasePanel">
+  <h3>✨ Choose VIP Plan</h3>
+  <button class="weekly" id="buyWeekly">Weekly – 6,000 UGX</button>
+  <button class="monthly" id="buyMonthly">Monthly – 25,000 UGX</button>
+  <button class="close" id="closePurchasePanel">Close</button>
 </div>
 
 <script type="module">
@@ -150,7 +215,7 @@ function showToast(msg) {
     }, 500);
   }, 3000);
 }
-window.showToast = showToast; // make global for inline handlers
+window.showToast = showToast;
 
 // ---------- Check VIP status from localStorage ----------
 function isVipActive() {
@@ -171,13 +236,8 @@ async function loadMovies(filterTitle = "") {
 
   const querySnapshot = await getDocs(collection(db, "movies"));
   const movies = [];
+  querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
 
-  // First collect all movie data
-  querySnapshot.forEach(doc => {
-    movies.push({ id: doc.id, ...doc.data() });
-  });
-
-  // Filter by title if needed
   const filtered = filterTitle
     ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
     : movies;
@@ -186,33 +246,29 @@ async function loadMovies(filterTitle = "") {
     showToast("This movie is not yet uploaded. You can request it!");
   }
 
-  // Process each movie: get poster and video URLs concurrently
   const promises = filtered.map(async (movie) => {
     try {
       const posterUrl = await getDownloadURL(ref(storage, movie.poster));
       const videoUrl = await getDownloadURL(ref(storage, movie.file));
       return { ...movie, posterUrl, videoUrl };
-    } catch (err) {
-      console.warn("Error loading movie", movie.title, err);
+    } catch {
       return null;
     }
   });
 
   const movieCards = (await Promise.all(promises)).filter(m => m !== null);
 
-  // Render cards
   for (const m of movieCards) {
     const card = document.createElement("div");
     card.className = "movie-card";
     card.innerHTML = `<img src="${m.posterUrl}" alt="${m.title}">`;
 
     if (m.vip === "true") {
-      // VIP movie: check if unlocked
       card.onclick = () => {
         if (isVipActive()) {
           window.open(m.videoUrl, "_blank");
         } else {
-          showToast("VIP movie! Unlock via WhatsApp or enter VIP code");
+          showToast("VIP movie! Tap the gold VIP button to buy access.");
         }
       };
       vipDiv.appendChild(card);
@@ -227,7 +283,6 @@ async function loadMovies(filterTitle = "") {
 window.toggleAdminPanel = function() {
   const panel = document.getElementById("adminPanel");
   panel.style.display = panel.style.display === "block" ? "none" : "block";
-  // Hide dropdown after clicking
   document.getElementById("dropdownMenu").style.display = "none";
 };
 
@@ -244,15 +299,12 @@ window.uploadMovie = async function() {
   if (!posterFile || !videoFile || !title) return showToast("Fill all fields");
 
   try {
-    // Upload poster
     const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
     await uploadBytes(posterRef, posterFile);
 
-    // Upload video
     const videoRef = ref(storage, `movies/${Date.now()}_${videoFile.name}`);
     await uploadBytes(videoRef, videoFile);
 
-    // Save to Firestore
     await addDoc(collection(db, "movies"), {
       title: title,
       poster: posterRef.fullPath,
@@ -286,15 +338,10 @@ window.unlockVIP = async function() {
   if (snap.empty) return showToast("Invalid or already used VIP code");
 
   const docSnap = snap.docs[0];
-  const type = docSnap.data().type; // "7" or "30"
+  const type = docSnap.data().type;
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + parseInt(type));
 
-  // Mark code as used (optional, prevents re-use)
-  await addDoc(collection(db, "usedCodes"), { code: codeInput, usedAt: new Date() });
-  // Optionally delete or update the original code – here we simply store used status in another collection
-  // For simplicity, we just rely on the query checking 'used' field. But we didn't add 'used' to original doc.
-  // Let's update the original doc to mark used.
   await docSnap.ref.update({ used: true });
 
   localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
@@ -308,9 +355,43 @@ window.requestMovie = function() {
   window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
 };
 
-// ---------- VIP Ball click ----------
-document.getElementById("vipBall").addEventListener("click", () => {
-  showToast("Become VIP!\nWeekly: 6,000 UGX\nMonthly: 25,000 UGX\nPay via WhatsApp");
+// ---------- VIP Purchase Panel Logic ----------
+const vipBall = document.getElementById("vipBall");
+const purchasePanel = document.getElementById("vipPurchasePanel");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("closePurchasePanel");
+const buyWeekly = document.getElementById("buyWeekly");
+const buyMonthly = document.getElementById("buyMonthly");
+
+function showPurchasePanel() {
+  purchasePanel.style.display = "block";
+  overlay.style.display = "block";
+}
+
+function hidePurchasePanel() {
+  purchasePanel.style.display = "none";
+  overlay.style.display = "none";
+}
+
+vipBall.addEventListener("click", (e) => {
+  e.stopPropagation();
+  showPurchasePanel();
+});
+
+overlay.addEventListener("click", hidePurchasePanel);
+closeBtn.addEventListener("click", hidePurchasePanel);
+
+// WhatsApp messages for each plan
+buyWeekly.addEventListener("click", () => {
+  const message = "I want to buy Weekly VIP (6,000 UGX). Please send me a code.";
+  window.open(`https://wa.me/256753747474?text=${encodeURIComponent(message)}`, "_blank");
+  hidePurchasePanel();
+});
+
+buyMonthly.addEventListener("click", () => {
+  const message = "I want to buy Monthly VIP (25,000 UGX). Please send me a code.";
+  window.open(`https://wa.me/256753747474?text=${encodeURIComponent(message)}`, "_blank");
+  hidePurchasePanel();
 });
 
 // ---------- Dropdown menu toggle ----------
@@ -322,7 +403,6 @@ menuBtn.addEventListener("click", (e) => {
   dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
 });
 
-// Close dropdown when clicking outside
 document.addEventListener("click", (e) => {
   if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
     dropdown.style.display = "none";
@@ -341,8 +421,8 @@ searchInput.addEventListener("input", () => {
 // ---------- Initial load ----------
 loadMovies();
 
-// Expose loadMovies for admin panel refresh (optional)
+// Expose for admin panel refresh
 window.loadMovies = loadMovies;
 </script>
 </body>
-  </html>
+</html>
