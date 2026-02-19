@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- (all styles remain exactly the same as before) ----- */
+    /* ----- all styles exactly as before (kept for brevity, but they are unchanged) ----- */
     * {
       margin: 0;
       padding: 0;
@@ -441,7 +441,7 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal (VIP code generator removed) -->
+<!-- Admin Modal (no code generator) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -610,18 +610,24 @@
     }
   };
 
-  // ---------- Unlock VIP with a single master password ----------
-  // Set your master password here – change it to whatever you like
-  const MASTER_VIP_CODE = "VIP2025"; // <-- Change this to your preferred password
+  // ---------- Two master passwords: one for 7 days, one for 30 days ----------
+  const WEEKLY_CODE = "WEEK2025";   // <-- change to your preferred weekly password
+  const MONTHLY_CODE = "MONTH2025"; // <-- change to your preferred monthly password
 
   window.unlockVIP = async function() {
     const codeInput = document.getElementById("vipCode").value.trim();
     if (!codeInput) return showToast("Enter VIP password");
 
-    if (codeInput === MASTER_VIP_CODE) {
-      // Set VIP expiry (e.g., 30 days from now)
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + 30); // 30 days
+    const expiry = new Date();
+    if (codeInput === WEEKLY_CODE) {
+      expiry.setDate(expiry.getDate() + 7);
+      localStorage.setItem("vipData", JSON.stringify({ 
+        code: codeInput, 
+        expiry: expiry.toISOString() 
+      }));
+      showToast("VIP unlocked for 7 days! Enjoy.");
+    } else if (codeInput === MONTHLY_CODE) {
+      expiry.setDate(expiry.getDate() + 30);
       localStorage.setItem("vipData", JSON.stringify({ 
         code: codeInput, 
         expiry: expiry.toISOString() 
@@ -667,11 +673,11 @@
   closePurchase2.addEventListener("click", hidePurchasePanel);
 
   buyWeekly.addEventListener("click", () => {
-    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me the password.")}`, "_blank");
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me the weekly password.")}`, "_blank");
     hidePurchasePanel();
   });
   buyMonthly.addEventListener("click", () => {
-    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me the password.")}`, "_blank");
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me the monthly password.")}`, "_blank");
     hidePurchasePanel();
   });
 
@@ -704,4 +710,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-                                                </html>
+</html>
