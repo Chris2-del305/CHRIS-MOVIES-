@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- CSS Variables for easy theming ----- */
+    /* ----- (all styles remain exactly the same as before) ----- */
     * {
       margin: 0;
       padding: 0;
@@ -19,12 +19,10 @@
       line-height: 1.5;
     }
 
-    /* smooth scroll */
     html {
       scroll-behavior: smooth;
     }
 
-    /* ----- Header ----- */
     header {
       position: fixed;
       top: 0;
@@ -61,7 +59,6 @@
       color: #e50914;
     }
 
-    /* ----- Dropdown (three dots) ----- */
     .dropdown {
       position: absolute;
       right: 20px;
@@ -91,7 +88,6 @@
       color: #e50914;
     }
 
-    /* ----- Search bar (top) ----- */
     .top-search {
       margin-top: 90px;
       padding: 0 30px;
@@ -117,7 +113,6 @@
       box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
     }
 
-    /* ----- Hero section ----- */
     .hero {
       height: 60vh;
       min-height: 400px;
@@ -142,7 +137,6 @@
       color: #e50914;
     }
 
-    /* ----- Main content sections ----- */
     section {
       padding: 10px 30px 30px;
     }
@@ -161,7 +155,6 @@
       color: #e50914;
     }
 
-    /* ----- Movie grid ----- */
     .movies-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -189,7 +182,6 @@
       display: block;
     }
 
-    /* ----- VIP ball (styled) ----- */
     #vipBall {
       position: absolute;
       top: -15px;
@@ -214,7 +206,6 @@
       box-shadow: 0 8px 20px gold;
     }
 
-    /* ----- Action bars (request, unlock) ----- */
     .bar {
       display: flex;
       gap: 15px;
@@ -261,7 +252,6 @@
       background: #20b859 !important;
     }
 
-    /* ----- Toast message ----- */
     #toast {
       position: fixed;
       bottom: 30px;
@@ -281,7 +271,6 @@
       letter-spacing: 0.3px;
     }
 
-    /* ----- Modals (VIP purchase & Admin) ----- */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -356,7 +345,6 @@
       color: white;
     }
 
-    /* Admin modal (larger) */
     #adminPanel {
       width: 400px;
       max-width: 95%;
@@ -378,14 +366,7 @@
       border-top: 1px solid #333;
       margin: 20px 0;
     }
-    #msg {
-      margin-top: 15px;
-      color: #4caf50;
-      font-weight: 500;
-      word-break: break-all;
-    }
 
-    /* ----- Footer ----- */
     footer {
       text-align: center;
       padding: 30px;
@@ -395,7 +376,6 @@
       margin-top: 30px;
     }
 
-    /* Responsive tweaks */
     @media (max-width: 600px) {
       header { padding: 0 15px; }
       .hero { padding: 0 15px 40px; }
@@ -430,7 +410,7 @@
     <button class="whatsapp" onclick="requestMovie()">Request via WhatsApp</button>
   </div>
   <div class="bar">
-    <input id="vipCode" placeholder="Enter VIP code">
+    <input id="vipCode" placeholder="Enter VIP password">
     <button onclick="unlockVIP()">Unlock VIP</button>
   </div>
 
@@ -461,7 +441,7 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal -->
+<!-- Admin Modal (VIP code generator removed) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -474,20 +454,12 @@
     <option value="true">VIP</option>
   </select>
   <button onclick="uploadMovie()">Upload Movie</button>
-  <hr>
-  <h4>Generate VIP Code</h4>
-  <select id="vipType">
-    <option value="7">Weekly (7 days)</option>
-    <option value="30">Monthly (30 days)</option>
-  </select>
-  <button onclick="createVIP()">Generate Code</button>
-  <p id="msg"></p>
+  <!-- VIP code generation section completely removed -->
 </div>
 
 <script type="module">
-  // Firebase initialization
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -503,7 +475,6 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // DOM elements
   const freeDiv = document.getElementById("free");
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
@@ -537,7 +508,7 @@
     }
   }
 
-  // ---------- Load movies with proper async handling ----------
+  // ---------- Load movies ----------
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -639,47 +610,25 @@
     }
   };
 
-  // ---------- Create VIP code (with error handling) ----------
-  window.createVIP = async function() {
-    try {
-      const type = document.getElementById("vipType").value;
-      const code = "VIP" + Math.floor(Math.random() * 90000 + 10000);
-      await addDoc(collection(db, "vipCodes"), { 
-        code, 
-        type, 
-        used: false,
-        createdAt: new Date() 
-      });
-      document.getElementById("msg").innerText = `✅ VIP Code: ${code}`;
-      showToast("VIP code created successfully!");
-    } catch (error) {
-      console.error("Error creating VIP code:", error);
-      showToast("Error: " + error.message);
-    }
-  };
+  // ---------- Unlock VIP with a single master password ----------
+  // Set your master password here – change it to whatever you like
+  const MASTER_VIP_CODE = "VIP2025"; // <-- Change this to your preferred password
 
-  // ---------- Unlock VIP with code ----------
   window.unlockVIP = async function() {
     const codeInput = document.getElementById("vipCode").value.trim();
-    if (!codeInput) return showToast("Enter VIP code");
+    if (!codeInput) return showToast("Enter VIP password");
 
-    try {
-      const q = query(collection(db, "vipCodes"), where("code", "==", codeInput), where("used", "==", false));
-      const snap = await getDocs(q);
-
-      if (snap.empty) return showToast("Invalid or already used VIP code");
-
-      const docSnap = snap.docs[0];
-      const type = docSnap.data().type;
+    if (codeInput === MASTER_VIP_CODE) {
+      // Set VIP expiry (e.g., 30 days from now)
       const expiry = new Date();
-      expiry.setDate(expiry.getDate() + parseInt(type));
-
-      await docSnap.ref.update({ used: true });
-
-      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
-      showToast("VIP unlocked! You can now watch VIP movies.");
-    } catch (error) {
-      showToast("Error: " + error.message);
+      expiry.setDate(expiry.getDate() + 30); // 30 days
+      localStorage.setItem("vipData", JSON.stringify({ 
+        code: codeInput, 
+        expiry: expiry.toISOString() 
+      }));
+      showToast("VIP unlocked for 30 days! Enjoy.");
+    } else {
+      showToast("Incorrect VIP password. Get it via WhatsApp.");
     }
   };
 
@@ -718,11 +667,11 @@
   closePurchase2.addEventListener("click", hidePurchasePanel);
 
   buyWeekly.addEventListener("click", () => {
-    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me a code.")}`, "_blank");
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Weekly VIP (6,000 UGX). Please send me the password.")}`, "_blank");
     hidePurchasePanel();
   });
   buyMonthly.addEventListener("click", () => {
-    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me a code.")}`, "_blank");
+    window.open(`https://wa.me/256753747474?text=${encodeURIComponent("I want to buy Monthly VIP (25,000 UGX). Please send me the password.")}`, "_blank");
     hidePurchasePanel();
   });
 
@@ -754,19 +703,5 @@
   loadMovies();
   window.loadMovies = loadMovies;
 </script>
-
-<!-- 
-  IMPORTANT: If "Generate VIP Code" still doesn't work, 
-  go to Firebase Console → Firestore Database → Rules and set:
-  rules_version = '2';
-  service cloud.firestore {
-    match /databases/{database}/documents {
-      match /{document=**} {
-        allow read, write: if true;
-      }
-    }
-  }
-  Then click Publish.
--->
 </body>
-  </html>
+                                                </html>
