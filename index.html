@@ -134,7 +134,9 @@ const vipDiv = document.getElementById("vip");
 async function loadMovies(){
   freeDiv.innerHTML=""; vipDiv.innerHTML="";
   const snap = await getDocs(collection(db,"movies"));
+  let hasMovies=false;
   snap.forEach(async docSnap=>{
+    hasMovies=true;
     const m = docSnap.data();
     const posterUrl = await getDownloadURL(ref(storage, m.poster));
     const videoUrl = await getDownloadURL(ref(storage, m.file));
@@ -153,6 +155,7 @@ async function loadMovies(){
       if(m.vip==="true") vipDiv.appendChild(div); else freeDiv.appendChild(div);
     }
   });
+  return hasMovies;
 }
 
 // Admin upload
@@ -209,14 +212,16 @@ function requestMovie(){
 function payVIP(){ window.open("https://wa.me/256753747474?text=Hello I want VIP"); }
 function openVIPPopup(){ document.getElementById("vipPopup").style.display='block'; }
 
-// Search
+// Search with request message
 document.getElementById("searchInput").addEventListener("input", async ()=>{
   const q=document.getElementById("searchInput").value.toLowerCase();
   freeDiv.innerHTML=""; vipDiv.innerHTML="";
   const snap=await getDocs(collection(db,"movies"));
+  let found=false;
   snap.forEach(async docSnap=>{
     const m=docSnap.data();
     if(!m.title.toLowerCase().includes(q)) return;
+    found=true;
     const posterUrl = await getDownloadURL(ref(storage, m.poster));
     const videoUrl = await getDownloadURL(ref(storage, m.file));
     const div=document.createElement("div"); div.className="movie-card";
@@ -234,9 +239,12 @@ document.getElementById("searchInput").addEventListener("input", async ()=>{
       if(m.vip==="true") vipDiv.appendChild(div); else freeDiv.appendChild(div);
     }
   });
+  if(!found && q!==""){ 
+    alert("This movie is not yet uploaded. You can request it and it will be uploaded within 24 hours."); 
+  }
 });
 
 loadMovies();
 </script>
 </body>
-  </html>
+</html>
