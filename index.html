@@ -44,7 +44,6 @@
     input,select,button{padding:10px;border:none;border-radius:6px}
     button{background:#e50914;color:white;cursor:pointer}
     .whatsapp{background:#25D366}
-    #adminPanel{display:none;background:#111;padding:20px;margin:20px;border-radius:10px;}
     #toast{
       position:fixed; bottom:50px; left:50%; transform:translateX(-50%);
       background:rgba(0,0,0,0.8); color:white; padding:12px 20px; border-radius:25px;
@@ -64,6 +63,56 @@
     #overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
       z-index: 1999; display: none;
+    }
+
+    /* ----- NEW: Admin panel as a centered modal ----- */
+    #adminPanel {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 2000;
+      width: 320px;
+      max-width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid #333;
+    }
+    #adminPanel h2, #adminPanel h3 {
+      margin-top: 0;
+      color: #e50914;
+    }
+    #adminPanel input, #adminPanel select, #adminPanel button {
+      width: 100%;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    #adminPanel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 24px;
+      cursor: pointer;
+      width: auto;
+      padding: 0;
+    }
+    #adminPanel .close-btn:hover {
+      color: white;
+    }
+    #adminOverlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1999;
+      display: none;
     }
   </style>
 </head>
@@ -107,24 +156,25 @@
 <!-- Toast message -->
 <div id="toast"></div>
 
-<!-- Admin Panel (now without password field) -->
+<!-- Admin Panel (modal) -->
+<div id="adminOverlay"></div>
 <div id="adminPanel">
+  <button class="close-btn" id="closeAdminPanel">&times;</button>
   <h2>Admin Upload</h2>
-  <!-- Password field removed – authentication handled by prompt on entry -->
-  <input type="file" id="poster" accept="image/*"><br><br>
-  <input type="file" id="file" accept="video/*"><br><br>
-  <input id="name" placeholder="Movie name"><br><br>
+  <input type="file" id="poster" accept="image/*"><br>
+  <input type="file" id="file" accept="video/*"><br>
+  <input id="name" placeholder="Movie name"><br>
   <select id="isVip">
     <option value="false">Free</option>
     <option value="true">VIP</option>
-  </select><br><br>
+  </select><br>
   <button onclick="uploadMovie()">Upload Movie</button>
   <hr>
   <h3>Create VIP Code</h3>
   <select id="vipType">
     <option value="7">Weekly (7 days)</option>
     <option value="30">Monthly (30 days)</option>
-  </select><br><br>
+  </select><br>
   <button onclick="createVIP()">Generate VIP Code</button>
   <p id="msg"></p>
 </div>
@@ -190,7 +240,7 @@ function isVipActive() {
   }
 }
 
-// ---------- Load movies with proper async handling ----------
+// ---------- Load movies ----------
 async function loadMovies(filterTitle = "") {
   freeDiv.innerHTML = "";
   vipDiv.innerHTML = "";
@@ -240,10 +290,11 @@ async function loadMovies(filterTitle = "") {
   }
 }
 
-// ---------- Admin login: prompt for password, then show panel ----------
+// ---------- Admin login: prompt for password, then show modal ----------
 window.adminLogin = function() {
   const password = prompt("Enter admin password:");
   if (password === "admin123") {
+    document.getElementById("adminOverlay").style.display = "block";
     document.getElementById("adminPanel").style.display = "block";
     document.getElementById("dropdownMenu").style.display = "none"; // hide dropdown
   } else {
@@ -251,7 +302,19 @@ window.adminLogin = function() {
   }
 };
 
-// ---------- Upload movie (no password check inside, already logged in) ----------
+// ---------- Close admin modal ----------
+document.getElementById("closeAdminPanel").addEventListener("click", () => {
+  document.getElementById("adminOverlay").style.display = "none";
+  document.getElementById("adminPanel").style.display = "none";
+});
+
+// Also close when clicking on overlay
+document.getElementById("adminOverlay").addEventListener("click", () => {
+  document.getElementById("adminOverlay").style.display = "none";
+  document.getElementById("adminPanel").style.display = "none";
+});
+
+// ---------- Upload movie (no password check inside) ----------
 window.uploadMovie = async function() {
   const posterFile = document.getElementById("poster").files[0];
   const videoFile = document.getElementById("file").files[0];
