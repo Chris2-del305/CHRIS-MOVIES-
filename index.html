@@ -361,6 +361,9 @@
       color: white;
       font-size: 15px;
     }
+    #adminPanel input[type="file"] {
+      padding: 8px;
+    }
     #adminPanel hr {
       border: none;
       border-top: 1px solid #333;
@@ -441,45 +444,47 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – now with URL inputs instead of file uploads -->
+<!-- Admin Modal – now with file inputs for phone uploads -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
-  <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct link)">
+  <input type="file" id="posterFile" accept="image/*" capture="environment" placeholder="Poster image">
+  <input type="file" id="videoFile" accept="video/*" capture="environment" placeholder="Video file">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
     <option value="true">VIP</option>
   </select>
-  <button onclick="uploadMovie()">Add Movie</button>
+  <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Use direct links from any hosting (Google Drive, ImgBB, etc.)</p>
+  <p style="color:#aaa; font-size:14px;">Select images/videos from your phone. Large files may take time.</p>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
     projectId: "chris-movies-7ba0f",
-    storageBucket: "chris-movies-7ba0f.appspot.com",
+    storageBucket: "chris-movies-7ba0f.appspot.com", // make sure this is correct
     messagingSenderId: "867998448675",
     appId: "1:867998448675:web:3166effb3c6c402ee78596"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   const freeDiv = document.getElementById("free");
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
 
-  function showToast(msg) {
+  function showToast(msg, duration = 3000) {
     toastDiv.innerText = msg;
     toastDiv.style.display = "block";
     toastDiv.style.opacity = "1";
@@ -490,7 +495,7 @@
         toastDiv.style.display = "none";
         toastDiv.style.transition = "";
       }, 500);
-    }, 3000);
+    }, duration);
   }
   window.showToast = showToast;
 
@@ -505,7 +510,7 @@
     }
   }
 
-  // Load movies from Firestore (direct URLs)
+  // Load movies from Firestore
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -565,19 +570,36 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Add movie using URLs
+  // Upload movie with files
   window.uploadMovie = async function() {
-    const posterUrl = document.getElementById("posterUrl").value.trim();
-    const videoUrl = document.getElementById("videoUrl").value.trim();
+    const posterFile = document.getElementById("posterFile").files[0];
+    const videoFile = document.getElementById("videoFile").files[0];
     const title = document.getElementById("name").value.trim();
     const vipStatus = document.getElementById("isVip").value;
 
-    if (!posterUrl || !videoUrl || !title) {
-      showToast("Please fill all fields");
+    if (!posterFile || !videoFile || !title) {
+      showToast("Please select a poster image, a video, and enter a name");
       return;
     }
 
+    // Disable button to prevent double-click
+    const uploadBtn = document.getElementById("uploadBtn");
+    uploadBtn.disabled = true;
+    uploadBtn.innerText = "Uploading...";
+    showToast("Uploading files... (this may take a while)");
+
     try {
+      // Upload poster image
+      const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
+      await uploadBytes(posterRef, posterFile);
+      const posterUrl = await getDownloadURL(posterRef);
+
+      // Upload video
+      const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
+      await uploadBytes(videoRef, videoFile);
+      const videoUrl = await getDownloadURL(videoRef);
+
+      // Save to Firestore
       await addDoc(collection(db, "movies"), {
         title: title,
         poster: posterUrl,
@@ -589,12 +611,15 @@
       loadMovies(searchInput.value);
       
       // Clear inputs
-      document.getElementById("posterUrl").value = "";
-      document.getElementById("videoUrl").value = "";
+      document.getElementById("posterFile").value = "";
+      document.getElementById("videoFile").value = "";
       document.getElementById("name").value = "";
     } catch (error) {
       console.error("Error adding movie:", error);
       showToast("❌ Error: " + error.message);
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.innerText = "Add Movie";
     }
   };
 
@@ -690,4 +715,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-                          </html>
+  </html>
