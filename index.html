@@ -444,13 +444,13 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – now with file inputs for phone uploads -->
+<!-- Admin Modal – file uploads from phone storage (no forced camera) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
-  <input type="file" id="posterFile" accept="image/*" capture="environment" placeholder="Poster image">
-  <input type="file" id="videoFile" accept="video/*" capture="environment" placeholder="Video file">
+  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image">
+  <input type="file" id="videoFile" accept="video/*" placeholder="Video file">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -470,7 +470,7 @@
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
     projectId: "chris-movies-7ba0f",
-    storageBucket: "chris-movies-7ba0f.appspot.com", // make sure this is correct
+    storageBucket: "chris-movies-7ba0f.appspot.com",
     messagingSenderId: "867998448675",
     appId: "1:867998448675:web:3166effb3c6c402ee78596"
   };
@@ -570,7 +570,7 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Upload movie with files
+  // Upload movie with files (from storage)
   window.uploadMovie = async function() {
     const posterFile = document.getElementById("posterFile").files[0];
     const videoFile = document.getElementById("videoFile").files[0];
