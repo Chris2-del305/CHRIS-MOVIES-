@@ -169,6 +169,7 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease;
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
       border: 1px solid #2c2c2c;
+      position: relative;
     }
     .movie-card:hover {
       transform: scale(1.05);
@@ -180,6 +181,38 @@
       height: 220px;
       object-fit: cover;
       display: block;
+    }
+    .movie-info {
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.7);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transform: translateY(100%);
+      transition: transform 0.2s;
+    }
+    .movie-card:hover .movie-info {
+      transform: translateY(0);
+    }
+    .like-btn, .comment-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .like-btn.liked {
+      color: #e50914;
+    }
+    .comment-btn {
+      color: #aaa;
     }
 
     #vipBall {
@@ -271,6 +304,7 @@
       letter-spacing: 0.3px;
     }
 
+    /* Modal styles */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -345,6 +379,20 @@
       color: white;
     }
 
+    /* Video player modal */
+    #videoModal {
+      width: 90%;
+      max-width: 800px;
+      background: black;
+      padding: 10px;
+    }
+    #videoPlayer {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+    }
+
+    /* Admin panel */
     #adminPanel {
       width: 400px;
       max-width: 95%;
@@ -364,10 +412,52 @@
     #adminPanel input[type="file"] {
       padding: 8px;
     }
+    #adminPanel .radio-group {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+      color: white;
+    }
+    #adminPanel .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
     #adminPanel hr {
       border: none;
       border-top: 1px solid #333;
       margin: 20px 0;
+    }
+
+    /* Comment modal */
+    #commentModal {
+      width: 400px;
+      max-width: 95%;
+    }
+    .comment-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      background: #262626;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .comment-item {
+      padding: 8px;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+    #commentInput {
+      width: 100%;
+      padding: 12px;
+      background: #262626;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      color: white;
+      margin-bottom: 10px;
     }
 
     footer {
@@ -444,13 +534,36 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – file uploads from phone storage (no forced camera) -->
+<!-- Video Player Modal -->
+<div class="modal-overlay" id="videoOverlay"></div>
+<div class="modal" id="videoModal">
+  <button class="close-icon" id="closeVideoModal">&times;</button>
+  <video id="videoPlayer" controls autoplay></video>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal-overlay" id="commentOverlay"></div>
+<div class="modal" id="commentModal">
+  <button class="close-icon" id="closeCommentModal">&times;</button>
+  <h3 id="commentMovieTitle">Comments</h3>
+  <div class="comment-list" id="commentList"></div>
+  <input type="text" id="commentInput" placeholder="Write a comment...">
+  <button onclick="addComment()" id="addCommentBtn">Post Comment</button>
+  <button class="btn-close" id="closeCommentModal2">Close</button>
+</div>
+
+<!-- Admin Modal – file uploads + URL option -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
-  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image">
+  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image (required)">
+  <div class="radio-group">
+    <label><input type="radio" name="videoSource" value="file" checked> Upload video file</label>
+    <label><input type="radio" name="videoSource" value="url"> Video URL</label>
+  </div>
   <input type="file" id="videoFile" accept="video/*" placeholder="Video file">
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, etc.)" style="display:none;">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -458,12 +571,12 @@
   </select>
   <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Select images/videos from your phone. Large files may take time.</p>
+  <p style="color:#aaa; font-size:14px;">Poster is always uploaded from your phone. Video can be uploaded or linked via URL.</p>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -483,6 +596,8 @@
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
+
+  let currentMovieId = null; // for comments
 
   function showToast(msg, duration = 3000) {
     toastDiv.innerText = msg;
@@ -530,23 +645,134 @@
     for (const m of filtered) {
       const card = document.createElement("div");
       card.className = "movie-card";
-      card.innerHTML = `<img src="${m.poster}" alt="${m.title}">`;
+      card.innerHTML = `
+        <img src="${m.poster}" alt="${m.title}">
+        <div class="movie-info">
+          <button class="like-btn" data-id="${m.id}" data-liked="false">❤️ <span>${m.likes || 0}</span></button>
+          <button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments && m.comments.length) || 0}</span></button>
+        </div>
+      `;
+
+      // Click on card opens video player (if allowed)
+      card.addEventListener("click", (e) => {
+        // Ignore clicks on buttons
+        if (e.target.closest('button')) return;
+        
+        if (m.vip === "true" && !isVipActive()) {
+          showToast("VIP movie! Tap the gold VIP button to buy access.");
+          return;
+        }
+        openVideoPlayer(m.video);
+      });
+
+      // Like button
+      const likeBtn = card.querySelector('.like-btn');
+      likeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLike(m.id, likeBtn);
+      });
+
+      // Comment button
+      const commentBtn = card.querySelector('.comment-btn');
+      commentBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCommentModal(m.id, m.title);
+      });
 
       if (m.vip === "true") {
-        card.onclick = () => {
-          if (isVipActive()) {
-            window.open(m.video, "_blank");
-          } else {
-            showToast("VIP movie! Tap the gold VIP button to buy access.");
-          }
-        };
         vipDiv.appendChild(card);
       } else {
-        card.onclick = () => window.open(m.video, "_blank");
         freeDiv.appendChild(card);
       }
     }
   }
+
+  // Open video player modal
+  function openVideoPlayer(videoUrl) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.src = videoUrl;
+    document.getElementById('videoOverlay').style.display = 'block';
+    document.getElementById('videoModal').style.display = 'block';
+  }
+
+  // Close video modal
+  document.getElementById('closeVideoModal').addEventListener('click', () => {
+    document.getElementById('videoPlayer').pause();
+    document.getElementById('videoPlayer').src = '';
+    document.getElementById('videoOverlay').style.display = 'none';
+    document.getElementById('videoModal').style.display = 'none';
+  });
+  document.getElementById('videoOverlay').addEventListener('click', () => {
+    document.getElementById('videoPlayer').pause();
+    document.getElementById('videoPlayer').src = '';
+    document.getElementById('videoOverlay').style.display = 'none';
+    document.getElementById('videoModal').style.display = 'none';
+  });
+
+  // Like toggle
+  async function toggleLike(movieId, btn) {
+    const movieRef = doc(db, 'movies', movieId);
+    const movieSnap = await getDoc(movieRef);
+    if (!movieSnap.exists()) return;
+
+    const currentLikes = movieSnap.data().likes || 0;
+    const isLiked = btn.dataset.liked === 'true';
+    
+    await updateDoc(movieRef, {
+      likes: isLiked ? currentLikes - 1 : currentLikes + 1
+    });
+
+    btn.dataset.liked = isLiked ? 'false' : 'true';
+    btn.querySelector('span').textContent = isLiked ? currentLikes - 1 : currentLikes + 1;
+    btn.classList.toggle('liked');
+  }
+
+  // Comment modal
+  async function openCommentModal(movieId, title) {
+    currentMovieId = movieId;
+    document.getElementById('commentMovieTitle').textContent = `Comments - ${title}`;
+    
+    const movieRef = doc(db, 'movies', movieId);
+    const movieSnap = await getDoc(movieRef);
+    const comments = movieSnap.data().comments || [];
+    
+    const commentList = document.getElementById('commentList');
+    commentList.innerHTML = '';
+    comments.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      div.textContent = c;
+      commentList.appendChild(div);
+    });
+
+    document.getElementById('commentOverlay').style.display = 'block';
+    document.getElementById('commentModal').style.display = 'block';
+  }
+
+  window.addComment = async function() {
+    if (!currentMovieId) return;
+    const input = document.getElementById('commentInput');
+    const comment = input.value.trim();
+    if (!comment) return;
+
+    const movieRef = doc(db, 'movies', currentMovieId);
+    await updateDoc(movieRef, {
+      comments: arrayUnion(comment)
+    });
+
+    input.value = '';
+    // Refresh comments
+    openCommentModal(currentMovieId, document.getElementById('commentMovieTitle').textContent.replace('Comments - ', ''));
+  };
+
+  // Close comment modal
+  const closeComment = () => {
+    document.getElementById('commentOverlay').style.display = 'none';
+    document.getElementById('commentModal').style.display = 'none';
+  };
+  document.getElementById('closeCommentModal').addEventListener('click', closeComment);
+  document.getElementById('closeCommentModal2').addEventListener('click', closeComment);
+  document.getElementById('commentOverlay').addEventListener('click', closeComment);
 
   // Admin login
   window.adminLogin = function() {
@@ -570,15 +796,40 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Upload movie with files (from storage)
+  // Toggle video input based on radio
+  document.querySelectorAll('input[name="videoSource"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const isFile = e.target.value === 'file';
+      document.getElementById('videoFile').style.display = isFile ? 'block' : 'none';
+      document.getElementById('videoUrl').style.display = isFile ? 'none' : 'block';
+    });
+  });
+
+  // Upload movie with files (from storage) OR URL
   window.uploadMovie = async function() {
     const posterFile = document.getElementById("posterFile").files[0];
-    const videoFile = document.getElementById("videoFile").files[0];
     const title = document.getElementById("name").value.trim();
     const vipStatus = document.getElementById("isVip").value;
+    const videoSource = document.querySelector('input[name="videoSource"]:checked').value;
+    
+    let videoUrl = '';
+    if (videoSource === 'file') {
+      const videoFile = document.getElementById("videoFile").files[0];
+      if (!videoFile) {
+        showToast("Please select a video file");
+        return;
+      }
+      // We'll upload later
+    } else {
+      videoUrl = document.getElementById("videoUrl").value.trim();
+      if (!videoUrl) {
+        showToast("Please enter a video URL");
+        return;
+      }
+    }
 
-    if (!posterFile || !videoFile || !title) {
-      showToast("Please select a poster image, a video, and enter a name");
+    if (!posterFile || !title) {
+      showToast("Please select a poster image and enter a name");
       return;
     }
 
@@ -594,17 +845,22 @@
       await uploadBytes(posterRef, posterFile);
       const posterUrl = await getDownloadURL(posterRef);
 
-      // Upload video
-      const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
-      await uploadBytes(videoRef, videoFile);
-      const videoUrl = await getDownloadURL(videoRef);
+      // If video source is file, upload video
+      if (videoSource === 'file') {
+        const videoFile = document.getElementById("videoFile").files[0];
+        const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
+        await uploadBytes(videoRef, videoFile);
+        videoUrl = await getDownloadURL(videoRef);
+      }
 
       // Save to Firestore
       await addDoc(collection(db, "movies"), {
         title: title,
         poster: posterUrl,
         video: videoUrl,
-        vip: vipStatus
+        vip: vipStatus,
+        likes: 0,
+        comments: []
       });
 
       showToast("✅ Movie added successfully!");
@@ -613,9 +869,11 @@
       // Clear inputs
       document.getElementById("posterFile").value = "";
       document.getElementById("videoFile").value = "";
+      document.getElementById("videoUrl").value = "";
       document.getElementById("name").value = "";
     } catch (error) {
-      console.error("Error adding movie:", error);
+      console.error("Upload error:", error);
+      alert("❌ Upload failed!\n\n" + error.message + "\n\nCheck Firebase Storage rules (see instructions).");
       showToast("❌ Error: " + error.message);
     } finally {
       uploadBtn.disabled = false;
@@ -715,4 +973,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-  </html>
+</html>
