@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- all styles exactly as before ----- */
+    /* ----- all styles exactly as before, plus new video modal ----- */
     * {
       margin: 0;
       padding: 0;
@@ -271,6 +271,7 @@
       letter-spacing: 0.3px;
     }
 
+    /* ----- modal base styles (reused) ----- */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -367,6 +368,54 @@
       margin: 20px 0;
     }
 
+    /* ----- NEW video player modal ----- */
+    .video-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 900px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 2200;
+      display: none;
+      border: 1px solid #333;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+    }
+    .video-modal video {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      display: block;
+    }
+    .video-modal .close-video {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 30px;
+      color: white;
+      cursor: pointer;
+      z-index: 2201;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: 0.2s;
+    }
+    .video-modal .close-video:hover {
+      background: rgba(229,9,20,0.8);
+    }
+    #videoOverlay {
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(5px);
+    }
+
     footer {
       text-align: center;
       padding: 30px;
@@ -441,7 +490,7 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – now with URL inputs instead of file uploads -->
+<!-- Admin Modal – URL inputs only -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -456,6 +505,13 @@
   <button onclick="uploadMovie()">Add Movie</button>
   <hr>
   <p style="color:#aaa; font-size:14px;">Use direct links from any hosting (Google Drive, ImgBB, etc.)</p>
+</div>
+
+<!-- NEW Video Player Modal -->
+<div class="modal-overlay" id="videoOverlay"></div>
+<div class="video-modal" id="videoModal">
+  <div class="close-video" id="closeVideoBtn">&times;</div>
+  <video id="videoPlayer" controls autoplay></video>
 </div>
 
 <script type="module">
@@ -478,6 +534,12 @@
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
+
+  // --- Video modal elements ---
+  const videoOverlay = document.getElementById('videoOverlay');
+  const videoModal = document.getElementById('videoModal');
+  const videoPlayer = document.getElementById('videoPlayer');
+  const closeVideoBtn = document.getElementById('closeVideoBtn');
 
   function showToast(msg) {
     toastDiv.innerText = msg;
@@ -505,7 +567,24 @@
     }
   }
 
-  // Load movies from Firestore (direct URLs)
+  // --- Video modal functions ---
+  function showVideoModal(videoUrl) {
+    videoPlayer.src = videoUrl;
+    videoModal.style.display = 'block';
+    videoOverlay.style.display = 'block';
+  }
+
+  function hideVideoModal() {
+    videoPlayer.pause();
+    videoPlayer.src = '';
+    videoModal.style.display = 'none';
+    videoOverlay.style.display = 'none';
+  }
+
+  videoOverlay.addEventListener('click', hideVideoModal);
+  closeVideoBtn.addEventListener('click', hideVideoModal);
+
+  // Load movies from Firestore
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -530,14 +609,14 @@
       if (m.vip === "true") {
         card.onclick = () => {
           if (isVipActive()) {
-            window.open(m.video, "_blank");
+            showVideoModal(m.video);
           } else {
             showToast("VIP movie! Tap the gold VIP button to buy access.");
           }
         };
         vipDiv.appendChild(card);
       } else {
-        card.onclick = () => window.open(m.video, "_blank");
+        card.onclick = () => showVideoModal(m.video);
         freeDiv.appendChild(card);
       }
     }
@@ -690,4 +769,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-  </html>
+</html>
