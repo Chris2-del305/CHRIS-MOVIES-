@@ -490,13 +490,13 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – URL inputs only -->
+<!-- Admin Modal – URL inputs only, with clear instruction about direct video links -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
   <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct link)">
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link to .mp4, .webm, etc.)">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -504,7 +504,10 @@
   </select>
   <button onclick="uploadMovie()">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Use direct links from any hosting (Google Drive, ImgBB, etc.)</p>
+  <p style="color:#ffaa00; font-size:14px;">
+    ⚠️ Only direct video file URLs work (e.g., ending in .mp4, .webm).<br>
+    YouTube, Vimeo, or other embed links will NOT play.
+  </p>
 </div>
 
 <!-- NEW Video Player Modal -->
@@ -567,16 +570,26 @@
     }
   }
 
-  // --- Video modal functions ---
+  // --- Video modal functions with error handling ---
   function showVideoModal(videoUrl) {
+    // Set the source and add an error event listener
     videoPlayer.src = videoUrl;
+    videoPlayer.onerror = () => {
+      hideVideoModal();
+      showToast("❌ Video failed to load. Make sure the URL is a direct link to a video file (like .mp4).");
+    };
     videoModal.style.display = 'block';
     videoOverlay.style.display = 'block';
+    // Attempt to play (may be autoplay-blocked by browser, but user can click play)
+    videoPlayer.play().catch(e => {
+      // Autoplay might be prevented, but that's okay; user can press play.
+    });
   }
 
   function hideVideoModal() {
     videoPlayer.pause();
     videoPlayer.src = '';
+    videoPlayer.onerror = null;
     videoModal.style.display = 'none';
     videoOverlay.style.display = 'none';
   }
@@ -654,6 +667,13 @@
     if (!posterUrl || !videoUrl || !title) {
       showToast("Please fill all fields");
       return;
+    }
+
+    // Optional: basic check if videoUrl looks like a direct file (contains .mp4, .webm, etc.)
+    const isDirectVideo = /\.(mp4|webm|ogg|mov|mkv)(\?.*)?$/i.test(videoUrl.split('?')[0]);
+    if (!isDirectVideo) {
+      showToast("⚠️ Warning: URL may not be a direct video file. It might not play.");
+      // Continue anyway; user might have a valid direct link with a different extension
     }
 
     try {
@@ -769,4 +789,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-</html>
+    </html>
