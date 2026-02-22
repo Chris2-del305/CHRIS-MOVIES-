@@ -384,7 +384,7 @@
       width: 90%;
       max-width: 800px;
       background: black;
-      padding: 0;
+      padding: 10px;
     }
     #videoPlayer {
       width: 100%;
@@ -422,7 +422,6 @@
       gap: 20px;
       margin-bottom: 15px;
       color: white;
-      flex-wrap: wrap;
     }
     #adminPanel .radio-group label {
       display: flex;
@@ -558,26 +557,18 @@
   <button class="btn-close" id="closeCommentModal2">Close</button>
 </div>
 
-<!-- Admin Modal – file uploads + URL options for both poster and video -->
+<!-- Admin Modal – file uploads + URL option -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
-  
-  <div class="radio-group">
-    <label><input type="radio" name="posterSource" value="file" checked> Upload poster image</label>
-    <label><input type="radio" name="posterSource" value="url"> Poster URL</label>
-  </div>
-  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image (file)">
-  <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)" style="display:none;">
-
+  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image (required)">
   <div class="radio-group">
     <label><input type="radio" name="videoSource" value="file" checked> Upload video file</label>
     <label><input type="radio" name="videoSource" value="url"> Video URL</label>
   </div>
   <input type="file" id="videoFile" accept="video/*" placeholder="Video file">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct MP4, YouTube, etc.)" style="display:none;">
-
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, YouTube, etc.)" style="display:none;">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -585,8 +576,8 @@
   </select>
   <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Poster and video can be uploaded or provided via URL. If upload times out, try using a URL.</p>
-  <p style="color:#ffaa00; font-size:14px;">⚠️ YouTube videos will play without branding.</p>
+  <p style="color:#aaa; font-size:14px;">Poster is always uploaded from your phone. Video can be uploaded or linked via URL.</p>
+  <p style="color:#ffaa00; font-size:14px;">⚠️ If stuck on "Uploading...", check Firebase Storage rules (set to allow read/write for testing).</p>
 </div>
 
 <script type="module">
@@ -701,7 +692,7 @@
     }
   }
 
-  // Enhanced video player – supports YouTube (clean) and direct videos
+  // Enhanced video player – supports YouTube and direct videos
   function openVideoPlayer(videoUrl) {
     const videoModal = document.getElementById('videoModal');
     const videoOverlay = document.getElementById('videoOverlay');
@@ -715,10 +706,10 @@
     const match = videoUrl.match(youtubeRegex);
     
     if (match) {
-      // YouTube embed with minimal branding
+      // YouTube embed
       const videoId = match[1];
       const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&controls=1&disablekb=0&fs=1&playsinline=1&enablejsapi=1`;
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
       iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
       iframe.allowFullscreen = true;
       iframe.style.width = "100%";
@@ -843,15 +834,6 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Toggle poster input based on radio
-  document.querySelectorAll('input[name="posterSource"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      const isFile = e.target.value === 'file';
-      document.getElementById('posterFile').style.display = isFile ? 'block' : 'none';
-      document.getElementById('posterUrl').style.display = isFile ? 'none' : 'block';
-    });
-  });
-
   // Toggle video input based on radio
   document.querySelectorAll('input[name="videoSource"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -869,31 +851,13 @@
     ]);
   }
 
-  // Upload movie with files OR URLs
+  // Upload movie with files (from storage) OR URL
   window.uploadMovie = async function() {
+    const posterFile = document.getElementById("posterFile").files[0];
     const title = document.getElementById("name").value.trim();
     const vipStatus = document.getElementById("isVip").value;
-
-    // Poster source
-    const posterSource = document.querySelector('input[name="posterSource"]:checked').value;
-    let posterUrl = '';
-    if (posterSource === 'file') {
-      const posterFile = document.getElementById("posterFile").files[0];
-      if (!posterFile) {
-        showToast("Please select a poster image file");
-        return;
-      }
-      // We'll upload later
-    } else {
-      posterUrl = document.getElementById("posterUrl").value.trim();
-      if (!posterUrl) {
-        showToast("Please enter a poster image URL");
-        return;
-      }
-    }
-
-    // Video source
     const videoSource = document.querySelector('input[name="videoSource"]:checked').value;
+    
     let videoUrl = '';
     if (videoSource === 'file') {
       const videoFile = document.getElementById("videoFile").files[0];
@@ -909,27 +873,24 @@
       }
     }
 
-    if (!title) {
-      showToast("Please enter a movie name");
+    if (!posterFile || !title) {
+      showToast("Please select a poster image and enter a name");
       return;
     }
 
     // Disable button
     const uploadBtn = document.getElementById("uploadBtn");
     uploadBtn.disabled = true;
-    uploadBtn.innerText = "Processing...";
-    showToast("Processing... (this may take a while)");
+    uploadBtn.innerText = "Uploading...";
+    showToast("Uploading files... (this may take a while)");
 
     try {
-      // Handle poster upload if file chosen
-      if (posterSource === 'file') {
-        const posterFile = document.getElementById("posterFile").files[0];
-        const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
-        await uploadWithTimeout(posterRef, posterFile);
-        posterUrl = await getDownloadURL(posterRef);
-      }
+      // Upload poster with timeout
+      const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
+      await uploadWithTimeout(posterRef, posterFile);
+      const posterUrl = await getDownloadURL(posterRef);
 
-      // Handle video upload if file chosen
+      // If video source is file, upload video with timeout
       if (videoSource === 'file') {
         const videoFile = document.getElementById("videoFile").files[0];
         const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
@@ -952,7 +913,6 @@
       
       // Clear inputs
       document.getElementById("posterFile").value = "";
-      document.getElementById("posterUrl").value = "";
       document.getElementById("videoFile").value = "";
       document.getElementById("videoUrl").value = "";
       document.getElementById("name").value = "";
@@ -962,7 +922,7 @@
       if (errorMsg.includes('permission')) {
         errorMsg = "Firebase Storage permission denied. Please set storage rules to allow read/write.";
       } else if (errorMsg.includes('timed out')) {
-        errorMsg = "Upload timed out. Try using a URL for the image/video instead.";
+        errorMsg = "Upload timed out. Check your internet connection and try again.";
       }
       alert("❌ Upload failed!\n\n" + errorMsg + "\n\nMake sure Firebase Storage rules are set to allow read/write (for testing).");
       showToast("❌ Error: " + errorMsg);
