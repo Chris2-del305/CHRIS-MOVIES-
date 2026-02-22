@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- all styles exactly as before, plus new video modal ----- */
+    /* ----- all styles exactly as before ----- */
     * {
       margin: 0;
       padding: 0;
@@ -271,7 +271,6 @@
       letter-spacing: 0.3px;
     }
 
-    /* ----- modal base styles (reused) ----- */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -368,54 +367,6 @@
       margin: 20px 0;
     }
 
-    /* ----- NEW video player modal ----- */
-    .video-modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 900px;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      z-index: 2200;
-      display: none;
-      border: 1px solid #333;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-    }
-    .video-modal video {
-      width: 100%;
-      height: auto;
-      max-height: 80vh;
-      display: block;
-    }
-    .video-modal .close-video {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 30px;
-      color: white;
-      cursor: pointer;
-      z-index: 2201;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-      transition: 0.2s;
-    }
-    .video-modal .close-video:hover {
-      background: rgba(229,9,20,0.8);
-    }
-    #videoOverlay {
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(5px);
-    }
-
     footer {
       text-align: center;
       padding: 30px;
@@ -490,13 +441,13 @@
   <button class="btn-close" id="closePurchasePanel2">Close</button>
 </div>
 
-<!-- Admin Modal – URL inputs only, with clear instruction about direct video links -->
+<!-- Admin Modal – now with URL inputs instead of file uploads -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
   <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct link to .mp4, .webm, etc.)">
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link)">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -504,17 +455,7 @@
   </select>
   <button onclick="uploadMovie()">Add Movie</button>
   <hr>
-  <p style="color:#ffaa00; font-size:14px;">
-    ⚠️ Only direct video file URLs work (e.g., ending in .mp4, .webm).<br>
-    YouTube, Vimeo, or other embed links will NOT play.
-  </p>
-</div>
-
-<!-- NEW Video Player Modal -->
-<div class="modal-overlay" id="videoOverlay"></div>
-<div class="video-modal" id="videoModal">
-  <div class="close-video" id="closeVideoBtn">&times;</div>
-  <video id="videoPlayer" controls autoplay></video>
+  <p style="color:#aaa; font-size:14px;">Use direct links from any hosting (Google Drive, ImgBB, etc.)</p>
 </div>
 
 <script type="module">
@@ -537,12 +478,6 @@
   const vipDiv = document.getElementById("vip");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
-
-  // --- Video modal elements ---
-  const videoOverlay = document.getElementById('videoOverlay');
-  const videoModal = document.getElementById('videoModal');
-  const videoPlayer = document.getElementById('videoPlayer');
-  const closeVideoBtn = document.getElementById('closeVideoBtn');
 
   function showToast(msg) {
     toastDiv.innerText = msg;
@@ -570,34 +505,7 @@
     }
   }
 
-  // --- Video modal functions with error handling ---
-  function showVideoModal(videoUrl) {
-    // Set the source and add an error event listener
-    videoPlayer.src = videoUrl;
-    videoPlayer.onerror = () => {
-      hideVideoModal();
-      showToast("❌ Video failed to load. Make sure the URL is a direct link to a video file (like .mp4).");
-    };
-    videoModal.style.display = 'block';
-    videoOverlay.style.display = 'block';
-    // Attempt to play (may be autoplay-blocked by browser, but user can click play)
-    videoPlayer.play().catch(e => {
-      // Autoplay might be prevented, but that's okay; user can press play.
-    });
-  }
-
-  function hideVideoModal() {
-    videoPlayer.pause();
-    videoPlayer.src = '';
-    videoPlayer.onerror = null;
-    videoModal.style.display = 'none';
-    videoOverlay.style.display = 'none';
-  }
-
-  videoOverlay.addEventListener('click', hideVideoModal);
-  closeVideoBtn.addEventListener('click', hideVideoModal);
-
-  // Load movies from Firestore
+  // Load movies from Firestore (direct URLs)
   async function loadMovies(filterTitle = "") {
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
@@ -622,14 +530,14 @@
       if (m.vip === "true") {
         card.onclick = () => {
           if (isVipActive()) {
-            showVideoModal(m.video);
+            window.open(m.video, "_blank");
           } else {
             showToast("VIP movie! Tap the gold VIP button to buy access.");
           }
         };
         vipDiv.appendChild(card);
       } else {
-        card.onclick = () => showVideoModal(m.video);
+        card.onclick = () => window.open(m.video, "_blank");
         freeDiv.appendChild(card);
       }
     }
@@ -667,13 +575,6 @@
     if (!posterUrl || !videoUrl || !title) {
       showToast("Please fill all fields");
       return;
-    }
-
-    // Optional: basic check if videoUrl looks like a direct file (contains .mp4, .webm, etc.)
-    const isDirectVideo = /\.(mp4|webm|ogg|mov|mkv)(\?.*)?$/i.test(videoUrl.split('?')[0]);
-    if (!isDirectVideo) {
-      showToast("⚠️ Warning: URL may not be a direct video file. It might not play.");
-      // Continue anyway; user might have a valid direct link with a different extension
     }
 
     try {
@@ -789,4 +690,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-    </html>
+  </html>
