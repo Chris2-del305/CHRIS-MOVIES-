@@ -465,6 +465,31 @@
       margin-bottom: 10px;
     }
 
+    /* VIP Password Modal */
+    #vipPasswordInput {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #262626;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+    }
+    #submitVipPassword {
+      background: #e50914;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #buyFromVipModal {
+      background: #25D366;
+    }
+
     footer {
       text-align: center;
       padding: 30px;
@@ -529,7 +554,7 @@
 <!-- Toast message -->
 <div id="toast"></div>
 
-<!-- VIP Purchase Modal -->
+<!-- VIP Purchase Modal (WhatsApp) -->
 <div class="modal-overlay" id="vipOverlay"></div>
 <div class="modal" id="vipPurchasePanel">
   <button class="close-icon" id="closePurchasePanel">&times;</button>
@@ -537,6 +562,18 @@
   <button class="btn-weekly" id="buyWeekly">Weekly – 6,000 UGX</button>
   <button class="btn-monthly" id="buyMonthly">Monthly – 25,000 UGX</button>
   <button class="btn-close" id="closePurchasePanel2">Close</button>
+</div>
+
+<!-- VIP Password Modal (for playing) -->
+<div class="modal-overlay" id="vipPasswordOverlay"></div>
+<div class="modal" id="vipPasswordModal">
+  <button class="close-icon" id="closeVipPassword">&times;</button>
+  <h3>🔐 VIP Password Required</h3>
+  <input type="password" id="vipPasswordInput" placeholder="Enter weekly or monthly password">
+  <button id="submitVipPassword">Unlock & Play</button>
+  <p style="text-align:center; margin:15px 0 5px; color:#aaa;">or</p>
+  <button id="buyFromVipModal" class="whatsapp">Buy via WhatsApp</button>
+  <button class="btn-close" id="closeVipPassword2">Cancel</button>
 </div>
 
 <!-- Video Player Modal -->
@@ -557,28 +594,23 @@
   <button class="btn-close" id="closeCommentModal2">Close</button>
 </div>
 
-<!-- Admin Modal – now with poster URL option -->
+<!-- Admin Modal -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
   <h3>🛠️ Add Movie</h3>
-
-  <!-- Poster source radio -->
   <div class="radio-group">
     <label><input type="radio" name="posterSource" value="file" checked> Upload poster file</label>
     <label><input type="radio" name="posterSource" value="url"> Poster URL</label>
   </div>
-  <input type="file" id="posterFile" accept="image/*" placeholder="Poster image (required)">
+  <input type="file" id="posterFile" accept="image/*">
   <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)" style="display:none;">
-
-  <!-- Video source radio (unchanged) -->
   <div class="radio-group">
     <label><input type="radio" name="videoSource" value="file" checked> Upload video file</label>
     <label><input type="radio" name="videoSource" value="url"> Video URL</label>
   </div>
-  <input type="file" id="videoFile" accept="video/*" placeholder="Video file">
+  <input type="file" id="videoFile" accept="video/*">
   <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, YouTube, etc.)" style="display:none;">
-
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -614,6 +646,11 @@
   const toastDiv = document.getElementById("toast");
 
   let currentMovieId = null; // for comments
+  let pendingVideoUrl = null; // store video URL for after VIP unlock
+
+  // Password constants
+  const WEEKLY_CODE = "WEEK2025";
+  const MONTHLY_CODE = "MONTH2025";
 
   function showToast(msg, duration = 3000) {
     toastDiv.innerText = msg;
@@ -640,6 +677,100 @@
       return false;
     }
   }
+
+  // Open video player (used after unlock or for free)
+  function openVideoPlayer(videoUrl) {
+    const videoModal = document.getElementById('videoModal');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    videoPlayer.innerHTML = '';
+    
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = videoUrl.match(youtubeRegex);
+    
+    if (match) {
+      const videoId = match[1];
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+      videoPlayer.appendChild(iframe);
+    } else {
+      const video = document.createElement('video');
+      video.src = videoUrl;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = "100%";
+      video.style.height = "auto";
+      video.onerror = () => {
+        showToast("❌ Video failed to load. Check the URL or try again.");
+      };
+      videoPlayer.appendChild(video);
+    }
+    
+    videoModal.style.display = "block";
+    videoOverlay.style.display = "block";
+  }
+
+  // Show VIP password modal and store video URL for later
+  function promptVipPassword(videoUrl) {
+    pendingVideoUrl = videoUrl;
+    document.getElementById('vipPasswordOverlay').style.display = 'block';
+    document.getElementById('vipPasswordModal').style.display = 'block';
+    document.getElementById('vipPasswordInput').value = ''; // clear previous
+  }
+
+  // Handle VIP password submission
+  document.getElementById('submitVipPassword').addEventListener('click', () => {
+    const code = document.getElementById('vipPasswordInput').value.trim();
+    if (!code) {
+      showToast('Please enter a password');
+      return;
+    }
+
+    const expiry = new Date();
+    if (code === WEEKLY_CODE) {
+      expiry.setDate(expiry.getDate() + 7);
+      localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
+      showToast('VIP unlocked for 7 days!');
+    } else if (code === MONTHLY_CODE) {
+      expiry.setDate(expiry.getDate() + 30);
+      localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
+      showToast('VIP unlocked for 30 days!');
+    } else {
+      showToast('Incorrect password');
+      return;
+    }
+
+    // Close modal and play if we have a pending video
+    document.getElementById('vipPasswordOverlay').style.display = 'none';
+    document.getElementById('vipPasswordModal').style.display = 'none';
+    if (pendingVideoUrl) {
+      openVideoPlayer(pendingVideoUrl);
+      pendingVideoUrl = null;
+    }
+  });
+
+  // Close VIP password modal
+  const closeVipPassword = () => {
+    document.getElementById('vipPasswordOverlay').style.display = 'none';
+    document.getElementById('vipPasswordModal').style.display = 'none';
+    pendingVideoUrl = null;
+  };
+  document.getElementById('closeVipPassword').addEventListener('click', closeVipPassword);
+  document.getElementById('closeVipPassword2').addEventListener('click', closeVipPassword);
+  document.getElementById('vipPasswordOverlay').addEventListener('click', closeVipPassword);
+
+  // Buy from VIP password modal (opens WhatsApp)
+  document.getElementById('buyFromVipModal').addEventListener('click', () => {
+    window.open('https://wa.me/256753747474?text=I%20want%20to%20buy%20VIP%20access', '_blank');
+    closeVipPassword();
+  });
 
   // Load movies from Firestore
   async function loadMovies(filterTitle = "") {
@@ -669,12 +800,13 @@
         </div>
       `;
 
-      // Click on card opens video player (if allowed)
+      // Click on card opens video player (with VIP check)
       card.addEventListener("click", (e) => {
         if (e.target.closest('button')) return;
         
         if (m.vip === "true" && !isVipActive()) {
-          showToast("VIP movie! Tap the gold VIP button to buy access.");
+          // Show password prompt instead of just toast
+          promptVipPassword(m.video);
           return;
         }
         openVideoPlayer(m.video);
@@ -700,49 +832,6 @@
         freeDiv.appendChild(card);
       }
     }
-  }
-
-  // Enhanced video player – supports YouTube and direct videos
-  function openVideoPlayer(videoUrl) {
-    const videoModal = document.getElementById('videoModal');
-    const videoOverlay = document.getElementById('videoOverlay');
-    const videoPlayer = document.getElementById('videoPlayer');
-    
-    // Clear previous content
-    videoPlayer.innerHTML = '';
-    
-    // Check if it's a YouTube link
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-    const match = videoUrl.match(youtubeRegex);
-    
-    if (match) {
-      // YouTube embed
-      const videoId = match[1];
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-      iframe.allowFullscreen = true;
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
-      videoPlayer.appendChild(iframe);
-    } else {
-      // Assume direct video file – use HTML5 video
-      const video = document.createElement('video');
-      video.src = videoUrl;
-      video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
-      video.style.width = "100%";
-      video.style.height = "auto";
-      video.onerror = () => {
-        showToast("❌ Video failed to load. Check the URL or try again.");
-      };
-      videoPlayer.appendChild(video);
-    }
-    
-    videoModal.style.display = "block";
-    videoOverlay.style.display = "block";
   }
 
   // Close video modal
@@ -809,7 +898,6 @@
     });
 
     input.value = '';
-    // Refresh comments
     openCommentModal(currentMovieId, document.getElementById('commentMovieTitle').textContent.replace('Comments - ', ''));
   };
 
@@ -862,7 +950,6 @@
     });
   });
 
-  // Helper: upload with timeout
   function uploadWithTimeout(storageRef, file, timeoutMs = 30000) {
     return Promise.race([
       uploadBytes(storageRef, file),
@@ -870,7 +957,7 @@
     ]);
   }
 
-  // Upload movie – now handles poster URL option
+  // Upload movie
   window.uploadMovie = async function() {
     const posterSource = document.querySelector('input[name="posterSource"]:checked').value;
     const title = document.getElementById("name").value.trim();
@@ -880,7 +967,6 @@
     let posterUrl = '';
     let videoUrl = '';
 
-    // Validate poster
     if (posterSource === 'file') {
       const posterFile = document.getElementById("posterFile").files[0];
       if (!posterFile) {
@@ -895,7 +981,6 @@
       }
     }
 
-    // Validate video
     if (videoSource === 'file') {
       const videoFile = document.getElementById("videoFile").files[0];
       if (!videoFile) {
@@ -915,14 +1000,12 @@
       return;
     }
 
-    // Disable button
     const uploadBtn = document.getElementById("uploadBtn");
     uploadBtn.disabled = true;
     uploadBtn.innerText = "Uploading...";
     showToast("Processing... (this may take a while)");
 
     try {
-      // Handle poster
       if (posterSource === 'file') {
         const posterFile = document.getElementById("posterFile").files[0];
         const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
@@ -930,7 +1013,6 @@
         posterUrl = await getDownloadURL(posterRef);
       }
 
-      // Handle video
       if (videoSource === 'file') {
         const videoFile = document.getElementById("videoFile").files[0];
         const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
@@ -938,7 +1020,6 @@
         videoUrl = await getDownloadURL(videoRef);
       }
 
-      // Save to Firestore
       await addDoc(collection(db, "movies"), {
         title: title,
         poster: posterUrl,
@@ -951,7 +1032,6 @@
       showToast("✅ Movie added successfully!");
       loadMovies(searchInput.value);
       
-      // Clear inputs
       document.getElementById("posterFile").value = "";
       document.getElementById("posterUrl").value = "";
       document.getElementById("videoFile").value = "";
@@ -973,11 +1053,8 @@
     }
   };
 
-  // Two master passwords
-  const WEEKLY_CODE = "WEEK2025";
-  const MONTHLY_CODE = "MONTH2025";
-
-  window.unlockVIP = async function() {
+  // Unlock VIP from the bar (kept for compatibility)
+  window.unlockVIP = function() {
     const codeInput = document.getElementById("vipCode").value.trim();
     if (!codeInput) return showToast("Enter VIP password");
 
@@ -1001,7 +1078,7 @@
     window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`, "_blank");
   };
 
-  // VIP Purchase Panel
+  // VIP Purchase Panel (gold ball)
   const vipBall = document.getElementById("vipBall");
   const purchasePanel = document.getElementById("vipPurchasePanel");
   const vipOverlay = document.getElementById("vipOverlay");
