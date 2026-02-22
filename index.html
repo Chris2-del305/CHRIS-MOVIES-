@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chris Movies · Stream & Watch</title>
   <style>
-    /* ----- all styles exactly as before ----- */
+    /* ----- all styles as before ----- */
     * {
       margin: 0;
       padding: 0;
@@ -170,6 +170,9 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
       border: 1px solid #2c2c2c;
       position: relative;
+      aspect-ratio: 2/3;
+      display: flex;
+      flex-direction: column;
     }
     .movie-card:hover {
       transform: scale(1.05);
@@ -178,9 +181,22 @@
     }
     .movie-card img {
       width: 100%;
-      height: 220px;
+      height: 100%;
       object-fit: cover;
       display: block;
+    }
+    .vip-lock {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: #ffd700;
+      font-size: 20px;
+      padding: 5px 8px;
+      border-radius: 50%;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+      border: 1px solid #ffd700;
     }
     .movie-info {
       padding: 10px;
@@ -194,6 +210,7 @@
       right: 0;
       transform: translateY(100%);
       transition: transform 0.2s;
+      z-index: 5;
     }
     .movie-card:hover .movie-info {
       transform: translateY(0);
@@ -216,9 +233,9 @@
     }
 
     #vipBall {
-      position: absolute;
-      top: -15px;
-      right: 0;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       width: 60px;
       height: 60px;
       background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800);
@@ -233,6 +250,7 @@
       box-shadow: 0 5px 15px rgba(255,215,0,0.5);
       transition: 0.2s;
       border: 2px solid rgba(255,255,255,0.2);
+      z-index: 100;
     }
     #vipBall:hover {
       transform: scale(1.1);
@@ -304,7 +322,6 @@
       letter-spacing: 0.3px;
     }
 
-    /* Modal styles */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -379,7 +396,6 @@
       color: white;
     }
 
-    /* Video player modal */
     #videoModal {
       width: 90%;
       max-width: 800px;
@@ -397,7 +413,6 @@
       border: none;
     }
 
-    /* Admin panel */
     #adminPanel {
       width: 400px;
       max-width: 95%;
@@ -435,7 +450,6 @@
       margin: 20px 0;
     }
 
-    /* Comment modal */
     #commentModal {
       width: 400px;
       max-width: 95%;
@@ -513,14 +527,8 @@
     <button onclick="unlockVIP()">Unlock VIP</button>
   </div>
 
-  <h2><i>🎬</i> Free Movies</h2>
-  <div class="movies-grid" id="free"></div>
-
-  <h2 style="position:relative;">
-    <i>👑</i> VIP Movies <span style="font-size: 16px; margin-left: 10px; color: #e50914;">🔒</span>
-    <div id="vipBall">VIP</div>
-  </h2>
-  <div class="movies-grid" id="vip"></div>
+  <h2><i>🎬</i> All Movies</h2>
+  <div class="movies-grid" id="moviesGrid"></div>
 </section>
 
 <footer>
@@ -558,7 +566,7 @@
   <button class="btn-close" id="closeCommentModal2">Close</button>
 </div>
 
-<!-- Admin Modal – file uploads + URL options for both poster and video -->
+<!-- Admin Modal -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -585,8 +593,7 @@
   </select>
   <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Poster and video can be uploaded or provided via URL. If upload times out, try using a URL.</p>
-  <p style="color:#ffaa00; font-size:14px;">⚠️ YouTube videos will play without branding.</p>
+  <p style="color:#aaa; font-size:14px;">Poster and video can be uploaded or provided via URL.</p>
 </div>
 
 <script type="module">
@@ -607,8 +614,7 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  const freeDiv = document.getElementById("free");
-  const vipDiv = document.getElementById("vip");
+  const moviesGrid = document.getElementById("moviesGrid");
   const searchInput = document.getElementById("searchInput");
   const toastDiv = document.getElementById("toast");
 
@@ -640,10 +646,9 @@
     }
   }
 
-  // Load movies from Firestore
+  // Load all movies (mixed together)
   async function loadMovies(filterTitle = "") {
-    freeDiv.innerHTML = "";
-    vipDiv.innerHTML = "";
+    moviesGrid.innerHTML = "";
 
     const querySnapshot = await getDocs(collection(db, "movies"));
     const movies = [];
@@ -657,11 +662,17 @@
       showToast("This movie is not yet uploaded. You can request it!");
     }
 
+    // Sort by maybe title or date? We'll just display as is
     for (const m of filtered) {
       const card = document.createElement("div");
       card.className = "movie-card";
+      
+      // Add lock overlay for VIP movies
+      const lockIcon = m.vip === "true" ? '<div class="vip-lock">🔒</div>' : '';
+      
       card.innerHTML = `
-        <img src="${m.poster}" alt="${m.title}">
+        <img src="${m.poster}" alt="${m.title}" onerror="this.style.display='none'; this.parentElement.style.background='#333';">
+        ${lockIcon}
         <div class="movie-info">
           <button class="like-btn" data-id="${m.id}" data-liked="false">❤️ <span>${m.likes || 0}</span></button>
           <button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments && m.comments.length) || 0}</span></button>
@@ -673,7 +684,7 @@
         if (e.target.closest('button')) return;
         
         if (m.vip === "true" && !isVipActive()) {
-          showToast("VIP movie! Tap the gold VIP button to buy access.");
+          showToast("🔒 VIP movie! Tap the gold VIP button to buy access.");
           return;
         }
         openVideoPlayer(m.video);
@@ -693,32 +704,25 @@
         openCommentModal(m.id, m.title);
       });
 
-      if (m.vip === "true") {
-        vipDiv.appendChild(card);
-      } else {
-        freeDiv.appendChild(card);
-      }
+      moviesGrid.appendChild(card);
     }
   }
 
-  // Enhanced video player – supports YouTube (clean) and direct videos
+  // Enhanced video player (clean YouTube)
   function openVideoPlayer(videoUrl) {
     const videoModal = document.getElementById('videoModal');
     const videoOverlay = document.getElementById('videoOverlay');
     const videoPlayer = document.getElementById('videoPlayer');
     
-    // Clear previous content
     videoPlayer.innerHTML = '';
     
-    // Check if it's a YouTube link
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = videoUrl.match(youtubeRegex);
     
     if (match) {
-      // YouTube embed with minimal branding
       const videoId = match[1];
       const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&controls=1&disablekb=0&fs=1&playsinline=1&enablejsapi=1`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&controls=1&disablekb=0&fs=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
       iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
       iframe.allowFullscreen = true;
       iframe.style.width = "100%";
@@ -726,7 +730,6 @@
       iframe.style.border = "none";
       videoPlayer.appendChild(iframe);
     } else {
-      // Assume direct video file – use HTML5 video
       const video = document.createElement('video');
       video.src = videoUrl;
       video.controls = true;
@@ -734,9 +737,7 @@
       video.playsInline = true;
       video.style.width = "100%";
       video.style.height = "auto";
-      video.onerror = () => {
-        showToast("❌ Video failed to load. Check the URL or try again.");
-      };
+      video.onerror = () => showToast("❌ Video failed to load.");
       videoPlayer.appendChild(video);
     }
     
@@ -808,7 +809,6 @@
     });
 
     input.value = '';
-    // Refresh comments
     openCommentModal(currentMovieId, document.getElementById('commentMovieTitle').textContent.replace('Comments - ', ''));
   };
 
@@ -843,7 +843,7 @@
     document.getElementById("adminPanel").style.display = "none";
   });
 
-  // Toggle poster input based on radio
+  // Toggle inputs based on radio
   document.querySelectorAll('input[name="posterSource"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       const isFile = e.target.value === 'file';
@@ -852,7 +852,6 @@
     });
   });
 
-  // Toggle video input based on radio
   document.querySelectorAll('input[name="videoSource"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       const isFile = e.target.value === 'file';
@@ -861,7 +860,7 @@
     });
   });
 
-  // Helper: upload with timeout
+  // Upload with timeout
   function uploadWithTimeout(storageRef, file, timeoutMs = 30000) {
     return Promise.race([
       uploadBytes(storageRef, file),
@@ -869,59 +868,39 @@
     ]);
   }
 
-  // Upload movie with files OR URLs
+  // Upload movie
   window.uploadMovie = async function() {
     const title = document.getElementById("name").value.trim();
     const vipStatus = document.getElementById("isVip").value;
 
-    // Poster source
     const posterSource = document.querySelector('input[name="posterSource"]:checked').value;
     let posterUrl = '';
     if (posterSource === 'file') {
       const posterFile = document.getElementById("posterFile").files[0];
-      if (!posterFile) {
-        showToast("Please select a poster image file");
-        return;
-      }
-      // We'll upload later
+      if (!posterFile) { showToast("Select poster image"); return; }
     } else {
       posterUrl = document.getElementById("posterUrl").value.trim();
-      if (!posterUrl) {
-        showToast("Please enter a poster image URL");
-        return;
-      }
+      if (!posterUrl) { showToast("Enter poster URL"); return; }
     }
 
-    // Video source
     const videoSource = document.querySelector('input[name="videoSource"]:checked').value;
     let videoUrl = '';
     if (videoSource === 'file') {
       const videoFile = document.getElementById("videoFile").files[0];
-      if (!videoFile) {
-        showToast("Please select a video file");
-        return;
-      }
+      if (!videoFile) { showToast("Select video file"); return; }
     } else {
       videoUrl = document.getElementById("videoUrl").value.trim();
-      if (!videoUrl) {
-        showToast("Please enter a video URL");
-        return;
-      }
+      if (!videoUrl) { showToast("Enter video URL"); return; }
     }
 
-    if (!title) {
-      showToast("Please enter a movie name");
-      return;
-    }
+    if (!title) { showToast("Enter movie name"); return; }
 
-    // Disable button
     const uploadBtn = document.getElementById("uploadBtn");
     uploadBtn.disabled = true;
     uploadBtn.innerText = "Processing...";
-    showToast("Processing... (this may take a while)");
+    showToast("Processing...");
 
     try {
-      // Handle poster upload if file chosen
       if (posterSource === 'file') {
         const posterFile = document.getElementById("posterFile").files[0];
         const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
@@ -929,7 +908,6 @@
         posterUrl = await getDownloadURL(posterRef);
       }
 
-      // Handle video upload if file chosen
       if (videoSource === 'file') {
         const videoFile = document.getElementById("videoFile").files[0];
         const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
@@ -937,9 +915,8 @@
         videoUrl = await getDownloadURL(videoRef);
       }
 
-      // Save to Firestore
       await addDoc(collection(db, "movies"), {
-        title: title,
+        title,
         poster: posterUrl,
         video: videoUrl,
         vip: vipStatus,
@@ -947,50 +924,41 @@
         comments: []
       });
 
-      showToast("✅ Movie added successfully!");
+      showToast("✅ Movie added!");
       loadMovies(searchInput.value);
       
-      // Clear inputs
       document.getElementById("posterFile").value = "";
       document.getElementById("posterUrl").value = "";
       document.getElementById("videoFile").value = "";
       document.getElementById("videoUrl").value = "";
       document.getElementById("name").value = "";
     } catch (error) {
-      console.error("Upload error:", error);
-      let errorMsg = error.message;
-      if (errorMsg.includes('permission')) {
-        errorMsg = "Firebase Storage permission denied. Please set storage rules to allow read/write.";
-      } else if (errorMsg.includes('timed out')) {
-        errorMsg = "Upload timed out. Try using a URL for the image/video instead.";
-      }
-      alert("❌ Upload failed!\n\n" + errorMsg + "\n\nMake sure Firebase Storage rules are set to allow read/write (for testing).");
-      showToast("❌ Error: " + errorMsg);
+      console.error(error);
+      alert("❌ Error: " + (error.message.includes('permission') ? "Storage permission denied. Check Firebase rules." : error.message));
     } finally {
       uploadBtn.disabled = false;
       uploadBtn.innerText = "Add Movie";
     }
   };
 
-  // Two master passwords
+  // VIP passwords
   const WEEKLY_CODE = "WEEK2025";
   const MONTHLY_CODE = "MONTH2025";
 
-  window.unlockVIP = async function() {
-    const codeInput = document.getElementById("vipCode").value.trim();
-    if (!codeInput) return showToast("Enter VIP password");
-
+  window.unlockVIP = function() {
+    const code = document.getElementById("vipCode").value.trim();
+    if (!code) return showToast("Enter VIP password");
     const expiry = new Date();
-    if (codeInput === WEEKLY_CODE) {
+    if (code === WEEKLY_CODE) {
       expiry.setDate(expiry.getDate() + 7);
-      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
-      showToast("VIP unlocked for 7 days! Enjoy.");
-    } else if (codeInput === MONTHLY_CODE) {
+      localStorage.setItem("vipData", JSON.stringify({ code, expiry: expiry.toISOString() }));
+      showToast("VIP unlocked for 7 days!");
+    } else if (code === MONTHLY_CODE) {
       expiry.setDate(expiry.getDate() + 30);
-      localStorage.setItem("vipData", JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
-      showToast("VIP unlocked for 30 days! Enjoy.");
+      localStorage.setItem("vipData", JSON.stringify({ code, expiry: expiry.toISOString() }));
+      showToast("VIP unlocked for 30 days!");
     } else {
-      showToast("Incorrect VIP password. Get it via WhatsApp.");
+      showToast("Incorrect password.");
     }
   };
 
@@ -1055,13 +1023,11 @@
   let searchTimeout;
   searchInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      loadMovies(searchInput.value);
-    }, 300);
+    searchTimeout = setTimeout(() => loadMovies(searchInput.value), 300);
   });
 
   loadMovies();
   window.loadMovies = loadMovies;
 </script>
 </body>
-  </html>
+      </html>
