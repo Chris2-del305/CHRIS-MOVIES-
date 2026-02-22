@@ -388,8 +388,13 @@
     }
     #videoPlayer {
       width: 100%;
-      height: auto;
-      max-height: 80vh;
+      min-height: 200px;
+      background: #000;
+    }
+    #videoPlayer video, #videoPlayer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     /* Admin panel */
@@ -538,7 +543,7 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal">
   <button class="close-icon" id="closeVideoModal">&times;</button>
-  <video id="videoPlayer" controls autoplay></video>
+  <div id="videoPlayer"></div>
 </div>
 
 <!-- Comment Modal -->
@@ -563,7 +568,7 @@
     <label><input type="radio" name="videoSource" value="url"> Video URL</label>
   </div>
   <input type="file" id="videoFile" accept="video/*" placeholder="Video file">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, etc.)" style="display:none;">
+  <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, YouTube, etc.)" style="display:none;">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -576,7 +581,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -655,7 +660,6 @@
 
       // Click on card opens video player (if allowed)
       card.addEventListener("click", (e) => {
-        // Ignore clicks on buttons
         if (e.target.closest('button')) return;
         
         if (m.vip === "true" && !isVipActive()) {
@@ -687,24 +691,57 @@
     }
   }
 
-  // Open video player modal
+  // Enhanced video player – supports YouTube and direct videos
   function openVideoPlayer(videoUrl) {
+    const videoModal = document.getElementById('videoModal');
+    const videoOverlay = document.getElementById('videoOverlay');
     const videoPlayer = document.getElementById('videoPlayer');
-    videoPlayer.src = videoUrl;
-    document.getElementById('videoOverlay').style.display = 'block';
-    document.getElementById('videoModal').style.display = 'block';
+    
+    // Clear previous content
+    videoPlayer.innerHTML = '';
+    
+    // Check if it's a YouTube link
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = videoUrl.match(youtubeRegex);
+    
+    if (match) {
+      // YouTube embed
+      const videoId = match[1];
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+      videoPlayer.appendChild(iframe);
+    } else {
+      // Assume direct video file – use HTML5 video
+      const video = document.createElement('video');
+      video.src = videoUrl;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = "100%";
+      video.style.height = "auto";
+      video.onerror = () => {
+        showToast("❌ Video failed to load. Check the URL or try again.");
+      };
+      videoPlayer.appendChild(video);
+    }
+    
+    videoModal.style.display = "block";
+    videoOverlay.style.display = "block";
   }
 
   // Close video modal
   document.getElementById('closeVideoModal').addEventListener('click', () => {
-    document.getElementById('videoPlayer').pause();
-    document.getElementById('videoPlayer').src = '';
+    document.getElementById('videoPlayer').innerHTML = '';
     document.getElementById('videoOverlay').style.display = 'none';
     document.getElementById('videoModal').style.display = 'none';
   });
   document.getElementById('videoOverlay').addEventListener('click', () => {
-    document.getElementById('videoPlayer').pause();
-    document.getElementById('videoPlayer').src = '';
+    document.getElementById('videoPlayer').innerHTML = '';
     document.getElementById('videoOverlay').style.display = 'none';
     document.getElementById('videoModal').style.display = 'none';
   });
@@ -819,7 +856,6 @@
         showToast("Please select a video file");
         return;
       }
-      // We'll upload later
     } else {
       videoUrl = document.getElementById("videoUrl").value.trim();
       if (!videoUrl) {
@@ -833,14 +869,14 @@
       return;
     }
 
-    // Disable button to prevent double-click
+    // Disable button
     const uploadBtn = document.getElementById("uploadBtn");
     uploadBtn.disabled = true;
     uploadBtn.innerText = "Uploading...";
     showToast("Uploading files... (this may take a while)");
 
     try {
-      // Upload poster image
+      // Upload poster
       const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
       await uploadBytes(posterRef, posterFile);
       const posterUrl = await getDownloadURL(posterRef);
@@ -973,4 +1009,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-</html>
+    </html>
