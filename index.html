@@ -577,6 +577,7 @@
   <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
   <p style="color:#aaa; font-size:14px;">Poster is always uploaded from your phone. Video can be uploaded or linked via URL.</p>
+  <p style="color:#ffaa00; font-size:14px;">⚠️ If stuck on "Uploading...", check Firebase Storage rules (set to allow read/write for testing).</p>
 </div>
 
 <script type="module">
@@ -842,6 +843,14 @@
     });
   });
 
+  // Helper: upload with timeout
+  function uploadWithTimeout(storageRef, file, timeoutMs = 30000) {
+    return Promise.race([
+      uploadBytes(storageRef, file),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Upload timed out after 30 seconds')), timeoutMs))
+    ]);
+  }
+
   // Upload movie with files (from storage) OR URL
   window.uploadMovie = async function() {
     const posterFile = document.getElementById("posterFile").files[0];
@@ -876,16 +885,16 @@
     showToast("Uploading files... (this may take a while)");
 
     try {
-      // Upload poster
+      // Upload poster with timeout
       const posterRef = ref(storage, `posters/${Date.now()}_${posterFile.name}`);
-      await uploadBytes(posterRef, posterFile);
+      await uploadWithTimeout(posterRef, posterFile);
       const posterUrl = await getDownloadURL(posterRef);
 
-      // If video source is file, upload video
+      // If video source is file, upload video with timeout
       if (videoSource === 'file') {
         const videoFile = document.getElementById("videoFile").files[0];
         const videoRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
-        await uploadBytes(videoRef, videoFile);
+        await uploadWithTimeout(videoRef, videoFile);
         videoUrl = await getDownloadURL(videoRef);
       }
 
@@ -909,8 +918,14 @@
       document.getElementById("name").value = "";
     } catch (error) {
       console.error("Upload error:", error);
-      alert("❌ Upload failed!\n\n" + error.message + "\n\nCheck Firebase Storage rules (see instructions).");
-      showToast("❌ Error: " + error.message);
+      let errorMsg = error.message;
+      if (errorMsg.includes('permission')) {
+        errorMsg = "Firebase Storage permission denied. Please set storage rules to allow read/write.";
+      } else if (errorMsg.includes('timed out')) {
+        errorMsg = "Upload timed out. Check your internet connection and try again.";
+      }
+      alert("❌ Upload failed!\n\n" + errorMsg + "\n\nMake sure Firebase Storage rules are set to allow read/write (for testing).");
+      showToast("❌ Error: " + errorMsg);
     } finally {
       uploadBtn.disabled = false;
       uploadBtn.innerText = "Add Movie";
@@ -1009,4 +1024,4 @@
   window.loadMovies = loadMovies;
 </script>
 </body>
-    </html>
+  </html>
