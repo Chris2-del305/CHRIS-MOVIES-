@@ -648,7 +648,7 @@
   let currentMovieId = null; // for comments
   let pendingVideoUrl = null; // store video URL for after VIP unlock
 
-  // Password constants
+  // Password constants (change these to your own)
   const WEEKLY_CODE = "WEEK2025";
   const MONTHLY_CODE = "MONTH2025";
 
@@ -680,6 +680,7 @@
 
   // Open video player (used after unlock or for free)
   function openVideoPlayer(videoUrl) {
+    console.log("Opening video:", videoUrl); // debug
     const videoModal = document.getElementById('videoModal');
     const videoOverlay = document.getElementById('videoOverlay');
     const videoPlayer = document.getElementById('videoPlayer');
@@ -719,6 +720,7 @@
 
   // Show VIP password modal and store video URL for later
   function promptVipPassword(videoUrl) {
+    console.log("Prompting for VIP password. Video:", videoUrl); // debug
     pendingVideoUrl = videoUrl;
     document.getElementById('vipPasswordOverlay').style.display = 'block';
     document.getElementById('vipPasswordModal').style.display = 'block';
@@ -777,60 +779,65 @@
     freeDiv.innerHTML = "";
     vipDiv.innerHTML = "";
 
-    const querySnapshot = await getDocs(collection(db, "movies"));
-    const movies = [];
-    querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
+    try {
+      const querySnapshot = await getDocs(collection(db, "movies"));
+      const movies = [];
+      querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
 
-    const filtered = filterTitle
-      ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
-      : movies;
+      const filtered = filterTitle
+        ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
+        : movies;
 
-    if (filterTitle && filtered.length === 0) {
-      showToast("This movie is not yet uploaded. You can request it!");
-    }
-
-    for (const m of filtered) {
-      const card = document.createElement("div");
-      card.className = "movie-card";
-      card.innerHTML = `
-        <img src="${m.poster}" alt="${m.title}">
-        <div class="movie-info">
-          <button class="like-btn" data-id="${m.id}" data-liked="false">❤️ <span>${m.likes || 0}</span></button>
-          <button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments && m.comments.length) || 0}</span></button>
-        </div>
-      `;
-
-      // Click on card opens video player (with VIP check)
-      card.addEventListener("click", (e) => {
-        if (e.target.closest('button')) return;
-        
-        if (m.vip === "true" && !isVipActive()) {
-          // Show password prompt instead of just toast
-          promptVipPassword(m.video);
-          return;
-        }
-        openVideoPlayer(m.video);
-      });
-
-      // Like button
-      const likeBtn = card.querySelector('.like-btn');
-      likeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleLike(m.id, likeBtn);
-      });
-
-      // Comment button
-      const commentBtn = card.querySelector('.comment-btn');
-      commentBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openCommentModal(m.id, m.title);
-      });
-
-      if (m.vip === "true") {
-        vipDiv.appendChild(card);
-      } else {
-        freeDiv.appendChild(card);
+      if (filterTitle && filtered.length === 0) {
+        showToast("This movie is not yet uploaded. You can request it!");
       }
+
+      for (const m of filtered) {
+        const card = document.createElement("div");
+        card.className = "movie-card";
+        card.innerHTML = `
+          <img src="${m.poster}" alt="${m.title}">
+          <div class="movie-info">
+            <button class="like-btn" data-id="${m.id}" data-liked="false">❤️ <span>${m.likes || 0}</span></button>
+            <button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments && m.comments.length) || 0}</span></button>
+          </div>
+        `;
+
+        // Click on card opens video player (with VIP check)
+        card.addEventListener("click", (e) => {
+          if (e.target.closest('button')) return;
+          
+          if (m.vip === "true" && !isVipActive()) {
+            // Show password prompt
+            promptVipPassword(m.video);
+            return;
+          }
+          openVideoPlayer(m.video);
+        });
+
+        // Like button
+        const likeBtn = card.querySelector('.like-btn');
+        likeBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await toggleLike(m.id, likeBtn);
+        });
+
+        // Comment button
+        const commentBtn = card.querySelector('.comment-btn');
+        commentBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openCommentModal(m.id, m.title);
+        });
+
+        if (m.vip === "true") {
+          vipDiv.appendChild(card);
+        } else {
+          freeDiv.appendChild(card);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading movies:", error);
+      showToast("Failed to load movies. Check Firebase connection.");
     }
   }
 
@@ -848,20 +855,24 @@
 
   // Like toggle
   async function toggleLike(movieId, btn) {
-    const movieRef = doc(db, 'movies', movieId);
-    const movieSnap = await getDoc(movieRef);
-    if (!movieSnap.exists()) return;
+    try {
+      const movieRef = doc(db, 'movies', movieId);
+      const movieSnap = await getDoc(movieRef);
+      if (!movieSnap.exists()) return;
 
-    const currentLikes = movieSnap.data().likes || 0;
-    const isLiked = btn.dataset.liked === 'true';
-    
-    await updateDoc(movieRef, {
-      likes: isLiked ? currentLikes - 1 : currentLikes + 1
-    });
+      const currentLikes = movieSnap.data().likes || 0;
+      const isLiked = btn.dataset.liked === 'true';
+      
+      await updateDoc(movieRef, {
+        likes: isLiked ? currentLikes - 1 : currentLikes + 1
+      });
 
-    btn.dataset.liked = isLiked ? 'false' : 'true';
-    btn.querySelector('span').textContent = isLiked ? currentLikes - 1 : currentLikes + 1;
-    btn.classList.toggle('liked');
+      btn.dataset.liked = isLiked ? 'false' : 'true';
+      btn.querySelector('span').textContent = isLiked ? currentLikes - 1 : currentLikes + 1;
+      btn.classList.toggle('liked');
+    } catch (error) {
+      console.error("Like error:", error);
+    }
   }
 
   // Comment modal
@@ -869,21 +880,25 @@
     currentMovieId = movieId;
     document.getElementById('commentMovieTitle').textContent = `Comments - ${title}`;
     
-    const movieRef = doc(db, 'movies', movieId);
-    const movieSnap = await getDoc(movieRef);
-    const comments = movieSnap.data().comments || [];
-    
-    const commentList = document.getElementById('commentList');
-    commentList.innerHTML = '';
-    comments.forEach(c => {
-      const div = document.createElement('div');
-      div.className = 'comment-item';
-      div.textContent = c;
-      commentList.appendChild(div);
-    });
+    try {
+      const movieRef = doc(db, 'movies', movieId);
+      const movieSnap = await getDoc(movieRef);
+      const comments = movieSnap.data().comments || [];
+      
+      const commentList = document.getElementById('commentList');
+      commentList.innerHTML = '';
+      comments.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.textContent = c;
+        commentList.appendChild(div);
+      });
 
-    document.getElementById('commentOverlay').style.display = 'block';
-    document.getElementById('commentModal').style.display = 'block';
+      document.getElementById('commentOverlay').style.display = 'block';
+      document.getElementById('commentModal').style.display = 'block';
+    } catch (error) {
+      console.error("Error loading comments:", error);
+    }
   }
 
   window.addComment = async function() {
@@ -892,13 +907,17 @@
     const comment = input.value.trim();
     if (!comment) return;
 
-    const movieRef = doc(db, 'movies', currentMovieId);
-    await updateDoc(movieRef, {
-      comments: arrayUnion(comment)
-    });
+    try {
+      const movieRef = doc(db, 'movies', currentMovieId);
+      await updateDoc(movieRef, {
+        comments: arrayUnion(comment)
+      });
 
-    input.value = '';
-    openCommentModal(currentMovieId, document.getElementById('commentMovieTitle').textContent.replace('Comments - ', ''));
+      input.value = '';
+      openCommentModal(currentMovieId, document.getElementById('commentMovieTitle').textContent.replace('Comments - ', ''));
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
 
   // Close comment modal
@@ -1138,8 +1157,14 @@
     }, 300);
   });
 
-  loadMovies();
+  // Initial load
+  loadMovies().catch(err => {
+    console.error("Initial load failed:", err);
+    showToast("Failed to connect to Firebase. Check your config.");
+  });
+
+  // Expose functions globally for onclick attributes
   window.loadMovies = loadMovies;
 </script>
 </body>
-  </html>
+                                                                    </html>
