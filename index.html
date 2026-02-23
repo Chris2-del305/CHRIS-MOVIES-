@@ -3,389 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chris Movies · VIP Lock Demo</title>
+  <title>Chris Movies · VIP Lock (URL‑only)</title>
   <style>
-    /* ----- all styles (exactly as before) ----- */
+    /* (keep all your existing styles – no changes) */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0b0b0b;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #f5f5f5;
-      line-height: 1.5;
-    }
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 70px;
-      background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.9) 90%);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 30px;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .logo {
-      color: #e50914;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      text-transform: uppercase;
-      text-shadow: 0 2px 8px rgba(229,9,20,0.3);
-    }
-    .menu {
-      font-size: 32px;
-      cursor: pointer;
-      padding: 5px 15px;
-      color: #fff;
-      transition: 0.2s;
-      line-height: 1;
-    }
+    body { background: #0b0b0b; font-family: 'Inter', sans-serif; color: #f5f5f5; line-height: 1.5; }
+    header { position: fixed; top: 0; width: 100%; height: 70px; background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.9) 90%); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; text-shadow: 0 2px 8px rgba(229,9,20,0.3); }
+    .menu { font-size: 32px; cursor: pointer; padding: 5px 15px; color: #fff; transition: 0.2s; line-height: 1; }
     .menu:hover { color: #e50914; }
-    .dropdown {
-      position: absolute;
-      right: 20px;
-      top: 70px;
-      background: #1f1f1f;
-      border-radius: 12px;
-      display: none;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid #333;
-      z-index: 1001;
-      min-width: 160px;
-    }
-    .dropdown button {
-      background: none;
-      border: none;
-      color: #eee;
-      padding: 14px 20px;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.15s;
-    }
+    .dropdown { position: absolute; right: 20px; top: 70px; background: #1f1f1f; border-radius: 12px; display: none; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; z-index: 1001; min-width: 160px; }
+    .dropdown button { background: none; border: none; color: #eee; padding: 14px 20px; width: 100%; text-align: left; cursor: pointer; font-size: 16px; transition: 0.15s; }
     .dropdown button:hover { background: #2e2e2e; color: #e50914; }
-    .top-search {
-      margin-top: 90px;
-      padding: 0 30px;
-    }
-    .top-search input {
-      width: 100%;
-      max-width: 600px;
-      padding: 15px 20px;
-      border-radius: 40px;
-      border: none;
-      background: #2a2a2a;
-      color: white;
-      font-size: 16px;
-      outline: none;
-      transition: 0.2s;
-      border: 1px solid #3a3a3a;
-      display: block;
-      margin: 0 auto;
-    }
-    .top-search input:focus {
-      border-color: #e50914;
-      background: #222;
-      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
-    }
-    .hero {
-      height: 60vh;
-      min-height: 400px;
-      background: linear-gradient(0deg, rgba(11,11,11,1) 0%, rgba(11,11,11,0.7) 100%), 
-                  url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200') center/cover no-repeat;
-      display: flex;
-      align-items: flex-end;
-      padding: 0 30px 60px 30px;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .hero h1 {
-      font-size: clamp(32px, 5vw, 56px);
-      font-weight: 800;
-      max-width: 800px;
-      line-height: 1.2;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.7);
-      color: #fff;
-      letter-spacing: -0.02em;
-    }
+    .top-search { margin-top: 90px; padding: 0 30px; }
+    .top-search input { width: 100%; max-width: 600px; padding: 15px 20px; border-radius: 40px; border: none; background: #2a2a2a; color: white; font-size: 16px; outline: none; transition: 0.2s; border: 1px solid #3a3a3a; display: block; margin: 0 auto; }
+    .top-search input:focus { border-color: #e50914; background: #222; box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    .hero { height: 60vh; min-height: 400px; background: linear-gradient(0deg, rgba(11,11,11,1) 0%, rgba(11,11,11,0.7) 100%), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200') center/cover no-repeat; display: flex; align-items: flex-end; padding: 0 30px 60px 30px; margin-bottom: 20px; position: relative; }
+    .hero h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 800; max-width: 800px; line-height: 1.2; text-shadow: 0 4px 12px rgba(0,0,0,0.7); color: #fff; letter-spacing: -0.02em; }
     .hero h1 span { color: #e50914; }
     section { padding: 10px 30px 30px; }
-    h2 {
-      font-size: 28px;
-      font-weight: 600;
-      margin: 30px 0 20px;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    h2 { font-size: 28px; font-weight: 600; margin: 30px 0 20px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
     h2 i { font-size: 24px; color: #e50914; }
-    .movies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 20px;
-    }
-    .movie-card {
-      background: #1e1e1e;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-      border: 1px solid #2c2c2c;
-      position: relative;
-    }
-    .movie-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
-      border-color: #e50914;
-    }
-    .movie-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-    }
-    .movie-info {
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.7);
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      transform: translateY(100%);
-      transition: transform 0.2s;
-    }
+    .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+    .movie-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid #2c2c2c; position: relative; }
+    .movie-card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(0,0,0,0.7); border-color: #e50914; }
+    .movie-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .movie-info { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.7); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 0.2s; }
     .movie-card:hover .movie-info { transform: translateY(0); }
-    .like-btn, .comment-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .like-btn, .comment-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
     .like-btn.liked { color: #e50914; }
     .comment-btn { color: #aaa; }
-    #vipBall {
-      position: absolute;
-      top: -15px;
-      right: 0;
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800);
-      color: black;
-      font-weight: 800;
-      font-size: 16px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255,215,0,0.5);
-      transition: 0.2s;
-      border: 2px solid rgba(255,255,255,0.2);
-    }
-    #vipBall:hover {
-      transform: scale(1.1);
-      box-shadow: 0 8px 20px gold;
-    }
-    .bar {
-      display: flex;
-      gap: 15px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-    .bar input {
-      flex: 1;
-      min-width: 200px;
-      padding: 14px 18px;
-      border-radius: 40px;
-      border: none;
-      background: #262626;
-      color: white;
-      font-size: 16px;
-      outline: none;
-      border: 1px solid #3a3a3a;
-      transition: 0.2s;
-    }
+    #vipBall { position: absolute; top: -15px; right: 0; width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(255,215,0,0.5); transition: 0.2s; border: 2px solid rgba(255,255,255,0.2); }
+    #vipBall:hover { transform: scale(1.1); box-shadow: 0 8px 20px gold; }
+    .bar { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+    .bar input { flex: 1; min-width: 200px; padding: 14px 18px; border-radius: 40px; border: none; background: #262626; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a; transition: 0.2s; }
     .bar input:focus { border-color: #e50914; }
-    .bar button {
-      padding: 14px 28px;
-      border-radius: 40px;
-      border: none;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.2s;
-      background: #e50914;
-      color: white;
-      box-shadow: 0 4px 12px rgba(229,9,20,0.3);
-    }
+    .bar button { padding: 14px 28px; border-radius: 40px; border: none; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; background: #e50914; color: white; box-shadow: 0 4px 12px rgba(229,9,20,0.3); }
     .bar button:hover { background: #f40612; transform: scale(1.02); }
     .whatsapp { background: #25D366 !important; box-shadow: 0 4px 12px rgba(37,211,102,0.3) !important; }
     .whatsapp:hover { background: #20b859 !important; }
-    #toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20,20,20,0.95);
-      backdrop-filter: blur(8px);
-      color: white;
-      padding: 14px 30px;
-      border-radius: 50px;
-      font-size: 16px;
-      display: none;
-      z-index: 3000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid #333;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-    }
-    /* Modal styles */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(5px);
-      z-index: 2000;
-      display: none;
-    }
-    .modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #1a1a1a;
-      padding: 30px;
-      border-radius: 24px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-      z-index: 2100;
-      display: none;
-      width: 340px;
-      max-width: 90%;
-      border: 1px solid #333;
-      color: #fff;
-    }
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); backdrop-filter: blur(8px); color: white; padding: 14px 30px; border-radius: 50px; font-size: 16px; display: none; z-index: 3000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; font-weight: 500; letter-spacing: 0.3px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; }
+    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); z-index: 2100; display: none; width: 340px; max-width: 90%; border: 1px solid #333; color: #fff; }
     .modal h3 { margin: 0 0 20px; font-size: 24px; font-weight: 600; color: #e50914; }
-    .modal button {
-      width: 100%;
-      margin: 8px 0;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.15s;
-    }
+    .modal button { width: 100%; margin: 8px 0; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.15s; }
     .modal .btn-weekly { background: #e50914; color: white; }
     .modal .btn-monthly { background: #7209b7; color: white; }
     .modal .btn-close { background: #2a2a2a; color: #aaa; margin-top: 20px; }
     .modal .btn-close:hover { background: #333; color: white; }
-    .modal .close-icon {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 28px;
-      background: none;
-      border: none;
-      color: #aaa;
-      cursor: pointer;
-      width: auto;
-      padding: 0;
-    }
+    .modal .close-icon { position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; color: #aaa; cursor: pointer; width: auto; padding: 0; }
     .modal .close-icon:hover { color: white; }
     #videoModal { width: 90%; max-width: 800px; background: black; padding: 10px; }
     #videoPlayer { width: 100%; min-height: 200px; background: #000; }
     #videoPlayer video, #videoPlayer iframe { width: 100%; height: 100%; border: none; }
-    #adminPanel {
-      width: 400px;
-      max-width: 95%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    #adminPanel input, #adminPanel select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      background: #262626;
-      border: 1px solid #3a3a3a;
-      border-radius: 8px;
-      color: white;
-      font-size: 15px;
-    }
-    #adminPanel input[type="file"] { padding: 8px; }
-    #adminPanel .radio-group {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 15px;
-      color: white;
-    }
-    #adminPanel .radio-group label { display: flex; align-items: center; gap: 5px; }
-    #adminPanel hr { border: none; border-top: 1px solid #333; margin: 20px 0; }
+    #adminPanel { width: 400px; max-width: 95%; max-height: 80vh; overflow-y: auto; }
+    #adminPanel input, #adminPanel select { width: 100%; padding: 12px; margin-bottom: 15px; background: #262626; border: 1px solid #3a3a3a; border-radius: 8px; color: white; font-size: 15px; }
     #commentModal { width: 400px; max-width: 95%; }
-    .comment-list {
-      max-height: 200px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-      background: #262626;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .comment-item {
-      padding: 8px;
-      border-bottom: 1px solid #333;
-      font-size: 14px;
-    }
+    .comment-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; background: #262626; padding: 10px; border-radius: 8px; }
+    .comment-item { padding: 8px; border-bottom: 1px solid #333; font-size: 14px; }
     .comment-item:last-child { border-bottom: none; }
-    #commentInput {
-      width: 100%;
-      padding: 12px;
-      background: #262626;
-      border: 1px solid #3a3a3a;
-      border-radius: 8px;
-      color: white;
-      margin-bottom: 10px;
-    }
-    #vipPasswordInput {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      background: #262626;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-    }
+    #commentInput { width: 100%; padding: 12px; background: #262626; border: 1px solid #3a3a3a; border-radius: 8px; color: white; margin-bottom: 10px; }
+    #vipPasswordInput { width: 100%; padding: 12px; margin-bottom: 15px; background: #262626; border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; }
     #submitVipPassword { background: #e50914; width: 100%; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
     #buyFromVipModal { background: #25D366; }
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: #777;
-      font-size: 14px;
-      border-top: 1px solid #222;
-      margin-top: 30px;
-    }
-    @media (max-width: 600px) {
-      header { padding: 0 15px; }
-      .hero { padding: 0 15px 40px; }
-      section { padding: 0 15px 20px; }
-      h2 { font-size: 24px; }
-      .bar button { width: 100%; }
-    }
+    footer { text-align: center; padding: 30px; color: #777; font-size: 14px; border-top: 1px solid #222; margin-top: 30px; }
+    @media (max-width: 600px) { header { padding: 0 15px; } .hero { padding: 0 15px 40px; } section { padding: 0 15px 20px; } h2 { font-size: 24px; } .bar button { width: 100%; } }
   </style>
 </head>
 <body>
@@ -472,24 +154,14 @@
   <button class="btn-close" id="closeCommentModal2">Close</button>
 </div>
 
-<!-- Admin Modal (for Firebase uploads) -->
+<!-- Admin Panel (URL‑only) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
-  <h3>🛠️ Add Movie (Firebase)</h3>
-  <p style="color:#ffaa00; font-size:14px;">⚠️ Make sure Firebase Storage rules are public for testing.</p>
-  <div class="radio-group">
-    <label><input type="radio" name="posterSource" value="file" checked> Upload poster file</label>
-    <label><input type="radio" name="posterSource" value="url"> Poster URL</label>
-  </div>
-  <input type="file" id="posterFile" accept="image/*">
-  <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)" style="display:none;">
-  <div class="radio-group">
-    <label><input type="radio" name="videoSource" value="file" checked> Upload video file</label>
-    <label><input type="radio" name="videoSource" value="url"> Video URL</label>
-  </div>
-  <input type="file" id="videoFile" accept="video/*">
-  <input type="text" id="videoUrl" placeholder="Video URL (direct link to MP4, YouTube, etc.)" style="display:none;">
+  <h3>🛠️ Add Movie (URL only)</h3>
+  <p style="color:#aaa; font-size:14px;">Upload posters to ImgBB, videos to Google Drive/YouTube, then paste direct links.</p>
+  <input type="text" id="posterUrl" placeholder="Poster image URL (direct link)">
+  <input type="text" id="videoUrl" placeholder="Video URL (MP4, YouTube, etc.)">
   <input type="text" id="name" placeholder="Movie name">
   <select id="isVip">
     <option value="false">Free</option>
@@ -497,40 +169,30 @@
   </select>
   <button onclick="uploadMovie()" id="uploadBtn">Add Movie</button>
   <hr>
-  <p style="color:#aaa; font-size:14px;">Poster can be uploaded or linked via URL. Video can be uploaded or linked via URL.</p>
+  <p style="color:#ffaa00; font-size:14px;">⚠️ No file upload – just URLs. Make sure links are public.</p>
 </div>
 
-<script>
-  // ===================== MOCK DATA (for demo) =====================
-  // These movies will be shown if Firebase fails or for quick testing.
+<script type="module">
+  // ===================== Firebase (Spark plan – no credit card needed) =====================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+    authDomain: "chris-movies-7ba0f.firebaseapp.com",
+    projectId: "chris-movies-7ba0f",
+    storageBucket: "chris-movies-7ba0f.appspot.com",
+    messagingSenderId: "867998448675",
+    appId: "1:867998448675:web:3166effb3c6c402ee78596"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ===================== Mock data fallback =====================
   const mockMovies = [
-    {
-      id: 'mock1',
-      title: 'Free Sample',
-      poster: 'https://via.placeholder.com/300x450?text=Free+Movie',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      vip: 'false',
-      likes: 120,
-      comments: ['Great movie!', 'Love it']
-    },
-    {
-      id: 'mock2',
-      title: 'VIP Blockbuster',
-      poster: 'https://via.placeholder.com/300x450?text=VIP+Movie',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      vip: 'true',
-      likes: 340,
-      comments: ['Worth the price!', 'Awesome']
-    },
-    {
-      id: 'mock3',
-      title: 'Another Free',
-      poster: 'https://via.placeholder.com/300x450?text=Free+2',
-      video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-      vip: 'false',
-      likes: 85,
-      comments: []
-    }
+    { id: 'mock1', title: 'Free Sample', poster: 'https://via.placeholder.com/300x450?text=Free+Movie', video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', vip: 'false', likes: 120, comments: ['Great!'] },
+    { id: 'mock2', title: 'VIP Blockbuster', poster: 'https://via.placeholder.com/300x450?text=VIP+Movie', video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', vip: 'true', likes: 340, comments: ['Awesome'] }
   ];
 
   // ===================== Toast =====================
@@ -560,9 +222,7 @@
     try {
       const { expiry } = JSON.parse(data);
       return new Date(expiry) > new Date();
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   }
 
   // ===================== Video Player =====================
@@ -651,7 +311,7 @@
     closeVipPassword();
   });
 
-  // ===================== Load Movies (with fallback to mock) =====================
+  // ===================== Load Movies =====================
   async function loadMovies(filterTitle = '') {
     const freeDiv = document.getElementById('free');
     const vipDiv = document.getElementById('vip');
@@ -659,42 +319,18 @@
     vipDiv.innerHTML = '';
 
     let movies = [];
-
-    // Try Firebase first, fallback to mock if it fails
     try {
-      // Dynamically import Firebase only if needed (to avoid blocking)
-      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js');
-      const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js');
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
-        authDomain: "chris-movies-7ba0f.firebaseapp.com",
-        projectId: "chris-movies-7ba0f",
-        storageBucket: "chris-movies-7ba0f.appspot.com",
-        messagingSenderId: "867998448675",
-        appId: "1:867998448675:web:3166effb3c6c402ee78596"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
       const querySnapshot = await getDocs(collection(db, 'movies'));
       querySnapshot.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
-      console.log('Loaded from Firebase:', movies.length);
     } catch (e) {
-      console.warn('Firebase failed, using mock data:', e);
-      movies = mockMovies; // fallback
+      console.warn('Firestore failed, using mock data', e);
+      movies = mockMovies;
     }
 
-    // Filter by search
     const filtered = filterTitle
       ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase()))
       : movies;
 
-    if (filterTitle && filtered.length === 0) {
-      showToast('This movie is not yet uploaded. You can request it!');
-    }
-
-    // Render cards
     for (const m of filtered) {
       const card = document.createElement('div');
       card.className = 'movie-card';
@@ -715,55 +351,42 @@
         openVideoPlayer(m.video);
       });
 
-      // Like button (mock update only)
+      // Like button
       const likeBtn = card.querySelector('.like-btn');
-      likeBtn.addEventListener('click', (e) => {
+      likeBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const span = likeBtn.querySelector('span');
-        const current = parseInt(span.textContent) || 0;
-        const liked = likeBtn.dataset.liked === 'true';
-        likeBtn.dataset.liked = liked ? 'false' : 'true';
-        span.textContent = liked ? current - 1 : current + 1;
-        likeBtn.classList.toggle('liked');
+        try {
+          const movieRef = doc(db, 'movies', m.id);
+          const movieSnap = await getDoc(movieRef);
+          if (!movieSnap.exists()) return;
+          const currentLikes = movieSnap.data().likes || 0;
+          const isLiked = likeBtn.dataset.liked === 'true';
+          await updateDoc(movieRef, { likes: isLiked ? currentLikes - 1 : currentLikes + 1 });
+          likeBtn.dataset.liked = isLiked ? 'false' : 'true';
+          likeBtn.querySelector('span').textContent = isLiked ? currentLikes - 1 : currentLikes + 1;
+          likeBtn.classList.toggle('liked');
+        } catch (err) { console.error('Like error', err); }
       });
 
-      // Comment button (mock comments)
-      const commentBtn = card.querySelector('.comment-btn');
+      // Comment button (simplified)
       commentBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         alert('Comments: ' + (m.comments ? m.comments.join(', ') : 'No comments'));
       });
 
-      if (m.vip === 'true') {
-        vipDiv.appendChild(card);
-      } else {
-        freeDiv.appendChild(card);
-      }
+      if (m.vip === 'true') vipDiv.appendChild(card);
+      else freeDiv.appendChild(card);
     }
   }
 
-  // ===================== Close Video Modal =====================
-  document.getElementById('closeVideoModal').addEventListener('click', () => {
-    document.getElementById('videoPlayer').innerHTML = '';
-    document.getElementById('videoOverlay').style.display = 'none';
-    document.getElementById('videoModal').style.display = 'none';
-  });
-  document.getElementById('videoOverlay').addEventListener('click', () => {
-    document.getElementById('videoPlayer').innerHTML = '';
-    document.getElementById('videoOverlay').style.display = 'none';
-    document.getElementById('videoModal').style.display = 'none';
-  });
-
-  // ===================== Admin Login (mock) =====================
+  // ===================== Admin Login =====================
   window.adminLogin = function() {
     const password = prompt('Enter admin password:');
     if (password === 'admin123') {
       document.getElementById('adminOverlay').style.display = 'block';
       document.getElementById('adminPanel').style.display = 'block';
       document.getElementById('dropdownMenu').style.display = 'none';
-    } else {
-      showToast('Incorrect password');
-    }
+    } else showToast('Incorrect password');
   };
 
   document.getElementById('closeAdminPanel').addEventListener('click', () => {
@@ -775,49 +398,59 @@
     document.getElementById('adminPanel').style.display = 'none';
   });
 
-  // Toggle poster/video inputs
-  document.querySelectorAll('input[name="posterSource"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      const isFile = e.target.value === 'file';
-      document.getElementById('posterFile').style.display = isFile ? 'block' : 'none';
-      document.getElementById('posterUrl').style.display = isFile ? 'none' : 'block';
-    });
-  });
-  document.querySelectorAll('input[name="videoSource"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      const isFile = e.target.value === 'file';
-      document.getElementById('videoFile').style.display = isFile ? 'block' : 'none';
-      document.getElementById('videoUrl').style.display = isFile ? 'none' : 'block';
-    });
-  });
-
-  // ===================== Upload Movie (Firebase) =====================
+  // ===================== Upload Movie (URL‑only) =====================
   window.uploadMovie = async function() {
-    showToast('Upload function requires Firebase. Using mock for now.');
-    // In a real scenario, you'd implement Firebase upload here.
-    // For demo, we just add a mock movie.
+    const posterUrl = document.getElementById('posterUrl').value.trim();
+    const videoUrl = document.getElementById('videoUrl').value.trim();
     const title = document.getElementById('name').value.trim();
-    if (!title) return showToast('Enter a movie name');
-    alert('Firebase upload is disabled in this demo. Check console for details.');
+    const vipStatus = document.getElementById('isVip').value;
+
+    if (!posterUrl || !videoUrl || !title) {
+      showToast('Please fill all fields');
+      return;
+    }
+
+    const uploadBtn = document.getElementById('uploadBtn');
+    uploadBtn.disabled = true;
+    uploadBtn.innerText = 'Adding...';
+
+    try {
+      await addDoc(collection(db, 'movies'), {
+        title: title,
+        poster: posterUrl,
+        video: videoUrl,
+        vip: vipStatus,
+        likes: 0,
+        comments: []
+      });
+      showToast('✅ Movie added!');
+      loadMovies(document.getElementById('searchInput').value);
+      document.getElementById('posterUrl').value = '';
+      document.getElementById('videoUrl').value = '';
+      document.getElementById('name').value = '';
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('❌ Firestore error: ' + error.message);
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.innerText = 'Add Movie';
+    }
   };
 
-  // ===================== Unlock VIP from bar =====================
+  // ===================== Unlock VIP (bar) =====================
   window.unlockVIP = function() {
-    const codeInput = document.getElementById('vipCode').value.trim();
-    if (!codeInput) return showToast('Enter VIP password');
-
+    const code = document.getElementById('vipCode').value.trim();
+    if (!code) return showToast('Enter VIP password');
     const expiry = new Date();
-    if (codeInput === WEEKLY_CODE) {
+    if (code === WEEKLY_CODE) {
       expiry.setDate(expiry.getDate() + 7);
-      localStorage.setItem('vipData', JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
+      localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
       showToast('VIP unlocked for 7 days!');
-    } else if (codeInput === MONTHLY_CODE) {
+    } else if (code === MONTHLY_CODE) {
       expiry.setDate(expiry.getDate() + 30);
-      localStorage.setItem('vipData', JSON.stringify({ code: codeInput, expiry: expiry.toISOString() }));
+      localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
       showToast('VIP unlocked for 30 days!');
-    } else {
-      showToast('Incorrect password');
-    }
+    } else showToast('Incorrect password');
   };
 
   window.requestMovie = function() {
@@ -886,8 +519,20 @@
     }, 300);
   });
 
-  // ===================== Initial Load =====================
+  // ===================== Close video modal =====================
+  document.getElementById('closeVideoModal').addEventListener('click', () => {
+    document.getElementById('videoPlayer').innerHTML = '';
+    document.getElementById('videoOverlay').style.display = 'none';
+    document.getElementById('videoModal').style.display = 'none';
+  });
+  document.getElementById('videoOverlay').addEventListener('click', () => {
+    document.getElementById('videoPlayer').innerHTML = '';
+    document.getElementById('videoOverlay').style.display = 'none';
+    document.getElementById('videoModal').style.display = 'none';
+  });
+
+  // ===================== Initial load =====================
   loadMovies();
 </script>
 </body>
-                                                                   </html>
+</html>
