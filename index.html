@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies + </title>
+  <title>Chris Movies · Shared Banner (Fixed)</title>
   <style>
     /* (keep all your existing CSS – unchanged) */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -55,9 +55,10 @@
     .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
     .yt-note { color: #ff0000; font-size: 13px; }
   </style>
-  <!-- Firebase SDK (with Firestore) -->
+  <!-- Firebase SDK (with Storage) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
@@ -65,7 +66,7 @@
   <div class="logo">Chris Movies</div>
   <div class="menu" id="menuBtn">⋮</div>
   <div class="dropdown" id="dropdownMenu">
-    <button onclick="openAdminPanel()">📦 Admin (password)</button>
+    <button onclick="openAdminPanel()">📦 Admin (shared)</button>
   </div>
 </header>
 
@@ -78,12 +79,12 @@
   <img id="heroImage" src="" alt="banner" style="display: none;">
   <video id="heroVideo" muted autoplay loop playsinline></video>
   <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(0deg, #0b0b0b 0%, rgba(0,0,0,0.4) 100%); z-index:1;"></div>
-  <h1 style="z-index:2;"><span>enjoy</span> all movies</h1>
+  <h1 style="z-index:2;"><span>Shared</span> Movies & Banner</h1>
 </div>
 
 <section>
   <div class="bar">
-    <input id="request" placeholder="Request a movie ()">
+    <input id="request" placeholder="Request a movie (demo)">
     <button class="whatsapp" onclick="requestMovie()">WhatsApp</button>
   </div>
   <div class="bar">
@@ -98,15 +99,14 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>😁 request any movie you want .</footer>
+<footer>📱 Banner and movies are shared via Firestore – everyone sees the same.</footer>
 
 <div id="toast"></div>
 
-<!-- VIP purchase modal -->
+<!-- VIP modals (unchanged) -->
 <div class="modal-overlay" id="vipOverlay"></div>
 <div class="modal" id="vipPurchasePanel"><button class="close-icon" id="closePurchasePanel">&times;</button><h3>✨ Choose VIP</h3><button class="btn-weekly" id="buyWeekly">Weekly – demo</button><button class="btn-monthly" id="buyMonthly">Monthly – demo</button><button class="btn-close" id="closePurchasePanel2">Close</button></div>
 
-<!-- VIP password modal -->
 <div class="modal-overlay" id="vipPasswordOverlay"></div>
 <div class="modal" id="vipPasswordModal"><button class="close-icon" id="closeVipPassword">&times;</button><h3>🔐 VIP Password</h3><input type="password" id="vipPasswordInput" placeholder="weekly or monthly"><button id="submitVipPassword">Unlock & Play</button><p style="color:#aaa;">or</p><button id="buyFromVipModal" class="whatsapp">Buy via WhatsApp</button><button class="btn-close" id="closeVipPassword2">Cancel</button></div>
 
@@ -114,7 +114,7 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL (with shared banner) -->
+<!-- ADMIN PANEL (with fixed banner) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -148,12 +148,13 @@
   <hr>
   <h4 style="color:white;">🎨 Shared Banner (everyone sees this)</h4>
   <div class="file-upload">
-    <label>🖼️ Banner Image (upload)</label>
+    <label>🖼️ Banner Image (upload – stored in Firebase Storage)</label>
     <input type="file" id="bannerImageFile" accept="image/*">
   </div>
   <input type="url" id="bannerVideoUrl" placeholder="Banner video URL (MP4, optional)" style="margin-bottom:16px;">
   <div class="info-note">If both image and video URL are provided, video takes precedence.</div>
   <button onclick="updateSharedBanner()" style="background:#7209b7;">Update shared banner</button>
+  <div id="bannerProgress" style="color:#0f0; font-size:12px; margin-top:8px;"></div>
 </div>
 
 <script>
@@ -169,6 +170,7 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  const storage = firebase.storage();
   const moviesCollection = db.collection('movies');
   const settingsCollection = db.collection('settings'); // for banner
 
@@ -359,71 +361,108 @@
     reader.readAsDataURL(posterFile);
   };
 
-  // ===================== SHARED BANNER =====================
-  // Load banner from Firestore
+  // ===================== SHARED BANNER (FIXED) =====================
+  // Load banner from Firestore (with real-time listener)
   function loadSharedBanner() {
-    settingsCollection.doc('banner').get().then(doc => {
+    settingsCollection.doc('banner').onSnapshot((doc) => {
       if (doc.exists) {
         const data = doc.data();
         const heroImage = document.getElementById('heroImage');
         const heroVideo = document.getElementById('heroVideo');
 
         if (data.videoUrl) {
-          // Video URL takes precedence
           heroVideo.src = data.videoUrl;
           heroVideo.style.display = 'block';
           heroImage.style.display = 'none';
-        } else if (data.imageBase64) {
-          heroImage.src = data.imageBase64;
+        } else if (data.imageUrl) {
+          heroImage.src = data.imageUrl;
           heroImage.style.display = 'block';
           heroVideo.style.display = 'none';
         }
       }
-    }).catch(err => console.warn('No banner yet', err));
+    }, (error) => {
+      console.warn('Banner listener error', error);
+    });
   }
 
-  // Update banner in Firestore
+  // Update banner: upload image to Storage, then save URL to Firestore
   window.updateSharedBanner = function() {
     const bannerImageFile = document.getElementById('bannerImageFile').files[0];
     const bannerVideoUrl = document.getElementById('bannerVideoUrl').value.trim();
+    const progressDiv = document.getElementById('bannerProgress');
 
     if (!bannerImageFile && !bannerVideoUrl) {
       showToast('Select an image or enter a video URL');
       return;
     }
 
-    const updateData = {};
-
+    // If there's a video URL, save it directly (image optional)
     if (bannerVideoUrl) {
-      updateData.videoUrl = bannerVideoUrl;
-    }
-
-    if (bannerImageFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        updateData.imageBase64 = e.target.result;
-        // Save to Firestore
+      const updateData = { videoUrl: bannerVideoUrl };
+      // If there's also an image, we could ignore it, but we'll handle both by uploading image then updating with both
+      if (bannerImageFile) {
+        progressDiv.innerText = 'Uploading image...';
+        const storageRef = storage.ref('banners/' + Date.now() + '_' + bannerImageFile.name);
+        const uploadTask = storageRef.put(bannerImageFile);
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressDiv.innerText = `Upload: ${Math.round(progress)}%`;
+          },
+          (error) => {
+            showToast('Image upload failed: ' + error.message);
+            progressDiv.innerText = '';
+          },
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              updateData.imageUrl = downloadURL; // add image URL
+              settingsCollection.doc('banner').set(updateData, { merge: true })
+                .then(() => {
+                  showToast('✅ Banner updated (image+video)!');
+                  progressDiv.innerText = '';
+                  document.getElementById('bannerImageFile').value = '';
+                  document.getElementById('bannerVideoUrl').value = '';
+                })
+                .catch(err => showToast('Firestore error: ' + err.message));
+            });
+          }
+        );
+      } else {
+        // Only video URL
         settingsCollection.doc('banner').set(updateData, { merge: true })
           .then(() => {
-            showToast('✅ Banner updated for everyone!');
-            loadSharedBanner(); // refresh
+            showToast('✅ Banner updated (video only)!');
+            document.getElementById('bannerVideoUrl').value = '';
           })
-          .catch(err => showToast('Error: ' + err.message));
-      };
-      reader.readAsDataURL(bannerImageFile);
-    } else {
-      // Only video URL
-      settingsCollection.doc('banner').set(updateData, { merge: true })
-        .then(() => {
-          showToast('✅ Banner updated for everyone!');
-          loadSharedBanner();
-        })
-        .catch(err => showToast('Error: ' + err.message));
+          .catch(err => showToast('Firestore error: ' + err.message));
+      }
+    } else if (bannerImageFile) {
+      // Only image file
+      progressDiv.innerText = 'Uploading image...';
+      const storageRef = storage.ref('banners/' + Date.now() + '_' + bannerImageFile.name);
+      const uploadTask = storageRef.put(bannerImageFile);
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressDiv.innerText = `Upload: ${Math.round(progress)}%`;
+        },
+        (error) => {
+          showToast('Image upload failed: ' + error.message);
+          progressDiv.innerText = '';
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            settingsCollection.doc('banner').set({ imageUrl: downloadURL }, { merge: true })
+              .then(() => {
+                showToast('✅ Banner updated (image only)!');
+                progressDiv.innerText = '';
+                document.getElementById('bannerImageFile').value = '';
+              })
+              .catch(err => showToast('Firestore error: ' + err.message));
+          });
+        }
+      );
     }
-
-    // Clear inputs
-    document.getElementById('bannerImageFile').value = '';
-    document.getElementById('bannerVideoUrl').value = '';
   };
 
   // ===================== VIP BALL / PURCHASE =====================
@@ -507,7 +546,7 @@
 
   // Initial load
   loadMovies();
-  loadSharedBanner(); // Load banner from Firestore
+  loadSharedBanner(); // Now with real-time listener
 </script>
 </body>
-    </html>
+  </html>
