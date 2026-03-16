@@ -3,87 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · YouTube embedded</title>
+  <title>Chris Movies · Shared Firestore</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
     body { background: #0b0b0b; color: #f0f0f0; }
-    header {
-      position: fixed; top: 0; width: 100%; height: 70px;
-      background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.95) 90%);
-      backdrop-filter: blur(8px); display: flex; align-items: center;
-      justify-content: space-between; padding: 0 20px; z-index: 1000;
-      border-bottom: 1px solid #2a2a2a;
-    }
+    header { position: fixed; top: 0; width: 100%; height: 70px; background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.95) 90%); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid #2a2a2a; }
     .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; }
     .menu { font-size: 32px; cursor: pointer; padding: 5px 15px; color: #fff; transition: 0.2s; line-height: 1; }
     .menu:hover { color: #e50914; }
-    .dropdown {
-      position: absolute; right: 20px; top: 70px; background: #1f1f1f; border-radius: 16px;
-      display: none; overflow: hidden; box-shadow: 0 10px 30px black; border: 1px solid #333; z-index: 1001;
-    }
-    .dropdown button {
-      background: none; border: none; color: #eee; padding: 14px 24px; width: 100%;
-      text-align: left; font-size: 16px; cursor: pointer;
-    }
+    .dropdown { position: absolute; right: 20px; top: 70px; background: #1f1f1f; border-radius: 16px; display: none; overflow: hidden; box-shadow: 0 10px 30px black; border: 1px solid #333; z-index: 1001; }
+    .dropdown button { background: none; border: none; color: #eee; padding: 14px 24px; width: 100%; text-align: left; font-size: 16px; cursor: pointer; }
     .dropdown button:hover { background: #2e2e2e; color: #e50914; }
     .top-search { margin-top: 90px; padding: 0 20px; }
-    .top-search input {
-      width: 100%; max-width: 600px; padding: 15px 20px; border-radius: 40px; border: none;
-      background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a;
-      display: block; margin: 0 auto;
-    }
-    .hero {
-      height: 60vh; min-height: 400px; position: relative;
-      display: flex; align-items: flex-end; padding: 0 20px 50px 20px; margin-bottom: 20px;
-      overflow: hidden; background: #111;
-    }
-    #heroImage, #heroVideo {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;
-    }
+    .top-search input { width: 100%; max-width: 600px; padding: 15px 20px; border-radius: 40px; border: none; background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a; display: block; margin: 0 auto; }
+    .hero { height: 60vh; min-height: 400px; position: relative; display: flex; align-items: flex-end; padding: 0 20px 50px 20px; margin-bottom: 20px; overflow: hidden; background: #111; }
+    #heroImage, #heroVideo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
     #heroVideo { display: none; pointer-events: none; }
     .hero h1 { position: relative; z-index: 10; font-size: clamp(32px, 5vw, 56px); font-weight: 800; text-shadow: 0 4px 20px black; color: white; }
     .hero h1 span { color: #e50914; }
     section { padding: 0 20px 30px; }
     h2 { font-size: 28px; font-weight: 600; margin: 30px 0 20px; display: flex; align-items: center; gap: 10px; }
     h2 i { color: #e50914; }
-    .movies-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;
-    }
-    .movie-card {
-      background: #1e1e1e; border-radius: 14px; overflow: hidden; cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s; border: 1px solid #2c2c2c; position: relative;
-    }
+    .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+    .movie-card { background: #1e1e1e; border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; border: 1px solid #2c2c2c; position: relative; }
     .movie-card:hover { transform: scale(1.03); border-color: #e50914; }
     .movie-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
-    .movie-info {
-      padding: 8px; display: flex; justify-content: space-between; align-items: center;
-      background: rgba(0,0,0,0.7); position: absolute; bottom: 0; left: 0; right: 0;
-      transform: translateY(100%); transition: 0.2s;
-    }
+    .movie-info { padding: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.7); position: absolute; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: 0.2s; }
     .movie-card:hover .movie-info { transform: translateY(0); }
     .like-btn, .comment-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; display: flex; gap: 4px; }
     .like-btn.liked { color: #e50914; }
-    #vipBall {
-      position: absolute; top: -15px; right: 0; width: 60px; height: 60px;
-      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255,215,0,0.5); border: 2px solid rgba(255,255,255,0.2); z-index: 50;
-    }
+    #vipBall { position: absolute; top: -15px; right: 0; width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(255,215,0,0.5); border: 2px solid rgba(255,255,255,0.2); z-index: 50; }
     .bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
     .bar input { flex: 1; min-width: 200px; padding: 14px 18px; border-radius: 40px; border: none; background: #262626; color: white; border: 1px solid #3a3a3a; }
     .bar button { padding: 14px 24px; border-radius: 40px; border: none; font-weight: 600; cursor: pointer; background: #e50914; color: white; }
     .whatsapp { background: #25D366 !important; }
-    #toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e1e1e;
-      color: white; padding: 14px 30px; border-radius: 50px; display: none; z-index: 3000;
-      box-shadow: 0 10px 30px black; border: 1px solid #444;
-    }
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: white; padding: 14px 30px; border-radius: 50px; display: none; z-index: 3000; box-shadow: 0 10px 30px black; border: 1px solid #444; }
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index:2000; display: none; }
-    .modal {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a;
-      padding: 25px; border-radius: 28px; box-shadow: 0 25px 50px black; z-index:2100; display: none;
-      width: 380px; max-width: 94%; border: 1px solid #333; max-height: 85vh; overflow-y: auto;
-    }
+    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; padding: 25px; border-radius: 28px; box-shadow: 0 25px 50px black; z-index:2100; display: none; width: 380px; max-width: 94%; border: 1px solid #333; max-height: 85vh; overflow-y: auto; }
     .modal h3 { margin-bottom: 20px; color: #e50914; }
     .modal input, .modal select { width:100%; padding:14px; margin-bottom:16px; background:#262626; border:1px solid #3a3a3a; border-radius:14px; color:white; }
     .modal button { width:100%; padding:14px; margin:8px 0; border:none; border-radius:14px; font-weight:600; cursor:pointer; }
@@ -98,6 +54,9 @@
     .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
     .yt-note { color: #ff0000; font-size: 13px; }
   </style>
+  <!-- Firebase SDK (with Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -105,7 +64,7 @@
   <div class="logo">Chris Movies</div>
   <div class="menu" id="menuBtn">⋮</div>
   <div class="dropdown" id="dropdownMenu">
-    <button onclick="openAdminPanel()">📦 Admin (local storage)</button>
+    <button onclick="openAdminPanel()">📦 Admin (shared Firestore)</button>
   </div>
 </header>
 
@@ -113,12 +72,12 @@
   <input id="searchInput" placeholder="Search movies...">
 </div>
 
-<!-- HERO with dynamic local banner -->
+<!-- HERO -->
 <div class="hero">
   <img id="heroImage" src="" alt="banner" style="display: none;">
   <video id="heroVideo" muted autoplay loop playsinline></video>
   <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(0deg, #0b0b0b 0%, rgba(0,0,0,0.4) 100%); z-index:1;"></div>
-  <h1 style="z-index:2;"><span>YouTube</span> · plays here, not on YouTube</h1>
+  <h1 style="z-index:2;"><span>Firestore</span> · movies for everyone</h1>
 </div>
 
 <section>
@@ -138,7 +97,7 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>📱 YouTube links play embedded. File uploads temporary.</footer>
+<footer>📱 Movies added via admin are stored in Firestore – visible to all.</footer>
 
 <div id="toast"></div>
 
@@ -150,18 +109,17 @@
 <div class="modal-overlay" id="vipPasswordOverlay"></div>
 <div class="modal" id="vipPasswordModal"><button class="close-icon" id="closeVipPassword">&times;</button><h3>🔐 VIP Password</h3><input type="password" id="vipPasswordInput" placeholder="weekly or monthly"><button id="submitVipPassword">Unlock & Play</button><p style="color:#aaa;">or</p><button id="buyFromVipModal" class="whatsapp">Buy via WhatsApp</button><button class="btn-close" id="closeVipPassword2">Cancel</button></div>
 
-<!-- Video modal (supports iframe for YouTube) -->
+<!-- Video modal -->
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL – with YouTube link (embedded) -->
+<!-- ADMIN PANEL (saves to Firestore) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
-  <h3>📱 Add movie – YouTube or file</h3>
-  <p style="color:#aaa;">Posters saved. YouTube links play here.</p>
+  <h3>📱 Add movie – shared via Firestore</h3>
+  <p style="color:#aaa;">Posters and YouTube links are stored in Firestore.</p>
 
-  <!-- Movie poster file -->
   <div class="file-upload">
     <label>🎞️ Movie Poster (image)</label>
     <input type="file" id="posterFile" accept="image/*">
@@ -172,25 +130,22 @@
     <option value="true">VIP</option>
   </select>
 
-  <!-- YOUTUBE LINK (embedded) -->
   <input type="url" id="youtubeUrl" placeholder="YouTube link (e.g. https://youtu.be/...)" style="margin-bottom:8px;">
-  <div class="yt-note">▶️ If YouTube link is filled, it will play embedded here (not on YouTube).</div>
+  <div class="yt-note">▶️ YouTube links play embedded.</div>
 
-  <!-- Direct video URL (fallback) -->
   <input type="url" id="videoUrl" placeholder="Direct video URL (https://... .mp4)" style="margin-bottom:8px;">
   <div class="info-note">🔗 Use if no YouTube link.</div>
 
-  <!-- Movie video file (temporary) -->
   <div class="file-upload">
-    <label>🎥 Movie Video (MP4, temporary)</label>
+    <label>🎥 Movie Video (MP4, temporary – not shared)</label>
     <input type="file" id="videoFile" accept="video/*">
-    <div style="font-size:12px; color:#ffaa00;">⏳ Only if no URL/link provided.</div>
+    <div style="font-size:12px; color:#ffaa00;">⚠️ Video files are NOT shared – use YouTube/direct URL for sharing.</div>
   </div>
 
-  <button onclick="addLocalMovie()" id="uploadBtn" style="background:#e50914;">➕ Save movie locally</button>
+  <button onclick="addSharedMovie()" id="uploadBtn" style="background:#e50914;">➕ Save movie to Firestore</button>
 
   <hr>
-  <h4 style="color:white;">🎨 Banner & Muted Video (hero)</h4>
+  <h4 style="color:white;">🎨 Banner (local only)</h4>
   <div class="file-upload">
     <label>🖼️ Banner Image (optional)</label>
     <input type="file" id="bannerImageFile" accept="image/*">
@@ -203,15 +158,21 @@
 </div>
 
 <script>
-  // ===================== LOCAL STORAGE KEYS =====================
-  const STORAGE_MOVIES = 'chrisMovies_local';
-  const STORAGE_BANNER_IMAGE = 'chris_banner_image';
+  // ==================== YOUR FIREBASE CONFIG ====================
+  // 🔴 REPLACE WITH YOUR ACTUAL FIREBASE CONFIG (from project settings)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();          // Firestore instance
+  const moviesCollection = db.collection('movies'); // 'movies' collection
 
-  // In-memory store for video object URLs (temporary uploads)
-  let movieVideoUrls = {};      // key: movie id (timestamp) -> blob URL
-  let bannerVideoUrl = null;
-
-  // ===================== Helper: show toast =====================
+  // ===================== HELPERS =====================
   function showToast(msg, duration = 3000) {
     const t = document.getElementById('toast');
     t.innerText = msg; t.style.display = 'block'; t.style.opacity = '1';
@@ -222,34 +183,37 @@
   // ===================== VIP status =====================
   const WEEKLY_CODE = 'WEEK2025';
   const MONTHLY_CODE = 'MONTH2025';
-
   function isVipActive() {
     const data = localStorage.getItem('vipData');
     if (!data) return false;
     try { const { expiry } = JSON.parse(data); return new Date(expiry) > new Date(); } catch { return false; }
   }
 
-  // ===================== Load movies from localStorage =====================
+  // ===================== LOAD MOVIES FROM FIRESTORE =====================
   function loadMovies(filterTitle = '') {
+    moviesCollection.onSnapshot((snapshot) => {
+      const movies = [];
+      snapshot.forEach(doc => {
+        movies.push({ id: doc.id, ...doc.data() });
+      });
+      renderMovies(movies, filterTitle);
+    }, (error) => {
+      console.warn('Firestore error', error);
+      showToast('Failed to load movies');
+    });
+  }
+
+  function renderMovies(movies, filterTitle) {
     const freeDiv = document.getElementById('free');
     const vipDiv = document.getElementById('vip');
     freeDiv.innerHTML = ''; vipDiv.innerHTML = '';
 
-    let movies = [];
-    try {
-      const stored = localStorage.getItem(STORAGE_MOVIES);
-      if (stored) movies = JSON.parse(stored);
-    } catch (e) { console.warn('no movies'); }
-
-    // filter
-    const filtered = filterTitle ? movies.filter(m => m.title.toLowerCase().includes(filterTitle.toLowerCase())) : movies;
+    const filtered = filterTitle ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase())) : movies;
 
     for (const m of filtered) {
       const card = document.createElement('div'); card.className = 'movie-card';
-      // use poster base64 directly
       card.innerHTML = `<img src="${m.poster}" alt="${m.title}"><div class="movie-info"><button class="like-btn" data-id="${m.id}">❤️ <span>${m.likes || 0}</span></button><button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments || []).length}</span></button></div>`;
 
-      // play click: check VIP and video availability
       card.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
         if (m.vip === 'true' && !isVipActive()) {
@@ -259,8 +223,7 @@
         openVideoPlayerForMovie(m);
       });
 
-      // like button (dummy)
-      card.querySelector('.like-btn').addEventListener('click', (e) => { e.stopPropagation(); alert('❤️ Like feature (local)'); });
+      card.querySelector('.like-btn').addEventListener('click', (e) => { e.stopPropagation(); alert('❤️ Like feature (demo)'); });
       card.querySelector('.comment-btn').addEventListener('click', (e) => { e.stopPropagation(); alert('💬 Comments demo'); });
 
       if (m.vip === 'true') vipDiv.appendChild(card);
@@ -268,9 +231,8 @@
     }
   }
 
-  // ===================== Video player: supports YouTube embed =====================
+  // ===================== VIDEO PLAYER =====================
   function openVideoPlayerForMovie(movie) {
-    // Priority: youtubeUrl > videoUrl > blob
     let videoSource = null;
     let isYouTube = false;
 
@@ -279,12 +241,10 @@
       isYouTube = true;
     } else if (movie.videoUrl) {
       videoSource = movie.videoUrl;
-    } else if (movieVideoUrls[movie.id]) {
-      videoSource = movieVideoUrls[movie.id];
     }
 
     if (!videoSource) {
-      alert('No video available for this movie. Please add a YouTube link, direct URL, or re-upload the file in admin.');
+      alert('No video available for this movie (add YouTube link or direct URL).');
       return;
     }
 
@@ -294,14 +254,12 @@
     player.innerHTML = '';
 
     if (isYouTube) {
-      // Convert youtube link to embed URL
       let embedUrl = '';
       const youtubeRegex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
       const match = videoSource.match(youtubeRegex);
       if (match && match[1]) {
         embedUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0`;
       } else {
-        // fallback: try to use as is
         embedUrl = videoSource.replace('watch?v=', 'embed/');
       }
       const iframe = document.createElement('iframe');
@@ -322,20 +280,10 @@
     overlay.style.display = 'block';
   }
 
-  // ===================== VIP password modal =====================
+  // ===================== VIP PASSWORD MODAL =====================
   let pendingMovieId = null;
-
-  function promptVipPassword(movieId) {
-    pendingMovieId = movieId;
-    document.getElementById('vipPasswordOverlay').style.display = 'block';
-    document.getElementById('vipPasswordModal').style.display = 'block';
-  }
-
-  function closeVipPassword() {
-    document.getElementById('vipPasswordOverlay').style.display = 'none';
-    document.getElementById('vipPasswordModal').style.display = 'none';
-    pendingMovieId = null;
-  }
+  function promptVipPassword(movieId) { pendingMovieId = movieId; document.getElementById('vipPasswordOverlay').style.display = 'block'; document.getElementById('vipPasswordModal').style.display = 'block'; }
+  function closeVipPassword() { document.getElementById('vipPasswordOverlay').style.display = 'none'; document.getElementById('vipPasswordModal').style.display = 'none'; pendingMovieId = null; }
 
   document.getElementById('submitVipPassword').addEventListener('click', () => {
     const code = document.getElementById('vipPasswordInput').value.trim();
@@ -347,10 +295,12 @@
     document.getElementById('vipPasswordOverlay').style.display = 'none';
     document.getElementById('vipPasswordModal').style.display = 'none';
     if (pendingMovieId) {
-      const movies = JSON.parse(localStorage.getItem(STORAGE_MOVIES)) || [];
-      const movie = movies.find(m => m.id === pendingMovieId);
-      if (movie) openVideoPlayerForMovie(movie);
-      else showToast('Movie not found');
+      moviesCollection.doc(pendingMovieId).get().then(doc => {
+        if (doc.exists) {
+          const movie = { id: doc.id, ...doc.data() };
+          openVideoPlayerForMovie(movie);
+        }
+      });
       pendingMovieId = null;
     }
   });
@@ -360,7 +310,7 @@
   document.getElementById('vipPasswordOverlay').addEventListener('click', closeVipPassword);
   document.getElementById('buyFromVipModal').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=I%20want%20VIP','_blank'); closeVipPassword(); });
 
-  // ===================== Admin functions =====================
+  // ===================== ADMIN: ADD MOVIE TO FIRESTORE =====================
   window.openAdminPanel = function() {
     const pwd = prompt('Admin password:');
     if (pwd === 'admin123') {
@@ -370,14 +320,12 @@
     } else showToast('Wrong');
   };
 
-  // Add movie from local files OR URL OR YouTube
-  window.addLocalMovie = function() {
+  window.addSharedMovie = function() {
     const posterFile = document.getElementById('posterFile').files[0];
-    const videoFile = document.getElementById('videoFile').files[0];
-    const videoUrl = document.getElementById('videoUrl').value.trim();
-    const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
     const title = document.getElementById('movieName').value.trim();
     const isVip = document.getElementById('isVip').value;
+    const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+    const videoUrl = document.getElementById('videoUrl').value.trim();
 
     if (!posterFile || !title) {
       showToast('Select poster and enter name');
@@ -387,63 +335,36 @@
     const reader = new FileReader();
     reader.onload = (e) => {
       const posterBase64 = e.target.result;
-
-      // Create movie object with unique id (timestamp)
-      const movieId = Date.now().toString();
-      const movie = {
-        id: movieId,
-        title: title,
+      const newMovie = {
+        title,
         poster: posterBase64,
         vip: isVip,
         likes: 0,
-        comments: []
+        comments: [],
+        youtubeUrl: youtubeUrl || null,
+        videoUrl: videoUrl || null
       };
 
-      // If YouTube link is provided, store it (priority)
-      if (youtubeUrl) {
-        movie.youtubeUrl = youtubeUrl;
-      }
-      // Else if direct video URL is provided, store it
-      else if (videoUrl) {
-        movie.videoUrl = videoUrl;
-      }
-
-      // Save to localStorage (merge with existing)
-      let movies = [];
-      try { movies = JSON.parse(localStorage.getItem(STORAGE_MOVIES)) || []; } catch { movies = []; }
-      movies.push(movie);
-      localStorage.setItem(STORAGE_MOVIES, JSON.stringify(movies));
-
-      // Handle video file (temporary) – only if no youtube/url was given
-      if (videoFile && !youtubeUrl && !videoUrl) {
-        const videoBlobUrl = URL.createObjectURL(videoFile);
-        movieVideoUrls[movieId] = videoBlobUrl;
-        showToast('✅ Movie added (video temporary)');
-      } else if (youtubeUrl) {
-        showToast('✅ Movie added (YouTube link, embedded)');
-      } else if (videoUrl) {
-        showToast('✅ Movie added (direct URL)');
-      } else {
-        showToast('✅ Movie added (no video)');
-      }
-
-      // Clear inputs
-      document.getElementById('posterFile').value = '';
-      document.getElementById('videoFile').value = '';
-      document.getElementById('videoUrl').value = '';
-      document.getElementById('youtubeUrl').value = '';
-      document.getElementById('movieName').value = '';
-
-      loadMovies(document.getElementById('searchInput').value);
+      moviesCollection.add(newMovie)
+        .then(() => {
+          showToast('✅ Movie added to Firestore!');
+          // Clear form
+          document.getElementById('posterFile').value = '';
+          document.getElementById('movieName').value = '';
+          document.getElementById('youtubeUrl').value = '';
+          document.getElementById('videoUrl').value = '';
+          document.getElementById('videoFile').value = '';
+        })
+        .catch(err => showToast('Error: ' + err.message));
     };
     reader.readAsDataURL(posterFile);
   };
 
-  // Update banner image / video (temporary video)
+  // Banner functions (still local)
+  let bannerVideoUrl = null;
   window.updateLocalBanner = function() {
     const bannerImageFile = document.getElementById('bannerImageFile').files[0];
     const bannerVideoFile = document.getElementById('bannerVideoFile').files[0];
-
     const heroImage = document.getElementById('heroImage');
     const heroVideo = document.getElementById('heroVideo');
 
@@ -451,17 +372,16 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target.result;
-        localStorage.setItem(STORAGE_BANNER_IMAGE, base64);
+        localStorage.setItem('chris_banner_image', base64);
         heroImage.src = base64;
         heroImage.style.display = 'block';
         heroVideo.style.display = 'none';
-        showToast('Banner image saved');
+        showToast('Banner image saved locally');
       };
       reader.readAsDataURL(bannerImageFile);
     }
 
     if (bannerVideoFile) {
-      // revoke old url if any
       if (bannerVideoUrl) URL.revokeObjectURL(bannerVideoUrl);
       const videoUrl = URL.createObjectURL(bannerVideoFile);
       bannerVideoUrl = videoUrl;
@@ -473,25 +393,22 @@
       showToast('No file selected');
     }
 
-    // clear inputs
     document.getElementById('bannerImageFile').value = '';
     document.getElementById('bannerVideoFile').value = '';
   };
 
-  // Load banner from localStorage on startup
   function loadBanner() {
     const heroImage = document.getElementById('heroImage');
     const heroVideo = document.getElementById('heroVideo');
-    const storedBanner = localStorage.getItem(STORAGE_BANNER_IMAGE);
+    const storedBanner = localStorage.getItem('chris_banner_image');
     if (storedBanner) {
       heroImage.src = storedBanner;
       heroImage.style.display = 'block';
       heroVideo.style.display = 'none';
     }
-    // video is in memory only, cannot restore
   }
 
-  // ===================== VIP ball / purchase =====================
+  // ===================== VIP BALL / PURCHASE =====================
   document.getElementById('vipBall').addEventListener('click', ()=>{
     document.getElementById('vipPurchasePanel').style.display = 'block';
     document.getElementById('vipOverlay').style.display = 'block';
@@ -515,7 +432,7 @@
     document.getElementById('vipOverlay').style.display = 'none';
   });
 
-  // ===================== Other UI =====================
+  // ===================== OTHER UI =====================
   window.unlockVIP = function() {
     const code = document.getElementById('vipCode').value.trim();
     if (!code) return showToast('Enter code');
@@ -536,10 +453,16 @@
   menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
   document.addEventListener('click', (e) => { if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none'; });
 
-  // Search
+  // Search (re-fetch from Firestore with filter)
   let st;
   document.getElementById('searchInput').addEventListener('input', () => {
-    clearTimeout(st); st = setTimeout(() => loadMovies(document.getElementById('searchInput').value), 300);
+    clearTimeout(st); st = setTimeout(() => {
+      moviesCollection.get().then(snap => {
+        const movies = [];
+        snap.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
+        renderMovies(movies, document.getElementById('searchInput').value);
+      });
+    }, 300);
   });
 
   // Close admin
@@ -567,13 +490,6 @@
   // Initial load
   loadMovies();
   loadBanner();
-
-  // On page reload, we cannot recover video object URLs, but we keep poster and metadata.
-  window.addEventListener('beforeunload', function() {
-    for (let id in movieVideoUrls) {
-      URL.revokeObjectURL(movieVideoUrls[id]);
-    }
-  });
 </script>
 </body>
-    </html>
+</html>
