@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · Local storage (phone only)</title>
+  <title>Chris Movies · Local + URL videos</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #0b0b0b; color: #f0f0f0; }
@@ -95,6 +95,7 @@
     #videoModal { width: 90%; max-width: 800px; background: black; padding: 10px; }
     #videoPlayer video, #videoPlayer iframe { width:100%; border:none; }
     footer { text-align: center; padding: 30px; color: #777; border-top: 1px solid #222; }
+    .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
@@ -136,7 +137,7 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>📱 All data stays on your device — videos are temporary (reload loses them)</footer>
+<footer>📱 Videos from URLs are permanent. File uploads are temporary (lost after reload).</footer>
 
 <div id="toast"></div>
 
@@ -152,12 +153,12 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL – local file picks -->
+<!-- ADMIN PANEL – local file picks + URL -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
-  <h3>📱 Add from phone storage</h3>
-  <p style="color:#aaa;">Posters are saved permanently. Videos are temporary (re‑select after reload).</p>
+  <h3>📱 Add from phone storage or URL</h3>
+  <p style="color:#aaa;">Posters are saved permanently. Videos from URLs are permanent; uploaded files are temporary.</p>
 
   <!-- Movie poster file -->
   <div class="file-upload">
@@ -170,11 +171,15 @@
     <option value="true">VIP</option>
   </select>
 
+  <!-- Video URL (permanent) -->
+  <input type="url" id="videoUrl" placeholder="Video URL (https://... .mp4)" style="margin-bottom:8px;">
+  <div class="info-note">🔗 If URL is filled, it will be used (permanent).</div>
+
   <!-- Video file (temporary) -->
   <div class="file-upload">
     <label>🎥 Movie Video (MP4, temporary)</label>
     <input type="file" id="videoFile" accept="video/*" capture="environment">
-    <div style="font-size:12px; color:#ffaa00;">⏳ Will work until page reload</div>
+    <div style="font-size:12px; color:#ffaa00;">⏳ Will work until page reload (unless URL is also given)</div>
   </div>
 
   <button onclick="addLocalMovie()" id="uploadBtn" style="background:#e50914;">➕ Save movie locally</button>
@@ -245,14 +250,17 @@
       card.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
         if (m.vip === 'true' && !isVipActive()) {
-          promptVipPassword(m.id); // pass movie id to retrieve video url later
+          promptVipPassword(m.id);
           return;
         }
-        // try to get video url from memory
-        let videoUrl = movieVideoUrls[m.id];
+        // try to get video: first check if movie has a stored videoUrl (permanent)
+        let videoUrl = m.videoUrl;  // from URL field
         if (!videoUrl) {
-          // maybe we have a stored blob? but we can't. ask to re-select.
-          alert('Video is temporary. Please re-select this movie in admin to play again.');
+          // fallback to in-memory blob from file upload
+          videoUrl = movieVideoUrls[m.id];
+        }
+        if (!videoUrl) {
+          alert('No video available for this movie. Please add a video URL or re-upload the file in admin.');
           return;
         }
         openVideoPlayer(videoUrl);
@@ -274,7 +282,7 @@
     const player = document.getElementById('videoPlayer');
     player.innerHTML = '';
 
-    // if it's a blob url, just use video element
+    // if it's a blob url or direct http url, just use video element
     const video = document.createElement('video');
     video.src = videoUrl;
     video.controls = true;
@@ -311,9 +319,11 @@
     document.getElementById('vipPasswordOverlay').style.display = 'none';
     document.getElementById('vipPasswordModal').style.display = 'none';
     if (pendingMovieId) {
-      const videoUrl = movieVideoUrls[pendingMovieId];
+      const movies = JSON.parse(localStorage.getItem(STORAGE_MOVIES)) || [];
+      const movie = movies.find(m => m.id === pendingMovieId);
+      let videoUrl = movie?.videoUrl || movieVideoUrls[pendingMovieId];
       if (videoUrl) openVideoPlayer(videoUrl);
-      else showToast('Video not available (re-select in admin)');
+      else showToast('Video not available (add URL or re-upload)');
       pendingMovieId = null;
     }
   });
@@ -333,10 +343,11 @@
     } else showToast('Wrong');
   };
 
-  // Add movie from local files
+  // Add movie from local files OR URL
   window.addLocalMovie = function() {
     const posterFile = document.getElementById('posterFile').files[0];
     const videoFile = document.getElementById('videoFile').files[0];
+    const videoUrl = document.getElementById('videoUrl').value.trim();
     const title = document.getElementById('movieName').value.trim();
     const isVip = document.getElementById('isVip').value;
 
@@ -360,17 +371,24 @@
         comments: []
       };
 
+      // If video URL is provided, store it permanently
+      if (videoUrl) {
+        movie.videoUrl = videoUrl;
+      }
+
       // Save to localStorage (merge with existing)
       let movies = [];
       try { movies = JSON.parse(localStorage.getItem(STORAGE_MOVIES)) || []; } catch { movies = []; }
       movies.push(movie);
       localStorage.setItem(STORAGE_MOVIES, JSON.stringify(movies));
 
-      // Handle video: create object URL and store in memory
-      if (videoFile) {
-        const videoUrl = URL.createObjectURL(videoFile);
-        movieVideoUrls[movieId] = videoUrl;
+      // Handle video file (temporary) – create object URL and store in memory, but only if no URL was given (otherwise ignore file)
+      if (videoFile && !videoUrl) {
+        const videoBlobUrl = URL.createObjectURL(videoFile);
+        movieVideoUrls[movieId] = videoBlobUrl;
         showToast('✅ Movie added (video temporary)');
+      } else if (videoUrl) {
+        showToast('✅ Movie added (video URL permanent)');
       } else {
         showToast('✅ Movie added (no video)');
       }
@@ -378,6 +396,7 @@
       // Clear inputs
       document.getElementById('posterFile').value = '';
       document.getElementById('videoFile').value = '';
+      document.getElementById('videoUrl').value = '';
       document.getElementById('movieName').value = '';
 
       loadMovies(document.getElementById('searchInput').value);
@@ -525,4 +544,4 @@
   });
 </script>
 </body>
-</html>
+  </html>
