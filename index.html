@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · Local + URL videos</title>
+  <title>Chris Movies · Netflix style</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #0b0b0b; color: #f0f0f0; }
@@ -63,6 +63,12 @@
     .movie-card:hover .movie-info { transform: translateY(0); }
     .like-btn, .comment-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; display: flex; gap: 4px; }
     .like-btn.liked { color: #e50914; }
+    .vip-lock {
+      position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7);
+      border-radius: 50%; width: 32px; height: 32px; display: flex;
+      align-items: center; justify-content: center; font-size: 18px;
+      border: 1px solid gold; color: gold; z-index: 5;
+    }
     #vipBall {
       position: absolute; top: -15px; right: 0; width: 60px; height: 60px;
       background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800;
@@ -130,11 +136,8 @@
     <button onclick="unlockVIP()">Unlock VIP</button>
   </div>
 
-  <h2><i>🎬</i> Free Movies</h2>
-  <div class="movies-grid" id="free"></div>
-
-  <h2 style="position:relative;"><i>👑</i> VIP Movies <span style="font-size:16px; color:#e50914;">🔒</span><div id="vipBall">VIP</div></h2>
-  <div class="movies-grid" id="vip"></div>
+  <!-- Single grid for all movies -->
+  <div class="movies-grid" id="allMovies"></div>
 </section>
 
 <footer>📱 Videos from URLs are permanent. File uploads are temporary (lost after reload).</footer>
@@ -153,7 +156,7 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL – local file picks + URL (capture removed) -->
+<!-- ADMIN PANEL – local file picks + URL -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -204,7 +207,6 @@
   // ===================== LOCAL STORAGE KEYS =====================
   const STORAGE_MOVIES = 'chrisMovies_local';
   const STORAGE_BANNER_IMAGE = 'chris_banner_image';
-  const STORAGE_BANNER_VIDEO_BLOB = 'chris_banner_video_blob'; // we'll store as object URL, but on reload it's lost – we'll warn.
 
   // In-memory store for video object URLs (since they can't be serialized)
   let movieVideoUrls = {};      // key: movie id (timestamp) -> blob URL
@@ -230,9 +232,8 @@
 
   // ===================== Load movies from localStorage =====================
   function loadMovies(filterTitle = '') {
-    const freeDiv = document.getElementById('free');
-    const vipDiv = document.getElementById('vip');
-    freeDiv.innerHTML = ''; vipDiv.innerHTML = '';
+    const grid = document.getElementById('allMovies');
+    grid.innerHTML = '';
 
     let movies = [];
     try {
@@ -245,26 +246,33 @@
 
     for (const m of filtered) {
       const card = document.createElement('div'); card.className = 'movie-card';
-      // use poster base64 directly
-      card.innerHTML = `<img src="${m.poster}" alt="${m.title}"><div class="movie-info"><button class="like-btn" data-id="${m.id}">❤️ <span>${m.likes || 0}</span></button><button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments || []).length}</span></button></div>`;
+      
+      // Add VIP lock icon if applicable
+      const lockHtml = m.vip === 'true' ? '<div class="vip-lock">🔒</div>' : '';
+      
+      card.innerHTML = `<img src="${m.poster}" alt="${m.title}">${lockHtml}<div class="movie-info"><button class="like-btn" data-id="${m.id}">❤️ <span>${m.likes || 0}</span></button><button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments || []).length}</span></button></div>`;
 
       // play click: check VIP and video availability
       card.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
+        
+        // Check VIP
         if (m.vip === 'true' && !isVipActive()) {
           promptVipPassword(m.id);
           return;
         }
-        // try to get video: first check if movie has a stored videoUrl (permanent)
+        
+        // Get video URL
         let videoUrl = m.videoUrl;  // from URL field
         if (!videoUrl) {
-          // fallback to in-memory blob from file upload
-          videoUrl = movieVideoUrls[m.id];
+          videoUrl = movieVideoUrls[m.id]; // from file upload
         }
+        
         if (!videoUrl) {
           alert('No video available for this movie. Please add a video URL or re-upload the file in admin.');
           return;
         }
+        
         openVideoPlayer(videoUrl);
       });
 
@@ -272,8 +280,7 @@
       card.querySelector('.like-btn').addEventListener('click', (e) => { e.stopPropagation(); alert('❤️ Like feature (local)'); });
       card.querySelector('.comment-btn').addEventListener('click', (e) => { e.stopPropagation(); alert('💬 Comments demo'); });
 
-      if (m.vip === 'true') vipDiv.appendChild(card);
-      else freeDiv.appendChild(card);
+      grid.appendChild(card);
     }
   }
 
@@ -284,12 +291,20 @@
     const player = document.getElementById('videoPlayer');
     player.innerHTML = '';
 
-    // if it's a blob url or direct http url, just use video element
+    // Create video element with necessary attributes for mobile
     const video = document.createElement('video');
     video.src = videoUrl;
     video.controls = true;
     video.autoplay = true;
+    video.playsInline = true; // Important for iPhone
     video.style.width = '100%';
+    video.style.height = 'auto';
+    
+    // Handle errors
+    video.onerror = () => {
+      alert('Failed to play video. The URL may be invalid or not support direct playback.');
+    };
+    
     player.appendChild(video);
 
     modal.style.display = 'block';
@@ -536,14 +551,13 @@
   loadMovies();
   loadBanner();
 
-  // On page reload, we cannot recover video object URLs, but we keep poster and metadata.
-  // We'll show a note.
+  // Clean up object URLs on page unload
   window.addEventListener('beforeunload', function() {
-    // optionally revoke object URLs to free memory
     for (let id in movieVideoUrls) {
       URL.revokeObjectURL(movieVideoUrls[id]);
     }
+    if (bannerVideoUrl) URL.revokeObjectURL(bannerVideoUrl);
   });
 </script>
 </body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                         </html>
+    </html>
