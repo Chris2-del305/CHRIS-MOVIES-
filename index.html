@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · Netflix‑Style Shared Hero</title>
+  <title>Chris Movies · Movie Poster Carousel (2s)</title>
   <style>
-    /* ===== NETFLIX INSPIRED STYLES ===== */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
     body { background: #0b0b0b; color: #f0f0f0; }
     header {
       position: fixed; top: 0; width: 100%; height: 70px;
@@ -33,24 +32,28 @@
       background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a;
       display: block; margin: 0 auto;
     }
-    /* Netflix‑style hero (shared) */
+    /* Netflix‑style hero carousel */
     .hero {
       position: relative;
       width: 100%;
       height: 70vh;
       min-height: 500px;
       margin: 0 0 30px 0;
-      background-size: cover;
-      background-position: center 30%;
       overflow: hidden;
     }
-    .hero video {
+    .hero-slide {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      background-size: cover;
+      background-position: center 30%;
+      transition: opacity 1s ease;
+      opacity: 0;
+    }
+    .hero-slide.active {
+      opacity: 1;
     }
     .hero-overlay {
       position: absolute;
@@ -149,7 +152,6 @@
     footer { text-align: center; padding: 30px; color: #777; border-top: 1px solid #222; }
     .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
     .yt-note { color: #ff0000; font-size: 13px; }
-    /* Admin delete list */
     .admin-movie-list {
       max-height: 250px;
       overflow-y: auto;
@@ -206,13 +208,12 @@
   <input id="searchInput" placeholder="Search movies...">
 </div>
 
-<!-- NETFLIX-STYLE HERO (shared via Firebase) -->
-<div class="hero" id="heroBanner">
-  <video id="heroVideo" muted autoplay loop playsinline style="display: none;"></video>
+<!-- HERO CAROUSEL (movie posters) -->
+<div class="hero" id="heroCarousel">
   <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <h1 id="heroTitle">Chris Movies</h1>
-    <p id="heroDesc">Your favorite movies, always here</p>
+  <div class="hero-content" id="heroContent">
+    <h1 id="heroTitle">Loading...</h1>
+    <p id="heroDesc"></p>
     <div class="hero-buttons">
       <button id="heroPlayBtn">▶ Play</button>
       <button>More Info</button>
@@ -237,7 +238,7 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>📱 Banner and movies are shared via Firebase – everyone sees the same.</footer>
+<footer>📱 Movie posters automatically rotate in the hero banner every 2 seconds.</footer>
 
 <div id="toast"></div>
 
@@ -259,6 +260,7 @@
   <p style="color:#aaa;">Posters and YouTube links stored in Firestore.</p>
   <div class="file-upload"><label>🎞️ Movie Poster</label><input type="file" id="posterFile" accept="image/*"></div>
   <input type="text" id="movieName" placeholder="Movie name">
+  <input type="text" id="movieDesc" placeholder="Short description (optional)">
   <select id="isVip"><option value="false">Free</option><option value="true">VIP</option></select>
   <input type="url" id="youtubeUrl" placeholder="YouTube link">
   <div class="yt-note">▶️ YouTube links play embedded.</div>
@@ -269,15 +271,6 @@
   <hr>
   <h4>🗑️ Manage Movies (Delete)</h4>
   <div id="adminMovieList" class="admin-movie-list">Loading movies...</div>
-
-  <hr>
-  <h4>🎨 Netflix Hero (shared)</h4>
-  <div class="file-upload"><label>🖼️ Hero Image</label><input type="file" id="heroImageFile" accept="image/*"></div>
-  <input type="url" id="heroVideoUrl" placeholder="Hero video URL (MP4, optional)">
-  <input type="text" id="heroTitleInput" placeholder="Hero title" value="Chris Movies">
-  <input type="text" id="heroDescInput" placeholder="Hero description" value="Your favorite movies, always here">
-  <button onclick="updateHero()" style="background:#7209b7;">Update hero for everyone</button>
-  <div id="heroProgress" style="color:#0f0; font-size:12px;"></div>
 </div>
 
 <script>
@@ -295,7 +288,6 @@
   const db = firebase.firestore();
   const storage = firebase.storage();
   const moviesCollection = db.collection('movies');
-  const settingsCollection = db.collection('settings');
 
   // ===================== HELPERS =====================
   function showToast(msg, duration = 3000) {
@@ -314,15 +306,21 @@
     try { const { expiry } = JSON.parse(data); return new Date(expiry) > new Date(); } catch { return false; }
   }
 
-  // ===================== LOAD MOVIES =====================
+  // ===================== MOVIE DATA & CAROUSEL =====================
+  let allMovies = [];
+  let carouselInterval = null;
+  let currentCarouselIndex = 0;
+
   function loadMovies(filterTitle = '') {
     moviesCollection.onSnapshot((snapshot) => {
       const movies = [];
       snapshot.forEach(doc => {
         movies.push({ id: doc.id, ...doc.data() });
       });
+      allMovies = movies;
       renderMovies(movies, filterTitle);
       updateAdminMovieList(movies);
+      initCarousel(movies); // start carousel with the movies
     }, (error) => {
       console.warn('Firestore error', error);
       showToast('Failed to load movies');
@@ -347,6 +345,60 @@
       if (m.vip === 'true') vipDiv.appendChild(card);
       else freeDiv.appendChild(card);
     }
+  }
+
+  // ===================== CAROUSEL (movie posters, rotate every 2 seconds) =====================
+  function initCarousel(movies) {
+    // Clear existing slides
+    const heroDiv = document.getElementById('heroCarousel');
+    const existingSlides = heroDiv.querySelectorAll('.hero-slide');
+    existingSlides.forEach(s => s.remove());
+
+    if (!movies || movies.length === 0) {
+      document.getElementById('heroTitle').innerText = 'Chris Movies';
+      document.getElementById('heroDesc').innerText = 'Add some movies to start the show!';
+      return;
+    }
+
+    // Create slides for each movie (limit to first 10 for performance)
+    const slidesToShow = movies.slice(0, 10);
+    slidesToShow.forEach((movie, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'hero-slide';
+      if (idx === 0) slide.classList.add('active');
+      slide.style.backgroundImage = `url('${movie.poster}')`;
+      heroDiv.appendChild(slide);
+    });
+
+    // Set initial content
+    currentCarouselIndex = 0;
+    updateHeroContent(slidesToShow[currentCarouselIndex]);
+
+    // Clear previous interval
+    if (carouselInterval) clearInterval(carouselInterval);
+    // Start new interval (2 seconds)
+    carouselInterval = setInterval(() => {
+      const slides = heroDiv.querySelectorAll('.hero-slide');
+      if (slides.length === 0) return;
+      slides[currentCarouselIndex].classList.remove('active');
+      currentCarouselIndex = (currentCarouselIndex + 1) % slides.length;
+      slides[currentCarouselIndex].classList.add('active');
+      updateHeroContent(slidesToShow[currentCarouselIndex]);
+    }, 2000);
+  }
+
+  function updateHeroContent(movie) {
+    document.getElementById('heroTitle').innerText = movie.title;
+    document.getElementById('heroDesc').innerText = movie.description || 'Now showing';
+    // Store current movie ID on the play button for action
+    const playBtn = document.getElementById('heroPlayBtn');
+    playBtn.onclick = () => {
+      if (movie.vip === 'true' && !isVipActive()) {
+        promptVipPassword(movie.id);
+      } else {
+        openVideoPlayerForMovie(movie);
+      }
+    };
   }
 
   // ===================== DELETE MOVIE =====================
@@ -401,7 +453,7 @@
     let isYouTube = false;
     if (movie.youtubeUrl) { videoSource = movie.youtubeUrl; isYouTube = true; }
     else if (movie.videoUrl) { videoSource = movie.videoUrl; }
-    if (!videoSource) { alert('No video available.'); return; }
+    if (!videoSource) { alert('No video available for this movie.'); return; }
     const modal = document.getElementById('videoModal');
     const overlay = document.getElementById('videoOverlay');
     const player = document.getElementById('videoPlayer');
@@ -460,6 +512,7 @@
   window.addSharedMovie = function() {
     const posterFile = document.getElementById('posterFile').files[0];
     const title = document.getElementById('movieName').value.trim();
+    const description = document.getElementById('movieDesc').value.trim();
     const isVip = document.getElementById('isVip').value;
     const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
     const videoUrl = document.getElementById('videoUrl').value.trim();
@@ -467,12 +520,22 @@
     const reader = new FileReader();
     reader.onload = (e) => {
       const posterBase64 = e.target.result;
-      const newMovie = { title, poster: posterBase64, vip: isVip, likes: 0, comments: [], youtubeUrl: youtubeUrl || null, videoUrl: videoUrl || null };
+      const newMovie = {
+        title,
+        poster: posterBase64,
+        description: description || null,
+        vip: isVip,
+        likes: 0,
+        comments: [],
+        youtubeUrl: youtubeUrl || null,
+        videoUrl: videoUrl || null
+      };
       moviesCollection.add(newMovie)
         .then(() => {
           showToast('✅ Movie added!');
           document.getElementById('posterFile').value = '';
           document.getElementById('movieName').value = '';
+          document.getElementById('movieDesc').value = '';
           document.getElementById('youtubeUrl').value = '';
           document.getElementById('videoUrl').value = '';
           document.getElementById('videoFile').value = '';
@@ -481,108 +544,6 @@
     };
     reader.readAsDataURL(posterFile);
   };
-
-  // ===================== SHARED HERO =====================
-  function loadHero() {
-    settingsCollection.doc('hero').onSnapshot((doc) => {
-      const heroDiv = document.getElementById('heroBanner');
-      const videoElem = document.getElementById('heroVideo');
-      const titleElem = document.getElementById('heroTitle');
-      const descElem = document.getElementById('heroDesc');
-
-      if (doc.exists) {
-        const data = doc.data();
-        if (data.videoUrl) {
-          videoElem.src = data.videoUrl;
-          videoElem.style.display = 'block';
-          heroDiv.style.backgroundImage = 'none';
-        } else if (data.imageUrl) {
-          videoElem.style.display = 'none';
-          heroDiv.style.backgroundImage = `url('${data.imageUrl}')`;
-        } else {
-          heroDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
-        }
-        titleElem.innerText = data.title || 'Chris Movies';
-        descElem.innerText = data.description || 'Your favorite movies, always here';
-      } else {
-        // default
-        heroDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
-        titleElem.innerText = 'Chris Movies';
-        descElem.innerText = 'Your favorite movies, always here';
-      }
-    });
-  }
-
-  window.updateHero = function() {
-    const imageFile = document.getElementById('heroImageFile').files[0];
-    const videoUrl = document.getElementById('heroVideoUrl').value.trim();
-    const title = document.getElementById('heroTitleInput').value.trim() || 'Chris Movies';
-    const desc = document.getElementById('heroDescInput').value.trim() || 'Your favorite movies, always here';
-    const progressDiv = document.getElementById('heroProgress');
-    const updateData = { title, description: desc };
-
-    if (!imageFile && !videoUrl) {
-      // just update text
-      settingsCollection.doc('hero').set(updateData, { merge: true })
-        .then(() => showToast('✅ Hero text updated'))
-        .catch(err => showToast('Error: ' + err.message));
-      return;
-    }
-
-    if (videoUrl) {
-      updateData.videoUrl = videoUrl;
-      if (imageFile) {
-        progressDiv.innerText = 'Uploading image...';
-        const storageRef = storage.ref('hero/' + Date.now() + '_' + imageFile.name);
-        const uploadTask = storageRef.put(imageFile);
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            progressDiv.innerText = `Upload: ${Math.round(progress)}%`;
-          },
-          (error) => { showToast('Image upload failed: ' + error.message); progressDiv.innerText = ''; },
-          () => {
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              updateData.imageUrl = downloadURL;
-              settingsCollection.doc('hero').set(updateData, { merge: true })
-                .then(() => { showToast('✅ Hero updated (image+video)!'); progressDiv.innerText = ''; clearHeroInputs(); })
-                .catch(err => showToast('Firestore error: ' + err.message));
-            });
-          }
-        );
-      } else {
-        settingsCollection.doc('hero').set(updateData, { merge: true })
-          .then(() => { showToast('✅ Hero updated (video only)!'); clearHeroInputs(); })
-          .catch(err => showToast('Firestore error: ' + err.message));
-      }
-    } else if (imageFile) {
-      progressDiv.innerText = 'Uploading image...';
-      const storageRef = storage.ref('hero/' + Date.now() + '_' + imageFile.name);
-      const uploadTask = storageRef.put(imageFile);
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressDiv.innerText = `Upload: ${Math.round(progress)}%`;
-        },
-        (error) => { showToast('Image upload failed: ' + error.message); progressDiv.innerText = ''; },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            updateData.imageUrl = downloadURL;
-            settingsCollection.doc('hero').set(updateData, { merge: true })
-              .then(() => { showToast('✅ Hero updated (image only)!'); progressDiv.innerText = ''; clearHeroInputs(); })
-              .catch(err => showToast('Firestore error: ' + err.message));
-          });
-        }
-      );
-    }
-  };
-
-  function clearHeroInputs() {
-    document.getElementById('heroImageFile').value = '';
-    document.getElementById('heroVideoUrl').value = '';
-    document.getElementById('heroTitleInput').value = '';
-    document.getElementById('heroDescInput').value = '';
-  }
 
   // ===================== VIP BALL / PURCHASE =====================
   document.getElementById('vipBall').addEventListener('click', ()=>{
@@ -622,11 +583,6 @@
     if (!name) return showToast('Enter movie');
     window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`,'_blank');
   };
-
-  // Play button on hero – can be customized, but for now just alert
-  document.getElementById('heroPlayBtn').addEventListener('click', () => {
-    alert('Play feature – you can link this to a featured movie later.');
-  });
 
   // Dropdown
   const menuBtn = document.getElementById('menuBtn');
@@ -670,7 +626,6 @@
 
   // Initial load
   loadMovies();
-  loadHero();
 </script>
 </body>
-</html>
+  </html>
