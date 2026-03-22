@@ -5,54 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Chris Movies · Shared Banner + Delete Movies</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-    body { background: #0f0f0f; color: #fff; }
+    /* ===== ORIGINAL MOVIE STYLES (Netflix‑like) ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: #0b0b0b; color: #f0f0f0; }
     header {
       position: fixed; top: 0; width: 100%; height: 70px;
-      background: rgba(15,15,15,0.95); backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; z-index: 1000; border-bottom: 1px solid #2a2a2a;
+      background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.95) 90%);
+      backdrop-filter: blur(8px); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px; z-index: 1000;
+      border-bottom: 1px solid #2a2a2a;
     }
-    .logo { color: #e50914; font-size: 28px; font-weight: 700; }
-    .menu { font-size: 32px; cursor: pointer; color: #fff; padding: 5px 15px; }
+    .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; }
+    .menu { font-size: 32px; cursor: pointer; padding: 5px 15px; color: #fff; transition: 0.2s; line-height: 1; }
+    .menu:hover { color: #e50914; }
     .dropdown {
-      position: absolute; right: 20px; top: 70px; background: #1a1a1a; border-radius: 12px;
-      display: none; overflow: hidden; box-shadow: 0 10px 30px black; border: 1px solid #333;
+      position: absolute; right: 20px; top: 70px; background: #1f1f1f; border-radius: 16px;
+      display: none; overflow: hidden; box-shadow: 0 10px 30px black; border: 1px solid #333; z-index: 1001;
     }
     .dropdown button {
       background: none; border: none; color: #eee; padding: 14px 24px; width: 100%;
       text-align: left; font-size: 16px; cursor: pointer;
     }
-    .dropdown button:hover { background: #2a2a2a; color: #e50914; }
+    .dropdown button:hover { background: #2e2e2e; color: #e50914; }
     .top-search { margin-top: 90px; padding: 0 20px; }
     .top-search input {
-      width: 100%; max-width: 500px; padding: 14px 20px; border-radius: 40px;
-      background: #1e1e1e; border: 1px solid #333; color: white; font-size: 16px;
+      width: 100%; max-width: 600px; padding: 15px 20px; border-radius: 40px; border: none;
+      background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a;
       display: block; margin: 0 auto;
     }
-    /* New banner style – clean hero */
-    .site-banner {
-      position: relative;
+    /* Shared banner – clean hero */
+    .shared-banner {
       width: 100%;
       height: 60vh;
       min-height: 400px;
+      position: relative;
       background-size: cover;
       background-position: center 30%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       margin: 20px 0 30px;
-      border-radius: 0;
       overflow: hidden;
     }
-    .site-banner video {
+    .shared-banner video {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      z-index: 0;
     }
     .banner-overlay {
       position: absolute;
@@ -60,80 +58,61 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
+      background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%);
       z-index: 1;
     }
     .banner-text {
-      position: relative;
+      position: absolute;
+      bottom: 60px;
+      left: 40px;
       z-index: 2;
-      text-align: center;
       color: white;
       text-shadow: 2px 2px 10px black;
-      padding: 20px;
     }
     .banner-text h1 {
       font-size: 3rem;
-      margin-bottom: 10px;
+      margin-bottom: 0.5rem;
     }
     .banner-text p {
       font-size: 1.2rem;
     }
-    section { padding: 0 20px 40px; }
-    h2 { font-size: 28px; font-weight: 600; margin: 30px 0 20px; border-left: 5px solid #e50914; padding-left: 15px; }
+    /* Movie sections (original Netflix style) */
+    section { padding: 0 20px 30px; }
+    h2 { font-size: 28px; font-weight: 600; margin: 30px 0 20px; display: flex; align-items: center; gap: 10px; }
+    h2 i { color: #e50914; }
     .movies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 20px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;
     }
     .movie-card {
-      background: #1a1a1a;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid #2c2c2c;
+      background: #1e1e1e; border-radius: 14px; overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s; border: 1px solid #2c2c2c; position: relative;
     }
-    .movie-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      border-color: #e50914;
-    }
-    .movie-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-    }
+    .movie-card:hover { transform: scale(1.03); border-color: #e50914; }
+    .movie-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
     .movie-info {
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      background: #111;
+      padding: 8px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(0,0,0,0.7); position: absolute; bottom: 0; left: 0; right: 0;
+      transform: translateY(100%); transition: 0.2s;
     }
-    .like-btn, .comment-btn {
-      background: none; border: none; color: #ccc; font-size: 14px;
-      cursor: pointer; display: flex; align-items: center; gap: 4px;
-    }
+    .movie-card:hover .movie-info { transform: translateY(0); }
+    .like-btn, .comment-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; display: flex; gap: 4px; }
     .like-btn.liked { color: #e50914; }
     #vipBall {
       position: absolute; top: -15px; right: 0; width: 60px; height: 60px;
-      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800);
-      color: black; font-weight: 800; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 5px 15px rgba(255,215,0,0.5);
-      border: 2px solid rgba(255,255,255,0.2);
+      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255,215,0,0.5); border: 2px solid rgba(255,255,255,0.2); z-index: 50;
     }
-    .bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
-    .bar input { flex: 0 1 300px; padding: 14px 18px; border-radius: 40px; background: #1e1e1e; border: 1px solid #333; color: white; }
+    .bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+    .bar input { flex: 1; min-width: 200px; padding: 14px 18px; border-radius: 40px; border: none; background: #262626; color: white; border: 1px solid #3a3a3a; }
     .bar button { padding: 14px 24px; border-radius: 40px; border: none; font-weight: 600; cursor: pointer; background: #e50914; color: white; }
     .whatsapp { background: #25D366 !important; }
-    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: white; padding: 14px 30px; border-radius: 50px; display: none; z-index: 3000; }
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: white; padding: 14px 30px; border-radius: 50px; display: none; z-index: 3000; box-shadow: 0 10px 30px black; border: 1px solid #444; }
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index:2000; display: none; }
     .modal {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #1a1a1a; padding: 25px; border-radius: 24px;
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a;
+      padding: 25px; border-radius: 28px; box-shadow: 0 25px 50px black; z-index:2100; display: none;
       width: 380px; max-width: 94%; border: 1px solid #333; max-height: 85vh; overflow-y: auto;
-      z-index:2100; display: none;
     }
     .modal h3 { margin-bottom: 20px; color: #e50914; }
     .modal input, .modal select { width:100%; padding:14px; margin-bottom:16px; background:#262626; border:1px solid #3a3a3a; border-radius:14px; color:white; }
@@ -146,15 +125,16 @@
     #videoModal { width: 90%; max-width: 800px; background: black; padding: 10px; }
     #videoPlayer video, #videoPlayer iframe { width:100%; aspect-ratio:16/9; border:none; }
     footer { text-align: center; padding: 30px; color: #777; border-top: 1px solid #222; }
-    .info-note, .yt-note { font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
-    .yt-note { color: #ff0000; }
+    .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
+    .yt-note { color: #ff0000; font-size: 13px; }
+    /* Admin delete list */
     .admin-movie-list {
-      max-height: 300px;
+      max-height: 250px;
       overflow-y: auto;
       margin-bottom: 20px;
       border: 1px solid #333;
       border-radius: 12px;
-      padding: 10px;
+      padding: 8px;
     }
     .admin-movie-item {
       display: flex;
@@ -163,7 +143,7 @@
       background: #262626;
       padding: 8px 12px;
       border-radius: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .admin-movie-title {
       font-size: 14px;
@@ -185,7 +165,7 @@
     }
     .delete-movie-btn:hover { background: #b00710; }
   </style>
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (with Storage) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
@@ -201,11 +181,11 @@
 </header>
 
 <div class="top-search">
-  <input id="searchInput" placeholder="Search for a movie...">
+  <input id="searchInput" placeholder="Search movies...">
 </div>
 
-<!-- New banner style (shared via Firestore) -->
-<div class="site-banner" id="siteBanner">
+<!-- Shared banner (image or video) -->
+<div class="shared-banner" id="sharedBanner">
   <video id="bannerVideo" muted autoplay loop playsinline style="display: none;"></video>
   <div class="banner-overlay"></div>
   <div class="banner-text">
@@ -245,7 +225,7 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL (with delete movies) -->
+<!-- ADMIN PANEL (with delete) -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -265,7 +245,7 @@
   <div id="adminMovieList" class="admin-movie-list">Loading movies...</div>
 
   <hr>
-  <h4>🎨 Banner (shared)</h4>
+  <h4>🎨 Shared Banner</h4>
   <div class="file-upload"><label>🖼️ Banner Image</label><input type="file" id="bannerImageFile" accept="image/*"></div>
   <input type="url" id="bannerVideoUrl" placeholder="Banner video URL (optional, takes priority)">
   <button onclick="updateSharedBanner()" style="background:#7209b7;">Update banner for everyone</button>
@@ -314,7 +294,6 @@
         movies.push({ id: doc.id, ...doc.data() });
       });
       renderMovies(movies, filterTitle);
-      // Update admin movie list for deletion (if admin panel is open)
       updateAdminMovieList(movies);
     }, (error) => {
       console.warn('Firestore error', error);
@@ -353,6 +332,7 @@
       }
     }
   }
+  window.deleteMovie = deleteMovie;
 
   function updateAdminMovieList(movies) {
     const container = document.getElementById('adminMovieList');
@@ -363,6 +343,7 @@
     }
     let html = '';
     movies.forEach(m => {
+      const safeTitle = m.title.replace(/['"]/g, '&quot;');
       html += `
         <div class="admin-movie-item">
           <span class="admin-movie-title">${escapeHtml(m.title)}</span>
@@ -474,13 +455,13 @@
     reader.readAsDataURL(posterFile);
   };
 
-  // ===================== SHARED BANNER (new style) =====================
+  // ===================== SHARED BANNER =====================
   function loadSharedBanner() {
     settingsCollection.doc('banner').onSnapshot((doc) => {
+      const bannerDiv = document.getElementById('sharedBanner');
+      const videoElem = document.getElementById('bannerVideo');
       if (doc.exists) {
         const data = doc.data();
-        const bannerDiv = document.getElementById('siteBanner');
-        const videoElem = document.getElementById('bannerVideo');
         if (data.videoUrl) {
           videoElem.src = data.videoUrl;
           videoElem.style.display = 'block';
@@ -489,12 +470,12 @@
           videoElem.style.display = 'none';
           bannerDiv.style.backgroundImage = `url('${data.imageUrl}')`;
         } else {
-          // default background
+          // default gradient
           bannerDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
         }
       } else {
-        // default background if no banner set
-        document.getElementById('siteBanner').style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
+        // default gradient if no banner set
+        bannerDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
       }
     });
   }
