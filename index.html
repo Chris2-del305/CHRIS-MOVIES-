@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · Shared Banner + Delete Movies</title>
+  <title>Chris Movies · Netflix‑Style Shared Hero</title>
   <style>
-    /* ===== ORIGINAL MOVIE STYLES (Netflix‑like) ===== */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    /* ===== NETFLIX INSPIRED STYLES ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
     body { background: #0b0b0b; color: #f0f0f0; }
     header {
       position: fixed; top: 0; width: 100%; height: 70px;
@@ -15,7 +15,7 @@
       justify-content: space-between; padding: 0 20px; z-index: 1000;
       border-bottom: 1px solid #2a2a2a;
     }
-    .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; }
+    .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; cursor: pointer; }
     .menu { font-size: 32px; cursor: pointer; padding: 5px 15px; color: #fff; transition: 0.2s; line-height: 1; }
     .menu:hover { color: #e50914; }
     .dropdown {
@@ -33,18 +33,18 @@
       background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a;
       display: block; margin: 0 auto;
     }
-    /* Shared banner – clean hero */
-    .shared-banner {
-      width: 100%;
-      height: 60vh;
-      min-height: 400px;
+    /* Netflix‑style hero (shared) */
+    .hero {
       position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 500px;
+      margin: 0 0 30px 0;
       background-size: cover;
       background-position: center 30%;
-      margin: 20px 0 30px;
       overflow: hidden;
     }
-    .shared-banner video {
+    .hero video {
       position: absolute;
       top: 0;
       left: 0;
@@ -52,29 +52,51 @@
       height: 100%;
       object-fit: cover;
     }
-    .banner-overlay {
+    .hero-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.7) 100%);
+      background: linear-gradient(0deg, #0b0b0b 0%, rgba(0,0,0,0.4) 100%);
       z-index: 1;
     }
-    .banner-text {
+    .hero-content {
       position: absolute;
-      bottom: 60px;
-      left: 40px;
+      bottom: 20%;
+      left: 5%;
       z-index: 2;
-      color: white;
-      text-shadow: 2px 2px 10px black;
+      max-width: 60%;
     }
-    .banner-text h1 {
+    .hero-content h1 {
       font-size: 3rem;
-      margin-bottom: 0.5rem;
+      font-weight: 800;
+      text-shadow: 0 2px 10px black;
+      margin-bottom: 1rem;
     }
-    .banner-text p {
+    .hero-content p {
       font-size: 1.2rem;
+      text-shadow: 0 1px 5px black;
+      margin-bottom: 1.5rem;
+    }
+    .hero-buttons button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: 0.2s;
+    }
+    .hero-buttons button:first-child {
+      background: white;
+      color: black;
+    }
+    .hero-buttons button:hover {
+      background: rgba(255,255,255,0.4);
     }
     /* Movie sections (original Netflix style) */
     section { padding: 0 20px 30px; }
@@ -165,7 +187,7 @@
     }
     .delete-movie-btn:hover { background: #b00710; }
   </style>
-  <!-- Firebase SDK (with Storage) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
@@ -184,13 +206,17 @@
   <input id="searchInput" placeholder="Search movies...">
 </div>
 
-<!-- Shared banner (image or video) -->
-<div class="shared-banner" id="sharedBanner">
-  <video id="bannerVideo" muted autoplay loop playsinline style="display: none;"></video>
-  <div class="banner-overlay"></div>
-  <div class="banner-text">
-    <h1>Chris Movies</h1>
-    <p>Your favorite movies, always here</p>
+<!-- NETFLIX-STYLE HERO (shared via Firebase) -->
+<div class="hero" id="heroBanner">
+  <video id="heroVideo" muted autoplay loop playsinline style="display: none;"></video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 id="heroTitle">Chris Movies</h1>
+    <p id="heroDesc">Your favorite movies, always here</p>
+    <div class="hero-buttons">
+      <button id="heroPlayBtn">▶ Play</button>
+      <button>More Info</button>
+    </div>
   </div>
 </div>
 
@@ -211,7 +237,7 @@
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>📱 Movies and banner are shared via Firebase – everyone sees the same.</footer>
+<footer>📱 Banner and movies are shared via Firebase – everyone sees the same.</footer>
 
 <div id="toast"></div>
 
@@ -225,7 +251,7 @@
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL (with delete) -->
+<!-- ADMIN PANEL -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminPanel">
   <button class="close-icon" id="closeAdminPanel">&times;</button>
@@ -245,11 +271,13 @@
   <div id="adminMovieList" class="admin-movie-list">Loading movies...</div>
 
   <hr>
-  <h4>🎨 Shared Banner</h4>
-  <div class="file-upload"><label>🖼️ Banner Image</label><input type="file" id="bannerImageFile" accept="image/*"></div>
-  <input type="url" id="bannerVideoUrl" placeholder="Banner video URL (optional, takes priority)">
-  <button onclick="updateSharedBanner()" style="background:#7209b7;">Update banner for everyone</button>
-  <div id="bannerProgress" style="color:#0f0; font-size:12px;"></div>
+  <h4>🎨 Netflix Hero (shared)</h4>
+  <div class="file-upload"><label>🖼️ Hero Image</label><input type="file" id="heroImageFile" accept="image/*"></div>
+  <input type="url" id="heroVideoUrl" placeholder="Hero video URL (MP4, optional)">
+  <input type="text" id="heroTitleInput" placeholder="Hero title" value="Chris Movies">
+  <input type="text" id="heroDescInput" placeholder="Hero description" value="Your favorite movies, always here">
+  <button onclick="updateHero()" style="background:#7209b7;">Update hero for everyone</button>
+  <div id="heroProgress" style="color:#0f0; font-size:12px;"></div>
 </div>
 
 <script>
@@ -343,7 +371,6 @@
     }
     let html = '';
     movies.forEach(m => {
-      const safeTitle = m.title.replace(/['"]/g, '&quot;');
       html += `
         <div class="admin-movie-item">
           <span class="admin-movie-title">${escapeHtml(m.title)}</span>
@@ -455,43 +482,59 @@
     reader.readAsDataURL(posterFile);
   };
 
-  // ===================== SHARED BANNER =====================
-  function loadSharedBanner() {
-    settingsCollection.doc('banner').onSnapshot((doc) => {
-      const bannerDiv = document.getElementById('sharedBanner');
-      const videoElem = document.getElementById('bannerVideo');
+  // ===================== SHARED HERO =====================
+  function loadHero() {
+    settingsCollection.doc('hero').onSnapshot((doc) => {
+      const heroDiv = document.getElementById('heroBanner');
+      const videoElem = document.getElementById('heroVideo');
+      const titleElem = document.getElementById('heroTitle');
+      const descElem = document.getElementById('heroDesc');
+
       if (doc.exists) {
         const data = doc.data();
         if (data.videoUrl) {
           videoElem.src = data.videoUrl;
           videoElem.style.display = 'block';
-          bannerDiv.style.backgroundImage = 'none';
+          heroDiv.style.backgroundImage = 'none';
         } else if (data.imageUrl) {
           videoElem.style.display = 'none';
-          bannerDiv.style.backgroundImage = `url('${data.imageUrl}')`;
+          heroDiv.style.backgroundImage = `url('${data.imageUrl}')`;
         } else {
-          // default gradient
-          bannerDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
+          heroDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
         }
+        titleElem.innerText = data.title || 'Chris Movies';
+        descElem.innerText = data.description || 'Your favorite movies, always here';
       } else {
-        // default gradient if no banner set
-        bannerDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
+        // default
+        heroDiv.style.backgroundImage = "linear-gradient(135deg, #141414 0%, #e50914 100%)";
+        titleElem.innerText = 'Chris Movies';
+        descElem.innerText = 'Your favorite movies, always here';
       }
     });
   }
 
-  window.updateSharedBanner = function() {
-    const bannerImageFile = document.getElementById('bannerImageFile').files[0];
-    const bannerVideoUrl = document.getElementById('bannerVideoUrl').value.trim();
-    const progressDiv = document.getElementById('bannerProgress');
-    if (!bannerImageFile && !bannerVideoUrl) { showToast('Select an image or enter a video URL'); return; }
+  window.updateHero = function() {
+    const imageFile = document.getElementById('heroImageFile').files[0];
+    const videoUrl = document.getElementById('heroVideoUrl').value.trim();
+    const title = document.getElementById('heroTitleInput').value.trim() || 'Chris Movies';
+    const desc = document.getElementById('heroDescInput').value.trim() || 'Your favorite movies, always here';
+    const progressDiv = document.getElementById('heroProgress');
+    const updateData = { title, description: desc };
 
-    if (bannerVideoUrl) {
-      const updateData = { videoUrl: bannerVideoUrl };
-      if (bannerImageFile) {
+    if (!imageFile && !videoUrl) {
+      // just update text
+      settingsCollection.doc('hero').set(updateData, { merge: true })
+        .then(() => showToast('✅ Hero text updated'))
+        .catch(err => showToast('Error: ' + err.message));
+      return;
+    }
+
+    if (videoUrl) {
+      updateData.videoUrl = videoUrl;
+      if (imageFile) {
         progressDiv.innerText = 'Uploading image...';
-        const storageRef = storage.ref('banners/' + Date.now() + '_' + bannerImageFile.name);
-        const uploadTask = storageRef.put(bannerImageFile);
+        const storageRef = storage.ref('hero/' + Date.now() + '_' + imageFile.name);
+        const uploadTask = storageRef.put(imageFile);
         uploadTask.on('state_changed',
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -501,21 +544,21 @@
           () => {
             uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
               updateData.imageUrl = downloadURL;
-              settingsCollection.doc('banner').set(updateData, { merge: true })
-                .then(() => { showToast('✅ Banner updated (image+video)!'); progressDiv.innerText = ''; clearBannerInputs(); })
+              settingsCollection.doc('hero').set(updateData, { merge: true })
+                .then(() => { showToast('✅ Hero updated (image+video)!'); progressDiv.innerText = ''; clearHeroInputs(); })
                 .catch(err => showToast('Firestore error: ' + err.message));
             });
           }
         );
       } else {
-        settingsCollection.doc('banner').set(updateData, { merge: true })
-          .then(() => { showToast('✅ Banner updated (video only)!'); clearBannerInputs(); })
+        settingsCollection.doc('hero').set(updateData, { merge: true })
+          .then(() => { showToast('✅ Hero updated (video only)!'); clearHeroInputs(); })
           .catch(err => showToast('Firestore error: ' + err.message));
       }
-    } else if (bannerImageFile) {
+    } else if (imageFile) {
       progressDiv.innerText = 'Uploading image...';
-      const storageRef = storage.ref('banners/' + Date.now() + '_' + bannerImageFile.name);
-      const uploadTask = storageRef.put(bannerImageFile);
+      const storageRef = storage.ref('hero/' + Date.now() + '_' + imageFile.name);
+      const uploadTask = storageRef.put(imageFile);
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -524,8 +567,9 @@
         (error) => { showToast('Image upload failed: ' + error.message); progressDiv.innerText = ''; },
         () => {
           uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            settingsCollection.doc('banner').set({ imageUrl: downloadURL }, { merge: true })
-              .then(() => { showToast('✅ Banner updated (image only)!'); progressDiv.innerText = ''; clearBannerInputs(); })
+            updateData.imageUrl = downloadURL;
+            settingsCollection.doc('hero').set(updateData, { merge: true })
+              .then(() => { showToast('✅ Hero updated (image only)!'); progressDiv.innerText = ''; clearHeroInputs(); })
               .catch(err => showToast('Firestore error: ' + err.message));
           });
         }
@@ -533,9 +577,11 @@
     }
   };
 
-  function clearBannerInputs() {
-    document.getElementById('bannerImageFile').value = '';
-    document.getElementById('bannerVideoUrl').value = '';
+  function clearHeroInputs() {
+    document.getElementById('heroImageFile').value = '';
+    document.getElementById('heroVideoUrl').value = '';
+    document.getElementById('heroTitleInput').value = '';
+    document.getElementById('heroDescInput').value = '';
   }
 
   // ===================== VIP BALL / PURCHASE =====================
@@ -576,6 +622,11 @@
     if (!name) return showToast('Enter movie');
     window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`,'_blank');
   };
+
+  // Play button on hero – can be customized, but for now just alert
+  document.getElementById('heroPlayBtn').addEventListener('click', () => {
+    alert('Play feature – you can link this to a featured movie later.');
+  });
 
   // Dropdown
   const menuBtn = document.getElementById('menuBtn');
@@ -619,7 +670,7 @@
 
   // Initial load
   loadMovies();
-  loadSharedBanner();
+  loadHero();
 </script>
 </body>
 </html>
