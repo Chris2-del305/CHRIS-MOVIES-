@@ -2,59 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Chris Movies · Cinema Hub + APK Reminder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Chris Movies · Cinema Experience</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    body { background: #0b0b0b; color: #f0f0f0; }
-    header {
-      position: fixed; top: 0; width: 100%; height: 70px;
-      background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.95) 90%);
-      backdrop-filter: blur(8px); display: flex; align-items: center;
-      justify-content: space-between; padding: 0 20px; z-index: 1000;
-      border-bottom: 1px solid #2a2a2a;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
     }
-    .logo { color: #e50914; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; text-transform: uppercase; cursor: pointer; }
-    .menu-group { display: flex; gap: 16px; align-items: center; }
+
+    body {
+      background: #0a0a0a;
+      color: #ededed;
+      scroll-behavior: smooth;
+    }
+
+    /* custom scroll */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
+
+    /* header */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 72px;
+      background: rgba(10, 10, 10, 0.9);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 1100;
+      border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+      transition: all 0.2s;
+    }
+
+    .logo {
+      color: #e50914;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #e50914, #ff4d4d);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 8px rgba(229,9,20,0.3);
+      cursor: pointer;
+    }
+
+    .menu-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
     .download-icon {
-      background: rgba(229,9,20,0.2);
-      padding: 6px 14px;
+      background: rgba(229, 9, 20, 0.15);
+      padding: 8px 18px;
       border-radius: 40px;
       font-size: 14px;
       font-weight: 600;
       color: #fff;
       cursor: pointer;
-      border: 1px solid #e50914;
-      transition: 0.2s;
+      border: 1px solid rgba(229,9,20,0.6);
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 6px;
+      backdrop-filter: blur(4px);
     }
-    .download-icon:hover { background: #e50914; color: white; border-color: #e50914; }
-    .menu { font-size: 32px; cursor: pointer; padding: 5px 10px; color: #fff; transition: 0.2s; line-height: 1; }
-    .menu:hover { color: #e50914; }
+    .download-icon:hover {
+      background: #e50914;
+      border-color: #e50914;
+      transform: scale(1.02);
+    }
+
+    .menu {
+      font-size: 32px;
+      cursor: pointer;
+      padding: 5px 12px;
+      color: #f0f0f0;
+      transition: 0.2s;
+      line-height: 1;
+      border-radius: 30px;
+    }
+    .menu:hover { background: #2a2a2a; color: #e50914; }
+
     .dropdown {
-      position: absolute; right: 20px; top: 70px; background: #1f1f1f; border-radius: 16px;
-      display: none; overflow: hidden; box-shadow: 0 10px 30px black; border: 1px solid #333; z-index: 1001;
+      position: absolute;
+      right: 28px;
+      top: 76px;
+      background: rgba(20, 20, 20, 0.98);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      display: none;
+      overflow: hidden;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+      border: 1px solid #333;
+      z-index: 1101;
+      min-width: 180px;
     }
     .dropdown button {
-      background: none; border: none; color: #eee; padding: 14px 24px; width: 100%;
-      text-align: left; font-size: 16px; cursor: pointer;
+      background: none;
+      border: none;
+      color: #eee;
+      padding: 14px 22px;
+      width: 100%;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.15s;
     }
-    .dropdown button:hover { background: #2e2e2e; color: #e50914; }
-    .top-search { margin-top: 90px; padding: 0 20px; }
+    .dropdown button:hover { background: #2a2a2a; color: #e50914; }
+
+    /* search */
+    .top-search {
+      margin-top: 100px;
+      padding: 0 24px;
+    }
     .top-search input {
-      width: 100%; max-width: 600px; padding: 15px 20px; border-radius: 40px; border: none;
-      background: #2a2a2a; color: white; font-size: 16px; outline: none; border: 1px solid #3a3a3a;
-      display: block; margin: 0 auto;
+      width: 100%;
+      max-width: 640px;
+      padding: 16px 24px;
+      border-radius: 60px;
+      border: none;
+      background: #1e1e1e;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      border: 1px solid #333;
+      transition: 0.2s;
+      margin: 0 auto;
+      display: block;
+      backdrop-filter: blur(4px);
     }
+    .top-search input:focus {
+      border-color: #e50914;
+      box-shadow: 0 0 0 2px rgba(229,9,20,0.2);
+    }
+
+    /* hero carousel */
     .hero {
       position: relative;
       width: 100%;
       height: 70vh;
-      min-height: 500px;
-      margin: 0 0 30px 0;
+      min-height: 520px;
+      margin: 0 0 40px 0;
       overflow: hidden;
+      border-radius: 0 0 32px 32px;
     }
     .hero-slide {
       position: absolute;
@@ -63,222 +163,317 @@
       width: 100%;
       height: 100%;
       background-size: cover;
-      background-position: center 30%;
-      transition: opacity 1s ease;
+      background-position: center 25%;
+      transition: opacity 1s cubic-bezier(0.2, 0.9, 0.4, 1.1);
       opacity: 0;
     }
-    .hero-slide.active {
-      opacity: 1;
-    }
+    .hero-slide.active { opacity: 1; }
     .hero-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(0deg, #0b0b0b 0%, rgba(0,0,0,0.4) 100%);
+      background: linear-gradient(0deg, #0a0a0a 5%, rgba(0,0,0,0.4) 70%);
       z-index: 1;
     }
     .hero-content {
       position: absolute;
-      bottom: 20%;
-      left: 5%;
+      bottom: 22%;
+      left: 6%;
       z-index: 2;
-      max-width: 60%;
+      max-width: 65%;
+      text-shadow: 0 2px 12px black;
     }
     .hero-content h1 {
-      font-size: 3rem;
+      font-size: 3.6rem;
       font-weight: 800;
-      text-shadow: 0 2px 10px black;
       margin-bottom: 1rem;
+      line-height: 1.2;
     }
     .hero-content p {
       font-size: 1.2rem;
-      text-shadow: 0 1px 5px black;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.8rem;
+      opacity: 0.9;
     }
     .hero-buttons button {
       background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
       border: none;
       color: white;
-      padding: 10px 24px;
-      border-radius: 4px;
+      padding: 10px 28px;
+      border-radius: 8px;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      margin-right: 10px;
-      transition: 0.2s;
+      margin-right: 12px;
+      transition: all 0.2s;
     }
     .hero-buttons button:first-child {
       background: white;
       color: black;
     }
     .hero-buttons button:hover {
-      background: rgba(255,255,255,0.4);
+      transform: scale(1.05);
+      background: rgba(255,255,255,0.35);
     }
-    section { padding: 0 20px 30px; }
-    h2 { font-size: 28px; font-weight: 600; margin: 30px 0 20px; display: flex; align-items: center; gap: 10px; }
+
+    /* sections */
+    section { padding: 0 24px 40px; }
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 40px 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.3px;
+    }
     h2 i { color: #e50914; }
+
+    /* movie grid */
     .movies-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
     }
     .movie-card {
-      background: #1e1e1e; border-radius: 14px; overflow: hidden; cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s; border: 1px solid #2c2c2c; position: relative;
+      background: #141414;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.3s;
+      border: 1px solid #2c2c2c;
+      position: relative;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
-    .movie-card:hover { transform: scale(1.03); border-color: #e50914; }
-    .movie-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+    .movie-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: #e50914;
+      box-shadow: 0 20px 30px -8px rgba(229,9,14,0.3);
+    }
+    .movie-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      transition: 0.2s;
+    }
     .movie-info {
-      padding: 8px; display: flex; justify-content: space-between; align-items: center;
-      background: rgba(0,0,0,0.85); position: absolute; bottom: 0; left: 0; right: 0;
-      transform: translateY(100%); transition: 0.2s;
-    }
-    .movie-card:hover .movie-info { transform: translateY(0); }
-    .like-btn, .comment-btn { background: none; border: none; color: white; font-size: 14px; cursor: pointer; display: flex; gap: 6px; align-items: center; font-weight: 500; transition: 0.1s; }
-    .like-btn.liked { color: #e50914; text-shadow: 0 0 2px red; }
-    .like-btn:hover, .comment-btn:hover { opacity: 0.8; transform: scale(1.02); }
-    #vipBall {
-      position: absolute; top: -15px; right: 0; width: 60px; height: 60px;
-      background: radial-gradient(circle at 30% 30%, #f9e57c, #e5b800); color: black; font-weight: 800;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255,215,0,0.5); border: 2px solid rgba(255,255,255,0.2); z-index: 50;
-    }
-    .bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
-    .bar input { flex: 1; min-width: 200px; padding: 14px 18px; border-radius: 40px; border: none; background: #262626; color: white; border: 1px solid #3a3a3a; }
-    .bar button { padding: 14px 24px; border-radius: 40px; border: none; font-weight: 600; cursor: pointer; background: #e50914; color: white; }
-    .whatsapp { background: #25D366 !important; }
-    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e1e1e; color: white; padding: 14px 30px; border-radius: 50px; display: none; z-index: 3000; box-shadow: 0 10px 30px black; border: 1px solid #444; }
-    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index:2000; display: none; }
-    .modal {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a;
-      padding: 25px; border-radius: 28px; box-shadow: 0 25px 50px black; z-index:2100; display: none;
-      width: 380px; max-width: 94%; border: 1px solid #333; max-height: 85vh; overflow-y: auto;
-    }
-    .modal h3 { margin-bottom: 20px; color: #e50914; }
-    .modal input, .modal select { width:100%; padding:14px; margin-bottom:16px; background:#262626; border:1px solid #3a3a3a; border-radius:14px; color:white; }
-    .modal button { width:100%; padding:14px; margin:8px 0; border:none; border-radius:14px; font-weight:600; cursor:pointer; }
-    .btn-close { background:#2a2a2a; color:#aaa; }
-    .close-icon { position: absolute; top:12px; right:16px; font-size:28px; background:none; border:none; color:#aaa; cursor:pointer; width:auto; }
-    .file-upload { background: #2a2a2a; border-radius: 14px; padding: 12px; margin-bottom: 16px; border: 1px dashed #e50914; text-align: center; }
-    .file-upload label { display: block; color: #e50914; font-weight: 600; margin-bottom: 8px; }
-    hr { margin: 20px 0; border-color: #333; }
-    #videoModal { width: 90%; max-width: 800px; background: black; padding: 10px; }
-    #videoPlayer video, #videoPlayer iframe { width:100%; aspect-ratio:16/9; border:none; }
-    footer { text-align: center; padding: 30px; color: #777; border-top: 1px solid #222; }
-    .info-note { color: #ffaa00; font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
-    .admin-movie-list {
-      max-height: 250px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 8px;
-    }
-    .admin-movie-item {
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #262626;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 6px;
+      background: linear-gradient(0deg, #0f0f0f, #1a1a1a);
+      border-top: 1px solid #2a2a2a;
+    }
+    .like-btn, .comment-btn {
+      background: none;
+      border: none;
+      color: #ddd;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-weight: 500;
+      transition: 0.1s;
+      padding: 4px 8px;
+      border-radius: 30px;
+    }
+    .like-btn:hover, .comment-btn:hover { background: #2c2c2c; color: white; }
+    .like-btn.liked { color: #e50914; }
+
+    /* vip badge */
+    #vipBall {
+      position: absolute;
+      top: -18px;
+      right: 8px;
+      width: 64px;
+      height: 64px;
+      background: radial-gradient(circle at 35% 35%, #f9e57c, #d4af37);
+      color: #1a1a1a;
+      font-weight: 900;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+      border: 2px solid rgba(255,245,150,0.8);
+      z-index: 55;
+      transition: 0.15s;
+    }
+    #vipBall:active { transform: scale(0.96); }
+
+    /* bars */
+    .bar {
+      display: flex;
+      gap: 14px;
+      margin: 28px 0;
+      flex-wrap: wrap;
+    }
+    .bar input {
+      flex: 1;
+      min-width: 200px;
+      padding: 14px 20px;
+      border-radius: 60px;
+      border: none;
+      background: #1c1c1c;
+      color: white;
+      border: 1px solid #333;
+    }
+    .bar button {
+      padding: 14px 28px;
+      border-radius: 60px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      background: #e50914;
+      color: white;
+      transition: 0.2s;
+    }
+    .bar button:hover { filter: brightness(1.08); transform: scale(0.98); }
+    .whatsapp { background: #25D366 !important; }
+
+    /* toast */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e2e;
+      backdrop-filter: blur(20px);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 60px;
+      display: none;
+      z-index: 3000;
+      box-shadow: 0 10px 30px black;
+      border: 1px solid #e50914;
+      font-weight: 500;
+    }
+
+    /* modals */
+    .modal-overlay {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index:2000; display: none;
+    }
+    .modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #161616;
+      padding: 28px;
+      border-radius: 36px;
+      box-shadow: 0 30px 60px black;
+      z-index:2100;
+      display: none;
+      width: 400px;
+      max-width: 92%;
+      border: 1px solid #333;
+      backdrop-filter: blur(20px);
+    }
+    .modal h3 { margin-bottom: 20px; color: #e50914; font-weight: 700; }
+    .modal input, .modal select {
+      width:100%; padding:14px; margin-bottom:16px;
+      background:#242424; border:1px solid #3a3a3a; border-radius:20px; color:white;
+    }
+    .modal button {
+      width:100%; padding:14px; margin:8px 0; border:none; border-radius:30px;
+      font-weight:600; cursor:pointer; transition:0.2s;
+    }
+    .btn-close { background:#2a2a2a; color:#aaa; }
+    .close-icon {
+      position: absolute; top:14px; right:18px;
+      font-size:28px; background:none; border:none; color:#aaa; cursor:pointer;
+    }
+    .file-upload {
+      background: #202020; border-radius: 24px; padding: 12px;
+      margin-bottom: 16px; border: 1px dashed #e50914; text-align: center;
+    }
+    .admin-movie-list {
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 12px;
+      border-radius: 20px;
+    }
+    .admin-movie-item {
+      display: flex; justify-content: space-between;
+      background: #252525; padding: 10px 14px; border-radius: 40px;
+      margin-bottom: 8px; align-items: center;
     }
     .delete-movie-btn {
-      background: #e50914;
-      border: none;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 12px;
+      background: #e50914; border: none; color: white;
+      padding: 4px 16px; border-radius: 40px; cursor: pointer;
     }
-    /* DOWNLOAD REMINDER STYLES */
+
+    /* video modal */
+    #videoModal { width: 90%; max-width: 880px; background: #000; padding: 8px; border-radius: 28px; }
+
+    /* download reminder */
     .download-reminder {
       position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      max-width: 460px;
-      background: #1e1e2e;
-      backdrop-filter: blur(12px);
-      border-radius: 24px;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      max-width: 480px;
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 32px;
       padding: 16px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      z-index: 1200;
+      z-index: 1300;
       border: 1px solid rgba(229,9,20,0.5);
-      box-shadow: 0 20px 35px rgba(0,0,0,0.5);
-      transition: all 0.3s;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.6);
     }
-    .reminder-content {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-    .reminder-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #e50914;
-    }
-    .reminder-desc {
-      font-size: 0.8rem;
-      color: #ccc;
-    }
+    .reminder-content { flex: 1; }
+    .reminder-title { font-weight: 800; color: #e50914; }
     .download-btn-sm {
-      background: #e50914;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 40px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
+      background: #e50914; border: none; padding: 8px 18px;
+      border-radius: 40px; color: white; font-weight: 700; cursor: pointer;
     }
     .close-reminder {
-      background: #2c2c2c;
-      border: none;
-      color: white;
-      font-size: 18px;
-      width: 28px;
-      height: 28px;
-      border-radius: 30px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      background: #2c2c2c; border: none; color: white;
+      width: 32px; height: 32px; border-radius: 40px; cursor: pointer;
     }
-    @media (max-width: 550px) {
+
+    footer { text-align: center; padding: 32px; color: #666; border-top: 1px solid #222; margin-top: 20px; }
+    @media (max-width: 600px) {
       .hero-content h1 { font-size: 2rem; }
-      .download-reminder { padding: 12px 16px; }
+      .hero-content { max-width: 85%; bottom: 18%; }
+      .movies-grid { gap: 12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .movie-card img { height: 190px; }
+      h2 { font-size: 24px; }
     }
   </style>
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
 <header>
-  <div class="logo">Chris Movies</div>
+  <div class="logo">CHRIS MOVIES</div>
   <div class="menu-group">
     <div class="download-icon" id="quickDownloadBtn">📱 APK</div>
-    <div class="menu" id="menuBtn">⋮</div>
+    <div class="menu" id="menuBtn">☰</div>
   </div>
   <div class="dropdown" id="dropdownMenu">
-    <button onclick="openAdminPanel()">📦 Admin Panel</button>
+    <button onclick="openAdminPanel()">🔧 Admin Panel</button>
     <button id="downloadFromMenu">⬇️ Download Android App</button>
   </div>
 </header>
 
 <div class="top-search">
-  <input id="searchInput" placeholder="Search movies...">
+  <input id="searchInput" placeholder="🔍 Search movies...">
 </div>
 
-<!-- HERO CAROUSEL -->
 <div class="hero" id="heroCarousel">
   <div class="hero-overlay"></div>
   <div class="hero-content" id="heroContent">
@@ -293,381 +488,239 @@
 
 <section>
   <div class="bar">
-    <input id="request" placeholder="Request a movie">
-    <button class="whatsapp" onclick="requestMovie()">WhatsApp</button>
+    <input id="request" placeholder="Request a missing movie...">
+    <button class="whatsapp" onclick="requestMovie()">📲 WhatsApp Request</button>
   </div>
   <div class="bar">
-    <input id="vipCode" placeholder="VIP password">
-    <button onclick="unlockVIP()">Unlock VIP</button>
+    <input id="vipCode" placeholder="VIP password (WEEK2025 / MONTH2025)">
+    <button onclick="unlockVIP()">✨ Unlock VIP</button>
   </div>
 
-  <h2><i>🎬</i> Free Movies</h2>
+  <h2><i>🎬</i> Free For Everyone</h2>
   <div class="movies-grid" id="free"></div>
 
-  <h2 style="position:relative;"><i>👑</i> VIP Movies <span style="font-size:16px; color:#e50914;">🔒</span><div id="vipBall">VIP</div></h2>
+  <h2 style="position:relative;"><i>👑</i> VIP Cinema <span style="font-size:15px;">🔒</span><div id="vipBall">VIP</div></h2>
   <div class="movies-grid" id="vip"></div>
 </section>
 
-<footer>🎥 Request movies • Offline APK available • Stream anywhere</footer>
-
+<footer>🎥 Stream anytime · Request movies · Get APK for offline mode</footer>
 <div id="toast"></div>
 
-<!-- MODALS -->
+<!-- Modals -->
 <div class="modal-overlay" id="vipOverlay"></div>
-<div class="modal" id="vipPurchasePanel"><button class="close-icon" id="closePurchasePanel">&times;</button><h3>✨ Choose VIP</h3><button class="btn-weekly" id="buyWeekly">Weekly –6000</button><button class="btn-monthly" id="buyMonthly">Monthly – 18000</button><button class="btn-close" id="closePurchasePanel2">Close</button></div>
+<div class="modal" id="vipPurchasePanel"><button class="close-icon" id="closePurchasePanel">&times;</button><h3>✨ Unlock VIP Access</h3><button id="buyWeekly">⭐ Weekly – 6000 UGX</button><button id="buyMonthly">👑 Monthly – 18000 UGX</button><button class="btn-close" id="closePurchasePanel2">Cancel</button></div>
 <div class="modal-overlay" id="vipPasswordOverlay"></div>
-<div class="modal" id="vipPasswordModal"><button class="close-icon" id="closeVipPassword">&times;</button><h3>🔐 VIP Password</h3><input type="password" id="vipPasswordInput" placeholder="weekly or monthly"><button id="submitVipPassword">Unlock & Play</button><p style="color:#aaa;">or</p><button id="buyFromVipModal" class="whatsapp">Buy via WhatsApp</button><button class="btn-close" id="closeVipPassword2">Cancel</button></div>
-
+<div class="modal" id="vipPasswordModal"><button class="close-icon" id="closeVipPassword">&times;</button><h3>🔐 VIP Password</h3><input type="password" id="vipPasswordInput" placeholder="Enter weekly/monthly code"><button id="submitVipPassword">Unlock & Play</button><hr style="margin:12px 0"><button id="buyFromVipModal" class="whatsapp">💬 Buy on WhatsApp</button><button class="btn-close" id="closeVipPassword2">Cancel</button></div>
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal"><button class="close-icon" id="closeVideoModal">&times;</button><div id="videoPlayer"></div></div>
-
 <div class="modal-overlay" id="adminOverlay"></div>
-<div class="modal" id="adminPanel">
-  <button class="close-icon" id="closeAdminPanel">&times;</button>
-  <h3>📱 Add movie – shared</h3>
-  <div class="file-upload"><label>🎞️ Movie Poster</label><input type="file" id="posterFile" accept="image/*"></div>
-  <input type="text" id="movieName" placeholder="Movie name">
-  <input type="text" id="movieDesc" placeholder="Short description">
-  <select id="isVip"><option value="false">Free</option><option value="true">VIP</option></select>
-  <input type="url" id="youtubeUrl" placeholder="YouTube link">
-  <input type="url" id="videoUrl" placeholder="Direct video URL (MP4)">
-  <button onclick="addSharedMovie()" style="background:#e50914;">➕ Save to Firestore</button>
-  <hr>
-  <h4>🗑️ Manage Movies (Delete)</h4>
-  <div id="adminMovieList" class="admin-movie-list">Loading movies...</div>
-</div>
+<div class="modal" id="adminPanel"><button class="close-icon" id="closeAdminPanel">&times;</button><h3>🎬 Add New Movie</h3><div class="file-upload"><label>📸 Movie Poster</label><input type="file" id="posterFile" accept="image/*"></div><input type="text" id="movieName" placeholder="Movie name"><input type="text" id="movieDesc" placeholder="Short description"><select id="isVip"><option value="false">Free</option><option value="true">VIP</option></select><input type="url" id="youtubeUrl" placeholder="YouTube link (optional)"><input type="url" id="videoUrl" placeholder="Direct MP4 URL (optional)"><button onclick="addSharedMovie()" style="background:#e50914;">➕ Save to Firestore</button><hr><h4>🗑️ Manage Movies</h4><div id="adminMovieList" class="admin-movie-list">Loading...</div></div>
 
 <script>
-  // ==================== FIREBASE ====================
+  // FIREBASE CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
     projectId: "chris-movies-7ba0f",
     storageBucket: "chris-movies-7ba0f.firebasestorage.app",
     messagingSenderId: "867998448675",
-    appId: "1:867998448675:web:8798f2286ca8d1b3e78596",
-    measurementId: "G-S30C70QYDH"
+    appId: "1:867998448675:web:8798f2286ca8d1b3e78596"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const moviesCollection = db.collection('movies');
-  
-  // helper
-  function showToast(msg, duration = 3000) {
+
+  function showToast(msg, duration = 2800) {
     const t = document.getElementById('toast');
     t.innerText = msg; t.style.display = 'block'; t.style.opacity = '1';
-    setTimeout(() => { t.style.transition = 'opacity 0.5s'; t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; t.style.transition = ''; }, 500); }, duration);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display = 'none', 400); }, duration);
   }
   window.showToast = showToast;
-  
-  // ==================== VIP LOGIC ====================
-  const WEEKLY_CODE = 'WEEK2025';
-  const MONTHLY_CODE = 'MONTH2025';
+
+  // VIP logic
+  const WEEKLY_CODE = 'WEEK2025', MONTHLY_CODE = 'MONTH2025';
   function isVipActive() {
     const data = localStorage.getItem('vipData');
     if (!data) return false;
     try { const { expiry } = JSON.parse(data); return new Date(expiry) > new Date(); } catch { return false; }
   }
-  
-  // ==================== GLOBAL DATA & CAROUSEL ====================
+
   let allMovies = [];
-  let carouselInterval = null;
-  let currentCarouselIndex = 0;
-  
-  // FUNCTIONAL LIKE SYSTEM (Firestore increment)
-  async function handleLike(movieId, currentLikeSpan, likeButton) {
+  let carouselInterval = null, currentCarouselIndex = 0;
+
+  // Like system (firestore increment + local lock)
+  async function handleLike(movieId, likeSpan, btn) {
     const likedKey = `liked_movie_${movieId}`;
-    if (localStorage.getItem(likedKey) === 'true') {
-      showToast("❤️ You already liked this movie!");
-      return;
-    }
+    if (localStorage.getItem(likedKey) === 'true') { showToast("❤️ You already liked this movie"); return; }
     try {
-      const movieRef = moviesCollection.doc(movieId);
-      await movieRef.update({
-        likes: firebase.firestore.FieldValue.increment(1)
-      });
+      await moviesCollection.doc(movieId).update({ likes: firebase.firestore.FieldValue.increment(1) });
       localStorage.setItem(likedKey, 'true');
-      showToast("👍 Liked! +1");
-    } catch (err) {
-      console.warn(err);
-      showToast("Error updating like");
-    }
+      showToast("👍 Liked!");
+    } catch(e) { showToast("Error updating like"); }
   }
-  
-  function loadMovies(filterTitle = '') {
-    moviesCollection.onSnapshot((snapshot) => {
-      const movies = [];
-      snapshot.forEach(doc => {
-        let data = doc.data();
-        // ensure likes field exists
-        if (data.likes === undefined) data.likes = 0;
-        if (!data.comments) data.comments = [];
-        movies.push({ id: doc.id, ...data });
-      });
-      allMovies = movies;
-      renderMovies(movies, filterTitle);
-      updateAdminMovieList(movies);
-      initCarousel(movies);
-    }, (error) => { showToast('Firestore error'); });
-  }
-  
+
   function renderMovies(movies, filterTitle) {
-    const freeDiv = document.getElementById('free');
-    const vipDiv = document.getElementById('vip');
+    const freeDiv = document.getElementById('free'), vipDiv = document.getElementById('vip');
     freeDiv.innerHTML = ''; vipDiv.innerHTML = '';
     const filtered = filterTitle ? movies.filter(m => m.title?.toLowerCase().includes(filterTitle.toLowerCase())) : movies;
     for (const m of filtered) {
       const card = document.createElement('div'); card.className = 'movie-card';
-      const posterUrl = m.poster || 'https://via.placeholder.com/300x450?text=No+Poster';
-      card.innerHTML = `
-        <img src="${posterUrl}" alt="${escapeHtml(m.title)}" loading="lazy">
-        <div class="movie-info">
-          <button class="like-btn" data-id="${m.id}">❤️ <span class="like-count">${m.likes || 0}</span></button>
-          <button class="comment-btn" data-id="${m.id}">💬 <span>${(m.comments || []).length}</span></button>
-        </div>
-      `;
-      // like listener
+      card.innerHTML = `<img src="${m.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(m.title)}"><div class="movie-info"><button class="like-btn" data-id="${m.id}">❤️ <span class="like-count">${m.likes || 0}</span></button><button class="comment-btn">💬 ${(m.comments || []).length}</button></div>`;
       const likeBtn = card.querySelector('.like-btn');
       const likeSpan = likeBtn.querySelector('.like-count');
-      likeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await handleLike(m.id, likeSpan, likeBtn);
-      });
-      const commentBtn = card.querySelector('.comment-btn');
-      commentBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showToast("💬 Comments coming soon - chat via WhatsApp");
-      });
-      // card click (play)
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
+      likeBtn.addEventListener('click', async (e) => { e.stopPropagation(); await handleLike(m.id, likeSpan, likeBtn); });
+      card.querySelector('.comment-btn').addEventListener('click', (e) => { e.stopPropagation(); showToast("💬 Request movies on WhatsApp"); });
+      card.addEventListener('click', () => {
         if (m.vip === 'true' && !isVipActive()) { promptVipPassword(m.id); return; }
         openVideoPlayerForMovie(m);
       });
-      if (m.vip === 'true') vipDiv.appendChild(card);
-      else freeDiv.appendChild(card);
+      if (m.vip === 'true') vipDiv.appendChild(card); else freeDiv.appendChild(card);
     }
   }
-  
-  // CAROUSEL every 2 seconds (Netflix style)
+
   function initCarousel(movies) {
     const heroDiv = document.getElementById('heroCarousel');
-    const existingSlides = heroDiv.querySelectorAll('.hero-slide');
-    existingSlides.forEach(s => s.remove());
-    if (!movies || movies.length === 0) {
-      document.getElementById('heroTitle').innerText = 'Chris Movies';
-      document.getElementById('heroDesc').innerText = 'Add movies via Admin panel →';
-      return;
-    }
-    const slidesToShow = movies.slice(0, 10);
-    slidesToShow.forEach((movie, idx) => {
-      const slide = document.createElement('div');
-      slide.className = 'hero-slide';
-      if (idx === 0) slide.classList.add('active');
-      slide.style.backgroundImage = `url('${movie.poster}')`;
-      slide.style.backgroundSize = 'cover';
-      slide.style.backgroundPosition = 'center 30%';
-      heroDiv.appendChild(slide);
+    document.querySelectorAll('.hero-slide').forEach(s => s.remove());
+    if (!movies.length) { document.getElementById('heroTitle').innerText = 'Chris Movies'; document.getElementById('heroDesc').innerText = 'Add movies via Admin'; return; }
+    const topMovies = movies.slice(0, 10);
+    topMovies.forEach((m, idx) => {
+      const slide = document.createElement('div'); slide.className = 'hero-slide'; if(idx===0) slide.classList.add('active');
+      slide.style.backgroundImage = `url('${m.poster}')`; slide.style.backgroundSize = 'cover'; heroDiv.appendChild(slide);
     });
     currentCarouselIndex = 0;
-    updateHeroContent(slidesToShow[currentCarouselIndex]);
+    updateHeroContent(topMovies[0]);
     if (carouselInterval) clearInterval(carouselInterval);
     carouselInterval = setInterval(() => {
       const slides = heroDiv.querySelectorAll('.hero-slide');
-      if (slides.length === 0) return;
+      if (!slides.length) return;
       slides[currentCarouselIndex].classList.remove('active');
       currentCarouselIndex = (currentCarouselIndex + 1) % slides.length;
       slides[currentCarouselIndex].classList.add('active');
-      updateHeroContent(slidesToShow[currentCarouselIndex]);
+      updateHeroContent(topMovies[currentCarouselIndex]);
     }, 2000);
   }
-  
   function updateHeroContent(movie) {
     document.getElementById('heroTitle').innerText = movie.title;
-    document.getElementById('heroDesc').innerText = movie.description || '🎬 Now streaming';
-    const playBtn = document.getElementById('heroPlayBtn');
-    playBtn.onclick = () => {
-      if (movie.vip === 'true' && !isVipActive()) {
-        promptVipPassword(movie.id);
-      } else {
-        openVideoPlayerForMovie(movie);
-      }
+    document.getElementById('heroDesc').innerText = movie.description || '🎬 Now Streaming';
+    document.getElementById('heroPlayBtn').onclick = () => {
+      if (movie.vip === 'true' && !isVipActive()) promptVipPassword(movie.id);
+      else openVideoPlayerForMovie(movie);
     };
   }
-  
-  // VIDEO PLAYER (YouTube + MP4)
+
   function openVideoPlayerForMovie(movie) {
-    let videoSource = null;
-    let isYouTube = false;
-    if (movie.youtubeUrl) { videoSource = movie.youtubeUrl; isYouTube = true; }
-    else if (movie.videoUrl) { videoSource = movie.videoUrl; }
-    if (!videoSource) { showToast('No video available for this movie.'); return; }
-    const modal = document.getElementById('videoModal');
-    const overlay = document.getElementById('videoOverlay');
-    const player = document.getElementById('videoPlayer');
-    player.innerHTML = '';
-    if (isYouTube) {
-      let embedUrl = '';
-      const youtubeRegex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = videoSource.match(youtubeRegex);
-      if (match && match[1]) embedUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0`;
-      else embedUrl = videoSource.replace('watch?v=', 'embed/');
-      const iframe = document.createElement('iframe');
-      iframe.src = embedUrl; iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"; iframe.allowFullscreen = true;
-      player.appendChild(iframe);
+    const src = movie.youtubeUrl || movie.videoUrl;
+    if (!src) { showToast("No video source"); return; }
+    const isYT = !!movie.youtubeUrl;
+    const modal = document.getElementById('videoModal'), overlay = document.getElementById('videoOverlay');
+    const playerDiv = document.getElementById('videoPlayer'); playerDiv.innerHTML = '';
+    if (isYT) {
+      let vidId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+      let embedUrl = vidId ? `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0` : src;
+      const iframe = document.createElement('iframe'); iframe.src = embedUrl; iframe.allowFullscreen = true; iframe.style.width='100%'; iframe.style.aspectRatio='16/9'; iframe.allow='autoplay';
+      playerDiv.appendChild(iframe);
     } else {
-      const video = document.createElement('video');
-      video.src = videoSource; video.controls = true; video.autoplay = true; video.style.width = '100%';
-      player.appendChild(video);
+      const video = document.createElement('video'); video.src = src; video.controls = true; video.autoplay = true; video.style.width='100%';
+      playerDiv.appendChild(video);
     }
     modal.style.display = 'block'; overlay.style.display = 'block';
   }
-  
-  // ADMIN DELETE & LIST
-  async function deleteMovie(movieId, movieTitle) {
-    if (confirm(`Delete "${movieTitle}" forever?`)) {
-      try {
-        await moviesCollection.doc(movieId).delete();
-        showToast(`✅ Deleted ${movieTitle}`);
-      } catch (err) { showToast('Delete error'); }
-    }
-  }
-  window.deleteMovie = deleteMovie;
-  
+
+  // Admin & delete
+  window.deleteMovie = async function(id, title) {
+    if(confirm(`Delete "${title}"?`)) { await moviesCollection.doc(id).delete(); showToast(`Deleted ${title}`); }
+  };
   function updateAdminMovieList(movies) {
     const container = document.getElementById('adminMovieList');
-    if (!container) return;
-    if (movies.length === 0) { container.innerHTML = '<div style="text-align:center;">✨ No movies yet</div>'; return; }
-    let html = '';
-    movies.forEach(m => {
-      html += `<div class="admin-movie-item"><span class="admin-movie-title">${escapeHtml(m.title)}</span><button class="delete-movie-btn" onclick="deleteMovie('${m.id}', '${escapeHtml(m.title)}')">Delete</button></div>`;
-    });
-    container.innerHTML = html;
+    if(!container) return;
+    if(!movies.length) { container.innerHTML = '<div style="padding:20px;text-align:center;">✨ No movies</div>'; return; }
+    container.innerHTML = movies.map(m => `<div class="admin-movie-item"><span>${escapeHtml(m.title)}</span><button class="delete-movie-btn" onclick="deleteMovie('${m.id}','${escapeHtml(m.title)}')">Delete</button></div>`).join('');
   }
-  
-  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }).replace(/['"]/g, function(m){ if(m==="'") return '&#39;'; if(m==='"') return '&quot;'; return m;}); }
-  
-  // ADD MOVIE (with base64 poster)
   window.addSharedMovie = function() {
     const posterFile = document.getElementById('posterFile').files[0];
     const title = document.getElementById('movieName').value.trim();
-    const description = document.getElementById('movieDesc').value.trim();
-    const isVip = document.getElementById('isVip').value;
-    const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
-    const videoUrl = document.getElementById('videoUrl').value.trim();
-    if (!posterFile || !title) { showToast('Poster & title required'); return; }
+    if(!posterFile || !title) { showToast("Poster & name required"); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const posterBase64 = e.target.result;
-      const newMovie = { title, poster: posterBase64, description: description || null, vip: isVip, likes: 0, comments: [], youtubeUrl: youtubeUrl || null, videoUrl: videoUrl || null };
-      moviesCollection.add(newMovie).then(() => {
-        showToast('✅ Movie added!');
-        document.getElementById('posterFile').value = '';
-        document.getElementById('movieName').value = '';
-        document.getElementById('movieDesc').value = '';
-        document.getElementById('youtubeUrl').value = '';
-        document.getElementById('videoUrl').value = '';
-      }).catch(err => showToast('Error: '+err.message));
+      moviesCollection.add({ title, poster: e.target.result, description: document.getElementById('movieDesc').value.trim() || null, vip: document.getElementById('isVip').value, likes:0, comments:[], youtubeUrl: document.getElementById('youtubeUrl').value.trim()||null, videoUrl: document.getElementById('videoUrl').value.trim()||null })
+      .then(()=>{ showToast("Movie added!"); document.getElementById('posterFile').value=''; document.getElementById('movieName').value=''; document.getElementById('movieDesc').value=''; document.getElementById('youtubeUrl').value=''; document.getElementById('videoUrl').value=''; })
+      .catch(err=>showToast("Error:"+err.message));
     };
     reader.readAsDataURL(posterFile);
   };
-  
-  // VIP password & purchase
+  window.openAdminPanel = function() { if(prompt("Admin password?") === 'admin123') { document.getElementById('adminOverlay').style.display='block'; document.getElementById('adminPanel').style.display='block'; dropdown.style.display='none'; } else showToast("Wrong"); };
+
+  function loadMovies() {
+    moviesCollection.onSnapshot(snap => {
+      let movies = []; snap.forEach(doc => { let d=doc.data(); d.likes = d.likes||0; movies.push({id:doc.id,...d}); });
+      allMovies = movies;
+      renderMovies(movies, document.getElementById('searchInput').value);
+      updateAdminMovieList(movies);
+      initCarousel(movies);
+    });
+  }
+
+  // VIP utils
   let pendingMovieId = null;
-  function promptVipPassword(movieId) { pendingMovieId = movieId; document.getElementById('vipPasswordOverlay').style.display = 'block'; document.getElementById('vipPasswordModal').style.display = 'block'; }
-  function closeVipPassword() { document.getElementById('vipPasswordOverlay').style.display = 'none'; document.getElementById('vipPasswordModal').style.display = 'none'; pendingMovieId = null; }
-  document.getElementById('submitVipPassword').addEventListener('click', () => {
+  function promptVipPassword(mid) { pendingMovieId = mid; document.getElementById('vipPasswordOverlay').style.display='block'; document.getElementById('vipPasswordModal').style.display='block'; }
+  function closeVipPassword() { document.getElementById('vipPasswordOverlay').style.display='none'; document.getElementById('vipPasswordModal').style.display='none'; pendingMovieId=null; }
+  document.getElementById('submitVipPassword').addEventListener('click', ()=>{
     const code = document.getElementById('vipPasswordInput').value.trim();
     const expiry = new Date();
-    if (code === WEEKLY_CODE) { expiry.setDate(expiry.getDate()+7); localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()})); showToast('VIP 7d unlocked'); }
-    else if (code === MONTHLY_CODE) { expiry.setDate(expiry.getDate()+30); localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()})); showToast('VIP 30d unlocked'); }
-    else { showToast('Wrong password'); return; }
-    document.getElementById('vipPasswordOverlay').style.display = 'none';
-    document.getElementById('vipPasswordModal').style.display = 'none';
-    if (pendingMovieId) { moviesCollection.doc(pendingMovieId).get().then(doc => { if(doc.exists) openVideoPlayerForMovie({ id: doc.id, ...doc.data() }); }); pendingMovieId = null; }
+    if(code===WEEKLY_CODE) expiry.setDate(expiry.getDate()+7);
+    else if(code===MONTHLY_CODE) expiry.setDate(expiry.getDate()+30);
+    else { showToast("Invalid code"); return; }
+    localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()}));
+    showToast("VIP active! Enjoy");
+    closeVipPassword();
+    if(pendingMovieId) { moviesCollection.doc(pendingMovieId).get().then(doc=>{ if(doc.exists) openVideoPlayerForMovie({id:doc.id,...doc.data()}); }); pendingMovieId=null; }
   });
   document.getElementById('closeVipPassword').addEventListener('click', closeVipPassword);
   document.getElementById('closeVipPassword2').addEventListener('click', closeVipPassword);
   document.getElementById('buyFromVipModal').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=I%20want%20VIP','_blank'); closeVipPassword(); });
-  
-  // VIP ball modal
-  document.getElementById('vipBall').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display = 'block'; document.getElementById('vipOverlay').style.display = 'block'; });
-  document.getElementById('closePurchasePanel').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display = 'none'; document.getElementById('vipOverlay').style.display = 'none'; });
-  document.getElementById('closePurchasePanel2').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display = 'none'; document.getElementById('vipOverlay').style.display = 'none'; });
-  document.getElementById('buyWeekly').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=Buy%20Weekly%20VIP','_blank'); document.getElementById('vipPurchasePanel').style.display = 'none'; document.getElementById('vipOverlay').style.display = 'none'; });
-  document.getElementById('buyMonthly').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=Buy%20Monthly%20VIP','_blank'); document.getElementById('vipPurchasePanel').style.display = 'none'; document.getElementById('vipOverlay').style.display = 'none'; });
+  document.getElementById('vipBall').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display='block'; document.getElementById('vipOverlay').style.display='block'; });
+  document.getElementById('closePurchasePanel').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display='none'; document.getElementById('vipOverlay').style.display='none'; });
+  document.getElementById('closePurchasePanel2').addEventListener('click', ()=>{ document.getElementById('vipPurchasePanel').style.display='none'; document.getElementById('vipOverlay').style.display='none'; });
+  document.getElementById('buyWeekly').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=Buy%20Weekly%20VIP','_blank'); document.getElementById('vipPurchasePanel').style.display='none'; document.getElementById('vipOverlay').style.display='none'; });
+  document.getElementById('buyMonthly').addEventListener('click', ()=>{ window.open('https://wa.me/256753747474?text=Buy%20Monthly%20VIP','_blank'); document.getElementById('vipPurchasePanel').style.display='none'; document.getElementById('vipOverlay').style.display='none'; });
   window.unlockVIP = function() {
     const code = document.getElementById('vipCode').value.trim();
-    if (!code) return showToast('Enter code');
+    if(!code) return;
     const expiry = new Date();
-    if (code === WEEKLY_CODE) { expiry.setDate(expiry.getDate()+7); localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()})); showToast('VIP 7d active'); }
-    else if (code === MONTHLY_CODE) { expiry.setDate(expiry.getDate()+30); localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()})); showToast('VIP 30d active'); }
-    else showToast('Incorrect');
+    if(code===WEEKLY_CODE) expiry.setDate(expiry.getDate()+7);
+    else if(code===MONTHLY_CODE) expiry.setDate(expiry.getDate()+30);
+    else { showToast("Incorrect"); return; }
+    localStorage.setItem('vipData', JSON.stringify({code, expiry: expiry.toISOString()}));
+    showToast("VIP unlocked");
   };
-  window.requestMovie = function() { const name = document.getElementById('request').value.trim(); if(!name) return showToast('Enter movie'); window.open(`https://wa.me/256753747474?text=Request: ${encodeURIComponent(name)}`,'_blank'); };
-  
-  // ==================== DOWNLOAD REMINDER (APK) ====================
+  window.requestMovie = function() { const m=document.getElementById('request').value.trim(); if(!m) return; window.open(`https://wa.me/256753747474?text=Request:%20${encodeURIComponent(m)}`,'_blank'); };
+
+  // APK REMINDER
   const APK_URL = "https://files.appsgeyser.com/CHRIS%20MOVIES_19662854.apk";
-  function showDownloadReminder() {
-    if (sessionStorage.getItem('dismissReminder') === 'true') return;
-    const reminderDiv = document.createElement('div');
-    reminderDiv.className = 'download-reminder';
-    reminderDiv.id = 'apkReminder';
-    reminderDiv.innerHTML = `
-      <div class="reminder-content">
-        <span class="reminder-title">📱 Chris Movies App</span>
-        <span class="reminder-desc">Faster streaming & offline mode. Download APK now!</span>
-      </div>
-      <button class="download-btn-sm" id="directDownloadBtn">📲 Get APK</button>
-      <button class="close-reminder" id="closeReminderBtn">✕</button>
-    `;
-    document.body.appendChild(reminderDiv);
-    document.getElementById('directDownloadBtn')?.addEventListener('click', () => {
-      window.open(APK_URL, '_blank');
-      showToast("⬇️ Download started!");
-    });
-    document.getElementById('closeReminderBtn')?.addEventListener('click', () => {
-      reminderDiv.remove();
-      sessionStorage.setItem('dismissReminder', 'true');
-    });
+  function showApkReminder() {
+    if(sessionStorage.getItem('dismissReminder')) return;
+    const div = document.createElement('div'); div.className='download-reminder'; div.id='apkReminder';
+    div.innerHTML = `<div class="reminder-content"><span class="reminder-title">📱 Chris Movies App</span><span class="reminder-desc">Get faster streaming & offline mode</span></div><button class="download-btn-sm" id="reminderDownloadBtn">Download APK</button><button class="close-reminder" id="reminderCloseBtn">✕</button>`;
+    document.body.appendChild(div);
+    document.getElementById('reminderDownloadBtn')?.addEventListener('click', ()=> window.open(APK_URL,'_blank'));
+    document.getElementById('reminderCloseBtn')?.addEventListener('click', ()=>{ div.remove(); sessionStorage.setItem('dismissReminder','true'); });
   }
-  
-  // dropdown & admin
-  window.openAdminPanel = function() {
-    const pwd = prompt('Admin password:');
-    if (pwd === 'admin123') {
-      document.getElementById('adminOverlay').style.display = 'block';
-      document.getElementById('adminPanel').style.display = 'block';
-      document.getElementById('dropdownMenu').style.display = 'none';
-    } else showToast('Wrong');
-  };
-  const menuBtn = document.getElementById('menuBtn');
-  const dropdown = document.getElementById('dropdownMenu');
-  menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
-  document.addEventListener('click', (e) => { if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none'; });
-  document.getElementById('downloadFromMenu').addEventListener('click', () => { window.open(APK_URL, '_blank'); dropdown.style.display = 'none'; });
-  document.getElementById('quickDownloadBtn').addEventListener('click', () => { window.open(APK_URL, '_blank'); });
-  
-  // search
-  let st;
-  document.getElementById('searchInput').addEventListener('input', () => {
-    clearTimeout(st); st = setTimeout(() => {
-      moviesCollection.get().then(snap => {
-        const movs = []; snap.forEach(doc => movs.push({ id: doc.id, ...doc.data() }));
-        renderMovies(movs, document.getElementById('searchInput').value);
-      });
-    }, 300);
-  });
-  
-  // close modals
-  document.getElementById('closeAdminPanel').addEventListener('click', ()=>{ document.getElementById('adminOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none'; });
-  document.getElementById('adminOverlay').addEventListener('click', ()=>{ document.getElementById('adminOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none'; });
-  document.getElementById('closeVideoModal').addEventListener('click', ()=>{ document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
-  document.getElementById('videoOverlay').addEventListener('click', ()=>{ document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
-  
-  // init
+
+  // UI event binding
+  const menuBtn = document.getElementById('menuBtn'), dropdown = document.getElementById('dropdownMenu');
+  menuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); dropdown.style.display = dropdown.style.display==='block'?'none':'block'; });
+  document.addEventListener('click', (e)=>{ if(!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display='none'; });
+  document.getElementById('downloadFromMenu').addEventListener('click', ()=> window.open(APK_URL,'_blank'));
+  document.getElementById('quickDownloadBtn').addEventListener('click', ()=> window.open(APK_URL,'_blank'));
+  document.getElementById('closeAdminPanel').addEventListener('click', ()=>{ document.getElementById('adminOverlay').style.display='none'; document.getElementById('adminPanel').style.display='none'; });
+  document.getElementById('adminOverlay').addEventListener('click', ()=>{ document.getElementById('adminOverlay').style.display='none'; document.getElementById('adminPanel').style.display='none'; });
+  document.getElementById('closeVideoModal').addEventListener('click', ()=>{ document.getElementById('videoPlayer').innerHTML=''; document.getElementById('videoOverlay').style.display='none'; document.getElementById('videoModal').style.display='none'; });
+  document.getElementById('videoOverlay').addEventListener('click', ()=>{ document.getElementById('videoPlayer').innerHTML=''; document.getElementById('videoOverlay').style.display='none'; document.getElementById('videoModal').style.display='none'; });
+  let searchTimeout; document.getElementById('searchInput').addEventListener('input', (e)=>{ clearTimeout(searchTimeout); searchTimeout = setTimeout(()=>{ renderMovies(allMovies, e.target.value); }, 300); });
+
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
   loadMovies();
-  setTimeout(() => { showDownloadReminder(); }, 2000);
+  setTimeout(showApkReminder, 1800);
 </script>
 </body>
-  </html>
+      </html>
