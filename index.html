@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>CHRIS MOVIES · Vertical Stream</title>
+  <title>Netflix-Style · CHRIS STREAM</title>
   <style>
     * {
       margin: 0;
@@ -15,92 +15,77 @@
     body {
       background: #000000;
       color: #ffffff;
-      height: 100%;
-      width: 100%;
+      overflow-x: hidden;
     }
 
-    /* main container fills parent */
-    .app-wrapper {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      min-height: 100vh;
-      background: #000000;
-    }
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
-    /* header */
+    /* header netflix style */
     header {
-      position: sticky;
+      position: fixed;
       top: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.96);
-      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, #000000 0%, rgba(0,0,0,0.85) 100%);
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 40px;
       height: 70px;
       z-index: 1100;
-      border-bottom: 1px solid #e50914;
+      transition: 0.3s;
     }
 
     .logo {
-      font-size: 1.4rem;
+      font-size: 28px;
       font-weight: 800;
       background: linear-gradient(135deg, #e50914, #ff4d4d);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
+      letter-spacing: -0.5px;
     }
 
-    .nav-tabs {
+    .nav-links {
       display: flex;
-      gap: 12px;
-      background: #0f0f0f;
-      padding: 4px 12px;
-      border-radius: 60px;
+      gap: 28px;
     }
-
-    .nav-tab {
-      background: none;
-      border: none;
-      color: #eee;
-      font-weight: 600;
-      padding: 6px 16px;
-      border-radius: 40px;
+    .nav-link {
+      color: #e5e5e5;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 0.85rem;
+      transition: 0.2s;
     }
-
-    .nav-tab.active {
-      background: #e50914;
-      color: white;
+    .nav-link.active {
+      color: #e50914;
+      font-weight: 700;
     }
+    .nav-link:hover { color: white; }
 
     .right-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 20px;
     }
-
     .user-badge {
-      background: #1a1a1a;
-      border-radius: 40px;
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
-      border: 1px solid #e50914;
+      gap: 8px;
+      background: #1a1a1a;
+      padding: 6px 14px;
+      border-radius: 30px;
       cursor: pointer;
+      border: 1px solid #333;
     }
-
     .three-dots {
       background: #1a1a1a;
-      width: 38px;
-      height: 38px;
-      border-radius: 38px;
+      width: 36px;
+      height: 36px;
+      border-radius: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -109,16 +94,24 @@
       border: 1px solid #333;
     }
     .three-dots:hover { background: #e50914; }
-
+    .auth-btn {
+      background: #e50914;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 30px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
     .dropdown-menu {
       position: absolute;
       top: 70px;
-      right: 20px;
-      background: #111;
-      border-radius: 20px;
+      right: 40px;
+      background: #0a0a0a;
+      border-radius: 12px;
       width: 180px;
       display: none;
-      z-index: 1300;
+      z-index: 1200;
       border: 1px solid #e50914;
       overflow: hidden;
     }
@@ -133,203 +126,252 @@
     }
     .dropdown-menu button:hover { background: #e50914; }
 
-    .auth-btn {
-      background: #e50914;
-      border: none;
-      padding: 6px 18px;
-      border-radius: 40px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.85rem;
+    /* main container */
+    .main-container {
+      margin-top: 70px;
+      padding-bottom: 40px;
     }
 
-    /* main content - vertical arrangement (fill parent) */
-    .main-content {
-      flex: 1;
-      padding: 20px 16px 40px;
-      display: flex;
-      flex-direction: column;
+    /* HERO SECTION (netflix style) */
+    .hero {
+      position: relative;
       width: 100%;
-    }
-
-    /* CHRIS MOVIES label */
-    .app-title {
-      text-align: center;
-      font-size: 28px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 20px;
-      letter-spacing: -0.5px;
-      text-shadow: 0 0 8px rgba(229,9,20,0.3);
-    }
-
-    /* search bar - fill parent width */
-    .search-container {
-      width: 100%;
-      margin-bottom: 24px;
-    }
-    .search-container input {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 60px;
-      background: #121212;
-      border: 1px solid #2a2a2a;
-      color: white;
-      font-size: 15px;
-      outline: none;
-    }
-    .search-container input:focus {
-      border-color: #e50914;
-    }
-
-    /* vertical movies list - each card uses full width */
-    .movies-vertical-list {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    /* movie card - vertical arrangement, poster fill width */
-    .movie-card-vertical {
-      background: #0c0c0c;
-      border-radius: 24px;
+      height: 85vh;
+      min-height: 550px;
+      margin-bottom: 30px;
       overflow: hidden;
-      border: 1px solid #222;
-      transition: 0.2s;
+    }
+    .hero-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      cursor: pointer;
+      height: 100%;
+      background-size: cover;
+      background-position: center top;
+      opacity: 0;
+      transition: opacity 1.2s ease;
     }
-    .movie-card-vertical:hover {
-      border-color: #e50914;
-      transform: translateY(-4px);
-      background: #111;
+    .hero-slide.active { opacity: 1; }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, #000000 10%, rgba(0,0,0,0.5) 70%);
+      z-index: 1;
     }
-    /* poster: width fill parent, height fixed around 200px */
-    .movie-poster-full {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-      background: #1a1a1a;
+    .hero-content {
+      position: absolute;
+      bottom: 28%;
+      left: 6%;
+      z-index: 2;
+      max-width: 55%;
     }
-    .movie-info-vertical {
-      padding: 16px;
-    }
-    .movie-title-vertical {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .movie-desc-vertical {
-      font-size: 0.8rem;
-      color: #bbbbbb;
+    .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
       margin-bottom: 12px;
-      line-height: 1.4;
+      text-shadow: 0 2px 8px black;
     }
-    .play-button {
-      background: #e50914;
+    .hero-content p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+    }
+    .hero-btn {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
       border: none;
-      padding: 8px 20px;
-      border-radius: 40px;
-      color: white;
+      padding: 10px 28px;
+      border-radius: 8px;
       font-weight: 600;
-      font-size: 0.85rem;
+      color: white;
       cursor: pointer;
-      width: fit-content;
+      transition: 0.2s;
     }
+    .hero-btn.play {
+      background: white;
+      color: black;
+    }
+    .hero-btn.play:hover { background: #e5e5e5; }
 
-    /* live tv horizontal rows (kept scrollable) */
-    .live-category-row {
-      margin-bottom: 32px;
+    /* rows */
+    .row-container {
+      margin-bottom: 50px;
+      padding-left: 50px;
     }
     .row-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding-left: 4px;
+      align-items: baseline;
+      margin-bottom: 16px;
+      padding-right: 50px;
     }
     .row-title {
-      font-size: 1.4rem;
+      font-size: 1.7rem;
       font-weight: 700;
-      border-left: 4px solid #e50914;
-      padding-left: 12px;
+      letter-spacing: -0.3px;
     }
     .horizontal-scroll {
       display: flex;
       overflow-x: auto;
       gap: 16px;
+      scroll-behavior: smooth;
       padding-bottom: 12px;
-      scrollbar-width: thin;
     }
+    .horizontal-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    /* netflix card */
+    .movie-card {
+      flex: 0 0 220px;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #141414;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+      z-index: 10;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 310px;
+      object-fit: cover;
+      display: block;
+    }
+    .movie-card-info {
+      padding: 10px;
+    }
+    .movie-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* live tv channel card */
     .channel-card {
-      flex: 0 0 160px;
-      background: #0c0c0c;
-      border-radius: 20px;
+      flex: 0 0 200px;
+      background: #141414;
+      border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
-      border: 1px solid #2a2a2a;
+      transition: 0.2s;
     }
+    .channel-card:hover { transform: scale(1.03); }
     .channel-thumb {
       width: 100%;
-      height: 100px;
+      height: 120px;
       background-size: cover;
       background-position: center;
     }
     .channel-name {
-      padding: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      padding: 12px;
+      font-weight: 500;
       text-align: center;
+      font-size: 0.85rem;
     }
 
-    /* modal */
+    /* modals */
     .modal-overlay {
-      position: fixed; top:0; left:0; width:100%; height:100%;
-      background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
-      z-index: 2000; display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.96);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: none;
     }
     .modal {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #111; padding: 24px; border-radius: 32px;
-      width: 90%; max-width: 400px; z-index: 2100;
-      border: 1px solid #e50914; display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #141414;
+      padding: 28px;
+      border-radius: 32px;
+      width: 440px;
+      max-width: 92%;
+      z-index: 2100;
+      border: 1px solid #e50914;
+      display: none;
     }
-    .modal h3 { color: #e50914; margin-bottom: 16px; }
+    .modal h3 { color: #e50914; margin-bottom: 20px; }
     .modal input, .modal select {
-      width: 100%; padding: 12px; margin-bottom: 14px;
-      background: #222; border: 1px solid #3a3a3a; border-radius: 30px; color: white;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      background: #222;
+      border: 1px solid #3a3a3a;
+      border-radius: 30px;
+      color: white;
     }
     .btn-red {
-      background: #e50914; border: none; padding: 12px; border-radius: 40px;
-      color: white; font-weight: 700; width: 100%; margin-top: 8px; cursor: pointer;
+      background: #e50914;
+      border: none;
+      padding: 12px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 8px;
+      cursor: pointer;
     }
     .close-icon {
-      position: absolute; top: 12px; right: 16px; font-size: 24px; cursor: pointer; color: #aaa;
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #aaa;
     }
     #videoModal {
-      width: 95%; max-width: 1000px; background: #000; padding: 6px; border-radius: 24px;
+      width: 90%;
+      max-width: 1100px;
+      background: #000;
+      padding: 8px;
+      border-radius: 28px;
     }
     #videoPlayer iframe, #videoPlayer video {
-      width: 100%; aspect-ratio: 16/9; border-radius: 20px; background: #000;
-    }
-    footer {
-      text-align: center; padding: 20px; color: #555; font-size: 12px;
-      border-top: 1px solid #1f1f1f; margin-top: 20px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 20px;
+      background: #000;
     }
     .toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: #1f1f1f; padding: 10px 24px; border-radius: 60px; display: none;
-      z-index: 3000; border-left: 4px solid #e50914; color: white; font-size: 14px;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f1f1f;
+      padding: 10px 24px;
+      border-radius: 60px;
+      display: none;
+      z-index: 3000;
+      border-left: 4px solid #e50914;
+      color: white;
+      font-size: 14px;
     }
-    .empty-movies {
-      text-align: center; padding: 40px; color: #888;
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+      border-top: 1px solid #1f1f1f;
+      margin-top: 20px;
     }
-    @media (max-width: 550px) {
-      .movie-poster-full { height: 180px; }
-      .app-title { font-size: 24px; }
+    @media (max-width: 768px) {
+      .hero-content h1 { font-size: 2rem; }
+      .hero-content { max-width: 80%; bottom: 20%; }
+      .row-container { padding-left: 20px; }
+      .row-header { padding-right: 20px; }
+      .movie-card { flex: 0 0 160px; }
+      .movie-card img { height: 230px; }
+      .hero { height: 65vh; }
+      header { padding: 0 20px; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -337,86 +379,86 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-<div class="app-wrapper">
-  <header>
-    <div class="logo">CHRIS X</div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" data-tab="movies">🎬 MOVIES</button>
-      <button class="nav-tab" data-tab="live">📺 LIVE TV</button>
-    </div>
-    <div class="right-controls">
-      <div class="user-badge" id="userBtn" style="display: none;">👤 <span id="userEmailLabel"></span></div>
-      <button class="auth-btn" id="signInBtn">SIGN IN</button>
-      <div class="three-dots" id="threeDotsBtn">⋮</div>
-    </div>
-    <div class="dropdown-menu" id="dropdownMenu">
-      <button id="adminPanelBtn">🔧 Admin Panel</button>
-      <button id="logoutBtn">🚪 Sign Out</button>
-    </div>
-  </header>
 
-  <div class="main-content">
-    <!-- CHRIS MOVIES label (bold, white, centered, size 24) -->
-    <div class="app-title">CHRIS MOVIES</div>
-
-    <!-- Search Bar fill parent width -->
-    <div class="search-container">
-      <input id="searchMoviesInput" type="text" placeholder="Search movies...">
-    </div>
-
-    <!-- MOVIES SECTION (vertical list) -->
-    <div id="moviesSection">
-      <div id="moviesVerticalList" class="movies-vertical-list">
-        <!-- dynamic vertical movie cards will appear here -->
-      </div>
-    </div>
-
-    <!-- LIVE TV SECTION (hidden by default) -->
-    <div id="liveTvSection" style="display: none;">
-      <div id="liveTvContainer"></div>
-    </div>
+<header>
+  <div class="logo">CHRISFLIX</div>
+  <div class="nav-links">
+    <span class="nav-link active" data-tab="movies">Movies</span>
+    <span class="nav-link" data-tab="live">Live TV</span>
   </div>
-  <footer>⚡ Vertical · Full-width posters · Stream movies & live TV</footer>
+  <div class="right-controls">
+    <div class="user-badge" id="userBtn" style="display: none;">👤 <span id="userEmailSpan"></span></div>
+    <button class="auth-btn" id="signInBtn">Sign In</button>
+    <div class="three-dots" id="threeDotsBtn">⋮</div>
+  </div>
+  <div class="dropdown-menu" id="dropdownMenu">
+    <button id="adminPanelBtn">🔧 Admin Panel</button>
+    <button id="logoutBtn">🚪 Sign Out</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <!-- MOVIES TAB -->
+  <div id="moviesTab">
+    <!-- Hero carousel -->
+    <div class="hero" id="heroCarousel"></div>
+
+    <!-- Dynamic rows will be injected here -->
+    <div id="moviesRowsContainer"></div>
+  </div>
+
+  <!-- LIVE TV TAB -->
+  <div id="liveTab" style="display: none;">
+    <div id="liveRowsContainer" style="padding-top: 20px;"></div>
+  </div>
 </div>
+<footer>© ChrisFlix · Stream unlimited movies & live TV</footer>
 
 <div id="toastMsg" class="toast"></div>
 
-<!-- AUTH MODAL -->
+<!-- Auth Modal -->
 <div class="modal-overlay" id="authOverlay"></div>
 <div class="modal" id="authModal">
   <button class="close-icon" id="closeAuthX">&times;</button>
-  <h3 id="authTitle">🔐 Sign In</h3>
-  <input type="email" id="authEmail" placeholder="Email address">
+  <h3 id="authTitle">Sign In</h3>
+  <input type="email" id="authEmail" placeholder="Email">
   <input type="password" id="authPassword" placeholder="Password">
   <button id="authSubmitBtn" class="btn-red">Sign In</button>
-  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 10px;">Create new account →</button>
-  <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a; margin-top: 8px;">Cancel</button>
+  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 10px;">Create account →</button>
+  <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a;">Cancel</button>
 </div>
 
-<!-- VIDEO MODAL -->
+<!-- Video Player Modal -->
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal">
   <button class="close-icon" id="closeVideoX">&times;</button>
   <div id="videoPlayer"></div>
 </div>
 
-<!-- ADMIN PANEL (VIP removed) -->
+<!-- Admin Panel -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminModal">
   <button class="close-icon" id="closeAdminX">&times;</button>
-  <h3>🎬 Admin Panel</h3>
+  <h3>Admin Panel · Add Movie</h3>
   <input type="file" id="adminPoster" accept="image/*">
   <input type="text" id="adminTitle" placeholder="Movie title">
   <input type="text" id="adminDesc" placeholder="Short description">
+  <select id="adminGenre" style="background:#222;">
+    <option value="Trending">Trending</option>
+    <option value="Action">Action</option>
+    <option value="Comedy">Comedy</option>
+    <option value="Drama">Drama</option>
+    <option value="New Releases">New Releases</option>
+  </select>
   <input type="url" id="adminYoutube" placeholder="YouTube link">
   <input type="url" id="adminVideoUrl" placeholder="Direct MP4 URL">
-  <button onclick="addMovieAdmin()" class="btn-red">➕ Add Movie</button>
+  <button onclick="addMovieFromAdmin()" class="btn-red">➕ Add Movie</button>
   <h4 style="margin: 20px 0 10px;">🗑️ Delete Movies</h4>
-  <div id="adminMoviesList" style="max-height: 240px; overflow-y: auto;"></div>
+  <div id="adminMovieList" style="max-height: 240px; overflow-y: auto;"></div>
 </div>
 
 <script>
-  // Firebase Config
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
@@ -433,19 +475,20 @@
   let allMovies = [];
   let currentUser = null;
   let activeTab = "movies";
+  let carouselInterval = null;
 
   // Helper: toast
   function showToast(msg) {
-    const toast = document.getElementById('toastMsg');
-    toast.innerText = msg;
-    toast.style.display = 'block';
-    setTimeout(() => toast.style.display = 'none', 2500);
+    const t = document.getElementById('toastMsg');
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
   }
 
   // Video player
   function playVideo(movie) {
     const src = movie.youtubeUrl || movie.videoUrl;
-    if (!src) { showToast("No video source available"); return; }
+    if (!src) { showToast("No video source"); return; }
     const container = document.getElementById('videoPlayer');
     container.innerHTML = '';
     const isYoutube = !!movie.youtubeUrl;
@@ -471,64 +514,123 @@
     document.getElementById('videoOverlay').style.display = 'block';
   }
 
-  // Render movies as VERTICAL LIST (poster width 100%, height 200px)
-  function renderVerticalMovies(movies, searchTerm = "") {
-    const container = document.getElementById('moviesVerticalList');
-    if (!container) return;
-    let filtered = movies;
-    if (searchTerm.trim() !== "") {
-      filtered = movies.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
-    }
-    if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-movies">🎬 No movies found. Add some via Admin panel.</div>';
+  // Build hero carousel from movies (first 6)
+  function buildHero(movies) {
+    const heroDiv = document.getElementById('heroCarousel');
+    heroDiv.innerHTML = '<div class="hero-overlay"></div><div class="hero-content" id="heroContent"></div>';
+    const existingSlides = heroDiv.querySelectorAll('.hero-slide');
+    existingSlides.forEach(s => s.remove());
+    if (!movies.length) {
+      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://placehold.co/1200x700?text=CHRISFLIX')"></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via admin panel</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
       return;
     }
-    container.innerHTML = "";
-    filtered.forEach(movie => {
-      const card = document.createElement('div');
-      card.className = 'movie-card-vertical';
-      card.innerHTML = `
-        <img class="movie-poster-full" src="${movie.poster || 'https://placehold.co/400x200?text=No+Image'}" alt="${escapeHtml(movie.title)}">
-        <div class="movie-info-vertical">
-          <div class="movie-title-vertical">${escapeHtml(movie.title)}</div>
-          <div class="movie-desc-vertical">${escapeHtml(movie.description || 'No description')}</div>
-          <button class="play-button" data-id="${movie.id}">▶ PLAY NOW</button>
+    const topMovies = movies.slice(0, 6);
+    topMovies.forEach((m, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'hero-slide';
+      if (idx === 0) slide.classList.add('active');
+      slide.style.backgroundImage = `url('${m.poster}')`;
+      heroDiv.appendChild(slide);
+    });
+    let currentIndex = 0;
+    const updateHeroText = (movie) => {
+      const heroContent = document.getElementById('heroContent');
+      heroContent.innerHTML = `
+        <h1>${escapeHtml(movie.title)}</h1>
+        <p>${escapeHtml(movie.description || 'Now streaming')}</p>
+        <div class="hero-buttons">
+          <button class="hero-btn play" data-id="${movie.id}">▶ Play</button>
+          <button class="hero-btn">More Info</button>
         </div>
       `;
-      const playBtn = card.querySelector('.play-button');
-      playBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        playVideo(movie);
+      const playBtn = heroContent.querySelector('.hero-btn.play');
+      playBtn.addEventListener('click', () => playVideo(movie));
+    };
+    if (topMovies[0]) updateHeroText(topMovies[0]);
+    if (carouselInterval) clearInterval(carouselInterval);
+    carouselInterval = setInterval(() => {
+      const slides = heroDiv.querySelectorAll('.hero-slide');
+      if (!slides.length) return;
+      slides[currentIndex].classList.remove('active');
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].classList.add('active');
+      if (topMovies[currentIndex]) updateHeroText(topMovies[currentIndex]);
+    }, 6000);
+  }
+
+  // Render rows based on genres/categories from movie data
+  function renderRows(movies) {
+    const container = document.getElementById('moviesRowsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    if (movies.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies yet. Use admin panel to add.</div>';
+      return;
+    }
+    // Define row categories using movie custom field 'genre' or fallback
+    const genreMap = new Map();
+    movies.forEach(m => {
+      const genre = m.genre || "Trending";
+      if (!genreMap.has(genre)) genreMap.set(genre, []);
+      genreMap.get(genre).push(m);
+    });
+    // Order: Trending first, then others
+    const orderedGenres = ["Trending", "New Releases", "Action", "Comedy", "Drama"];
+    const remainingGenres = Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g));
+    const allGenres = [...orderedGenres, ...remainingGenres];
+    allGenres.forEach(genre => {
+      const moviesInGenre = genreMap.get(genre);
+      if (!moviesInGenre || moviesInGenre.length === 0) return;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row-container';
+      rowDiv.innerHTML = `
+        <div class="row-header">
+          <div class="row-title">${genre}</div>
+        </div>
+        <div class="horizontal-scroll" id="scroll-${genre.replace(/\s/g,'')}"></div>
+      `;
+      const scrollDiv = rowDiv.querySelector('.horizontal-scroll');
+      moviesInGenre.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `
+          <img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
+          <div class="movie-card-info">
+            <div class="movie-title">${escapeHtml(movie.title)}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => playVideo(movie));
+        scrollDiv.appendChild(card);
       });
-      container.appendChild(card);
+      container.appendChild(rowDiv);
     });
   }
 
-  // LIVE TV data (working streams)
+  // LIVE TV (horizontal rows by category)
   const LIVE_CHANNELS = [
     { id: "l1", name: "Sky News Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
-    { id: "l2", name: "CNN International", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
+    { id: "l2", name: "CNN Intl", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
     { id: "l3", name: "NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
     { id: "l4", name: "Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
     { id: "l5", name: "Music 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
     { id: "l6", name: "EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
     { id: "l7", name: "Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" }
   ];
-
   function renderLiveTV() {
-    const container = document.getElementById('liveTvContainer');
+    const container = document.getElementById('liveRowsContainer');
     if (!container) return;
     container.innerHTML = '';
     const categories = [...new Set(LIVE_CHANNELS.map(ch => ch.category))];
     categories.forEach(cat => {
       const filtered = LIVE_CHANNELS.filter(ch => ch.category === cat);
       const rowDiv = document.createElement('div');
-      rowDiv.className = 'live-category-row';
+      rowDiv.className = 'row-container';
       rowDiv.innerHTML = `
-        <div class="row-header"><div class="row-title">📺 ${cat}</div></div>
-        <div class="horizontal-scroll" id="scroll-${cat.replace(/\s/g,'')}"></div>
+        <div class="row-header"><div class="row-title">${cat}</div></div>
+        <div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>
       `;
-      const scrollDiv = rowDiv.querySelector('.horizontal-scroll');
+      const scroll = rowDiv.querySelector('.horizontal-scroll');
       filtered.forEach(ch => {
         const card = document.createElement('div');
         card.className = 'channel-card';
@@ -542,14 +644,14 @@
           document.getElementById('videoModal').style.display = 'block';
           document.getElementById('videoOverlay').style.display = 'block';
         });
-        scrollDiv.appendChild(card);
+        scroll.appendChild(card);
       });
       container.appendChild(rowDiv);
     });
     // All channels row
     const allRow = document.createElement('div');
-    allRow.className = 'live-category-row';
-    allRow.innerHTML = `<div class="row-header"><div class="row-title">🌟 ALL CHANNELS</div></div><div class="horizontal-scroll" id="allChannelsScroll"></div>`;
+    allRow.className = 'row-container';
+    allRow.innerHTML = `<div class="row-header"><div class="row-title">All Channels</div></div><div class="horizontal-scroll" id="allChannelsScroll"></div>`;
     const allScroll = allRow.querySelector('.horizontal-scroll');
     LIVE_CHANNELS.forEach(ch => {
       const card = document.createElement('div');
@@ -566,47 +668,49 @@
     container.appendChild(allRow);
   }
 
-  // Firestore snapshot (no VIP filtering)
+  // Firestore realtime
   moviesCol.onSnapshot(snap => {
     let movies = [];
     snap.forEach(doc => {
       let data = doc.data();
-      movies.push({ id: doc.id, ...data, likes: data.likes || 0 });
+      movies.push({ id: doc.id, ...data });
     });
     allMovies = movies;
-    const searchVal = document.getElementById('searchMoviesInput')?.value || "";
-    renderVerticalMovies(movies, searchVal);
-    updateAdminMovieList(movies);
+    if (activeTab === 'movies') {
+      buildHero(movies);
+      renderRows(movies);
+    }
+    updateAdminList(movies);
   });
 
-  // Admin functions (VIP removed)
-  function updateAdminMovieList(movies) {
-    const container = document.getElementById('adminMoviesList');
+  // Admin functions
+  function updateAdminList(movies) {
+    const container = document.getElementById('adminMovieList');
     if (!container) return;
     container.innerHTML = movies.map(m => `
-      <div style="display:flex; justify-content:space-between; background:#1a1a1a; padding:8px 14px; border-radius:40px; margin:6px 0;">
+      <div style="display:flex; justify-content:space-between; background:#1a1a1a; margin:8px 0; padding:8px 12px; border-radius:30px;">
         <span style="font-size:13px;">${escapeHtml(m.title)}</span>
-        <button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:3px 12px; border-radius:30px; color:white; cursor:pointer;">🗑️</button>
+        <button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:4px 12px; border-radius:30px; color:white; cursor:pointer;">Delete</button>
       </div>
     `).join('');
   }
   window.deleteMovie = async (id) => {
     await moviesCol.doc(id).delete();
-    showToast("Movie deleted");
+    showToast("Deleted");
   };
-  window.addMovieAdmin = () => {
+  window.addMovieFromAdmin = () => {
     const file = document.getElementById('adminPoster').files[0];
     const title = document.getElementById('adminTitle').value.trim();
-    if (!file || !title) { showToast("Poster image and title required"); return; }
+    if (!file || !title) { showToast("Poster and title required"); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
       moviesCol.add({
         title: title,
         poster: e.target.result,
         description: document.getElementById('adminDesc').value || "",
+        genre: document.getElementById('adminGenre').value,
         youtubeUrl: document.getElementById('adminYoutube').value || null,
-        videoUrl: document.getElementById('adminVideoUrl').value || null,
-        likes: 0
+        videoUrl: document.getElementById('adminVideoUrl').value || null
       }).then(() => {
         showToast("Movie added!");
         document.getElementById('adminTitle').value = '';
@@ -614,19 +718,19 @@
         document.getElementById('adminDesc').value = '';
         document.getElementById('adminYoutube').value = '';
         document.getElementById('adminVideoUrl').value = '';
-      }).catch(err => showToast("Error: " + err.message));
+      });
     };
     reader.readAsDataURL(file);
   };
 
-  // Authentication UI
+  // Auth UI
   function updateAuthUI() {
     const userDiv = document.getElementById('userBtn');
     const signInBtn = document.getElementById('signInBtn');
     if (currentUser) {
       userDiv.style.display = 'flex';
       signInBtn.style.display = 'none';
-      document.getElementById('userEmailLabel').innerText = currentUser.email.split('@')[0];
+      document.getElementById('userEmailSpan').innerText = currentUser.email.split('@')[0];
     } else {
       userDiv.style.display = 'none';
       signInBtn.style.display = 'block';
@@ -634,16 +738,16 @@
   }
   let authMode = 'login';
   function openAuthModal() {
-    document.getElementById('authTitle').innerText = authMode === 'login' ? '🔐 Sign In' : '📝 Create Account';
+    document.getElementById('authTitle').innerText = authMode === 'login' ? 'Sign In' : 'Create Account';
     document.getElementById('authSubmitBtn').innerText = authMode === 'login' ? 'Sign In' : 'Sign Up';
-    document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create new account →' : '← Back to Sign In';
+    document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create account →' : '← Back to Sign In';
     document.getElementById('authOverlay').style.display = 'block';
     document.getElementById('authModal').style.display = 'block';
   }
   async function handleAuthSubmit() {
     const email = document.getElementById('authEmail').value.trim();
     const pass = document.getElementById('authPassword').value.trim();
-    if (!email || !pass) { showToast("Enter email & password"); return; }
+    if (!email || !pass) { showToast("Enter email/password"); return; }
     try {
       if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
       else await auth.createUserWithEmailAndPassword(email, pass);
@@ -657,27 +761,31 @@
   }
   auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
 
-  // Tab switching
+  // Tabs
   function switchTab(tab) {
     activeTab = tab;
-    const moviesDiv = document.getElementById('moviesSection');
-    const liveDiv = document.getElementById('liveTvSection');
+    const moviesDiv = document.getElementById('moviesTab');
+    const liveDiv = document.getElementById('liveTab');
     if (tab === 'movies') {
       moviesDiv.style.display = 'block';
       liveDiv.style.display = 'none';
-      renderVerticalMovies(allMovies, document.getElementById('searchMoviesInput').value);
+      buildHero(allMovies);
+      renderRows(allMovies);
     } else {
       moviesDiv.style.display = 'none';
       liveDiv.style.display = 'block';
       renderLiveTV();
     }
-    document.querySelectorAll('.nav-tab').forEach(btn => {
-      if (btn.dataset.tab === tab) btn.classList.add('active');
-      else btn.classList.remove('active');
+    document.querySelectorAll('.nav-link').forEach(link => {
+      if (link.dataset.tab === tab) link.classList.add('active');
+      else link.classList.remove('active');
     });
   }
 
   // Event listeners
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => switchTab(link.dataset.tab));
+  });
   const dotsBtn = document.getElementById('threeDotsBtn');
   const dropdown = document.getElementById('dropdownMenu');
   dotsBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
@@ -699,16 +807,7 @@
   document.getElementById('closeAuthX').addEventListener('click', closeAuthModal);
   document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authOverlay').addEventListener('click', closeAuthModal);
-  document.getElementById('searchMoviesInput').addEventListener('input', (e) => {
-    if (activeTab === 'movies') renderVerticalMovies(allMovies, e.target.value);
-  });
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-  }
-
-  // initial load
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
   switchTab('movies');
 </script>
 </body>
