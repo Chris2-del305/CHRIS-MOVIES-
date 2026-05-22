@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>VERTEX STREAM · Black Red White</title>
+  <title>HORIZON STREAM · Black Red & Horizontal Rows</title>
   <style>
     * {
       margin: 0;
@@ -13,12 +13,12 @@
     }
 
     body {
-      background: #000000;   /* pure black background */
+      background: #000000;
       color: #ffffff;
       scroll-behavior: smooth;
     }
 
-    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar { height: 5px; width: 5px; }
     ::-webkit-scrollbar-track { background: #111; }
     ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
@@ -36,16 +36,17 @@
       height: 70px;
       z-index: 1100;
       border-bottom: 1px solid #e50914;
+      z-index: 1200;
     }
 
     .logo {
       font-size: 26px;
       font-weight: 800;
-      background: linear-gradient(135deg, #e50914, #ff4d4d);
+      background: linear-gradient(135deg, #e50914, #ff6666);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.5px;
+      cursor: pointer;
     }
 
     .nav-tabs {
@@ -74,13 +75,13 @@
       box-shadow: 0 0 10px rgba(229,9,20,0.4);
     }
 
-    .auth-area {
+    .right-controls {
       display: flex;
-      gap: 14px;
       align-items: center;
+      gap: 16px;
     }
 
-    .user-avatar {
+    .user-badge {
       background: #1a1a1a;
       border-radius: 40px;
       padding: 6px 16px;
@@ -93,6 +94,49 @@
       cursor: pointer;
     }
 
+    .three-dots {
+      background: #1a1a1a;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid #333;
+    }
+    .three-dots:hover { background: #e50914; border-color: #e50914; }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 72px;
+      right: 24px;
+      background: #111;
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      width: 200px;
+      display: none;
+      z-index: 1300;
+      border: 1px solid #e50914;
+      overflow: hidden;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.6);
+    }
+    .dropdown-menu button {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 14px 20px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .dropdown-menu button:hover { background: #e50914; }
+
     .auth-btn {
       background: #e50914;
       border: none;
@@ -101,108 +145,24 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
-      transition: 0.2s;
     }
 
-    /* VERTICAL LAYOUT: all content stacks vertically, lists are column */
+    /* main container */
     .app-container {
       margin-top: 85px;
       padding: 0 20px 60px;
     }
 
-    .top-search {
-      margin-bottom: 28px;
-    }
-    .top-search input {
-      width: 100%;
-      max-width: 600px;
-      padding: 14px 24px;
-      border-radius: 60px;
-      background: #121212;
-      border: 1px solid #2a2a2a;
-      color: white;
-      font-size: 15px;
-      outline: none;
-    }
-    .top-search input:focus {
-      border-color: #e50914;
-    }
-
-    /* vertical movie list */
-    .movies-vertical {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      width: 100%;
-    }
-
-    .movie-card-vertical {
-      display: flex;
-      background: #0c0c0c;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid #262626;
-      transition: 0.2s;
-      cursor: pointer;
-      width: 100%;
-    }
-    .movie-card-vertical:hover {
-      border-color: #e50914;
-      transform: translateX(6px);
-      background: #111;
-    }
-    .movie-poster {
-      width: 110px;
-      height: 150px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .movie-info-vertical {
-      flex: 1;
-      padding: 16px 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .movie-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .movie-description {
-      font-size: 0.85rem;
-      color: #bbbbbb;
-      margin-bottom: 12px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .play-btn-sm {
-      background: #e50914;
-      border: none;
-      padding: 6px 20px;
-      border-radius: 40px;
-      color: white;
-      font-weight: 600;
-      width: fit-content;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .play-btn-sm:hover {
-      background: #ff2a2a;
-    }
-
-    /* hero carousel (still sleek) */
+    /* hero carousel */
     .hero {
       position: relative;
       width: 100%;
       height: 58vh;
       min-height: 380px;
-      border-radius: 28px;
+      border-radius: 32px;
       overflow: hidden;
       margin-bottom: 40px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.6);
     }
     .hero-slide {
       position: absolute;
@@ -217,7 +177,7 @@
     .hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(0deg, #000000 15%, rgba(0,0,0,0.3) 80%);
+      background: linear-gradient(0deg, #000000 15%, rgba(0,0,0,0.4) 80%);
       z-index: 1;
     }
     .hero-content {
@@ -227,12 +187,12 @@
       z-index: 2;
       max-width: 80%;
     }
-    .hero-content h1 { font-size: 2.5rem; margin-bottom: 8px; }
+    .hero-content h1 { font-size: 2.5rem; margin-bottom: 8px; text-shadow: 0 2px 5px black; }
     .hero-buttons button {
       background: rgba(255,255,255,0.2);
       backdrop-filter: blur(8px);
       border: none;
-      padding: 8px 22px;
+      padding: 10px 28px;
       border-radius: 40px;
       font-weight: 600;
       color: white;
@@ -241,199 +201,217 @@
     }
     .hero-buttons button:first-child { background: white; color: black; }
 
-    /* vertical channels (live tv) */
-    .categories-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin: 20px 0 28px;
+    /* search & action bar */
+    .top-search {
+      margin-bottom: 28px;
     }
-    .category-pill {
-      background: #1a1a1a;
-      border: none;
-      padding: 8px 22px;
-      border-radius: 40px;
-      color: #eee;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .category-pill.active, .category-pill:hover { background: #e50914; color: white; }
-
-    .channels-vertical {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .channel-card-vertical {
-      display: flex;
-      background: #0c0c0c;
-      border-radius: 24px;
-      overflow: hidden;
+    .top-search input {
+      width: 100%;
+      max-width: 600px;
+      padding: 14px 24px;
+      border-radius: 60px;
+      background: #121212;
       border: 1px solid #2a2a2a;
-      cursor: pointer;
-      transition: 0.2s;
+      color: white;
+      font-size: 15px;
+      outline: none;
     }
-    .channel-card-vertical:hover { border-color: #e50914; background: #111; transform: translateX(5px); }
-    .channel-thumb {
-      width: 120px;
-      height: 90px;
-      background-size: cover;
-      background-position: center;
-      flex-shrink: 0;
-    }
-    .channel-details {
-      flex: 1;
-      padding: 14px 18px;
-    }
-    .channel-name { font-size: 1.2rem; font-weight: 700; }
-    .channel-category { font-size: 0.8rem; color: #e50914; margin-top: 4px; }
+    .top-search input:focus { border-color: #e50914; }
 
-    /* section titles */
-    h2 {
-      font-size: 26px;
-      margin: 32px 0 18px;
+    .action-bar {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      border-left: 5px solid #e50914;
-      padding-left: 15px;
-    }
-
-    .request-bar {
-      display: flex;
-      gap: 12px;
       flex-wrap: wrap;
+      gap: 14px;
       margin: 20px 0 10px;
     }
-    .request-bar input {
+    .action-bar input {
       flex: 1;
-      padding: 12px 18px;
       background: #121212;
       border: 1px solid #333;
+      padding: 14px 20px;
       border-radius: 60px;
       color: white;
     }
-    .request-bar button {
+    .action-bar button {
       background: #25D366;
       border: none;
-      padding: 12px 28px;
+      padding: 14px 28px;
       border-radius: 60px;
       font-weight: 700;
       color: black;
       cursor: pointer;
     }
-    .vip-input-group {
+    .vip-row {
       display: flex;
       gap: 12px;
-      margin: 10px 0 30px;
+      margin: 12px 0 30px;
     }
-    .vip-input-group input {
+    .vip-row input {
       flex: 1;
       background: #121212;
       border: 1px solid #e50914;
-      padding: 12px;
       border-radius: 60px;
+      padding: 14px 20px;
       color: white;
     }
-    .vip-input-group button {
+    .vip-row button {
       background: #e50914;
       border: none;
-      padding: 0 28px;
+      padding: 0 30px;
       border-radius: 60px;
       font-weight: bold;
       color: white;
       cursor: pointer;
     }
 
+    /* HORIZONTAL SCROLL ROWS */
+    .category-row {
+      margin-bottom: 48px;
+    }
+    .row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      padding-left: 8px;
+    }
+    .row-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      border-left: 5px solid #e50914;
+      padding-left: 16px;
+    }
+    .row-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      scroll-behavior: smooth;
+      padding: 8px 4px 20px 4px;
+      scrollbar-width: thin;
+    }
+    .row-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    /* movie card in horizontal row */
+    .movie-card-h {
+      flex: 0 0 180px;
+      background: #0c0c0c;
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.25s ease, border 0.2s;
+      cursor: pointer;
+      border: 1px solid #222;
+    }
+    .movie-card-h:hover {
+      transform: scale(1.05);
+      border-color: #e50914;
+      box-shadow: 0 10px 20px rgba(229,9,20,0.3);
+    }
+    .movie-card-h img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+    }
+    .movie-card-h .movie-info {
+      padding: 12px;
+    }
+    .movie-card-h .movie-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .movie-card-h .play-btn-sm {
+      background: #e50914;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 30px;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* live tv channel cards horizontal */
+    .channel-card-h {
+      flex: 0 0 220px;
+      background: #0c0c0c;
+      border-radius: 24px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid #222;
+      transition: 0.2s;
+    }
+    .channel-card-h:hover {
+      transform: translateY(-6px);
+      border-color: #e50914;
+    }
+    .channel-thumb-h {
+      width: 100%;
+      height: 130px;
+      background-size: cover;
+      background-position: center;
+    }
+    .channel-info-h {
+      padding: 14px;
+    }
+    .channel-name-h {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .channel-cat-h {
+      font-size: 0.75rem;
+      color: #e50914;
+      margin-top: 4px;
+    }
+
     /* modals */
     .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(12px);
-      z-index: 2000;
-      display: none;
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.96); backdrop-filter: blur(12px);
+      z-index: 2000; display: none;
     }
     .modal {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111111;
-      padding: 28px;
-      border-radius: 36px;
-      width: 420px;
-      max-width: 92%;
-      z-index: 2100;
-      border: 1px solid #e50914;
-      display: none;
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #111; padding: 28px; border-radius: 36px;
+      width: 440px; max-width: 92%; z-index: 2100;
+      border: 1px solid #e50914; display: none;
     }
     .modal h3 { color: #e50914; margin-bottom: 20px; }
     .modal input, .modal select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 16px;
-      background: #222;
-      border: 1px solid #3a3a3a;
-      border-radius: 30px;
-      color: white;
+      width: 100%; padding: 12px; margin-bottom: 16px;
+      background: #222; border: 1px solid #3a3a3a; border-radius: 30px; color: white;
     }
     .btn-red {
-      background: #e50914;
-      border: none;
-      padding: 12px;
-      border-radius: 40px;
-      color: white;
-      font-weight: 700;
-      width: 100%;
-      margin-top: 8px;
-      cursor: pointer;
+      background: #e50914; border: none; padding: 12px; border-radius: 40px;
+      color: white; font-weight: 700; width: 100%; margin-top: 8px; cursor: pointer;
     }
     .close-icon {
-      position: absolute;
-      top: 14px;
-      right: 20px;
-      font-size: 28px;
-      cursor: pointer;
-      color: #aaa;
+      position: absolute; top: 14px; right: 18px; font-size: 28px; cursor: pointer; color: #aaa;
     }
     #videoModal {
-      width: 90%;
-      max-width: 1100px;
-      background: #000000;
-      padding: 8px;
-      border-radius: 32px;
+      width: 90%; max-width: 1100px; background: #000; padding: 8px; border-radius: 32px;
     }
     #videoPlayer iframe, #videoPlayer video {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 24px;
-      background: #000;
+      width: 100%; aspect-ratio: 16/9; border-radius: 24px; background: #000;
     }
     footer {
-      text-align: center;
-      padding: 30px;
-      color: #555;
-      border-top: 1px solid #1f1f1f;
-      margin-top: 40px;
+      text-align: center; padding: 30px; color: #555; border-top: 1px solid #1f1f1f; margin-top: 40px;
     }
-    .toast-msg {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1f1f1f;
-      padding: 12px 28px;
-      border-radius: 60px;
-      display: none;
-      z-index: 3000;
-      border-left: 5px solid #e50914;
-      color: white;
+    .toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      background: #1f1f1f; padding: 12px 28px; border-radius: 60px; display: none;
+      z-index: 3000; border-left: 5px solid #e50914; color: white;
     }
-    @media (max-width: 600px) {
-      .movie-poster { width: 90px; height: 130px; }
-      .movie-title { font-size: 1rem; }
-      .hero-content h1 { font-size: 1.6rem; }
+    @media (max-width: 650px) {
+      .movie-card-h { flex: 0 0 150px; }
+      .movie-card-h img { height: 200px; }
+      .channel-card-h { flex: 0 0 180px; }
+      .row-title { font-size: 1.4rem; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -443,95 +421,93 @@
 <body>
 
 <header>
-  <div class="logo">VERTEX STREAM</div>
+  <div class="logo">🔴 HORIZON X</div>
   <div class="nav-tabs">
     <button class="nav-tab active" data-tab="movies">🎬 MOVIES</button>
     <button class="nav-tab" data-tab="live">📺 LIVE TV</button>
   </div>
-  <div class="auth-area">
-    <div class="user-avatar" id="userStatusBtn" style="display: none;">👤 <span id="userEmailSpan"></span></div>
-    <button class="auth-btn" id="loginSignupBtn">SIGN IN</button>
+  <div class="right-controls">
+    <div class="user-badge" id="userBtn" style="display: none;">👤 <span id="userEmailLabel"></span></div>
+    <button class="auth-btn" id="signInBtn">SIGN IN</button>
+    <div class="three-dots" id="threeDotsBtn">⋮</div>
+  </div>
+  <div class="dropdown-menu" id="dropdownMenu">
+    <button id="adminPanelBtn">🔧 Admin Panel</button>
+    <button id="logoutBtn">🚪 Sign Out</button>
   </div>
 </header>
 
 <div class="app-container">
-  <!-- MOVIES SECTION -->
+  <!-- MOVIES SECTION with horizontal rows -->
   <div id="moviesSection">
-    <div class="top-search"><input id="searchInput" placeholder="🔍 Search movies..."></div>
-    <div class="hero" id="heroCarousel"><div class="hero-overlay"></div><div class="hero-content"><h1 id="heroTitle">Loading...</h1><p id="heroDesc"></p><div class="hero-buttons"><button id="heroPlayBtn">▶ Watch Now</button></div></div></div>
+    <div class="top-search"><input id="searchMovies" placeholder="🔍 Search movies..."></div>
+    <div class="hero" id="heroSlider"><div class="hero-overlay"></div><div class="hero-content"><h1 id="heroTitle">Loading...</h1><p id="heroDesc"></p><div class="hero-buttons"><button id="heroWatchBtn">▶ Watch Now</button></div></div></div>
     
-    <div class="request-bar">
+    <div class="action-bar">
       <input id="requestMovieInput" placeholder="🎬 Request missing movie...">
-      <button onclick="requestMovieWhatsApp()">📲 WhatsApp Request</button>
+      <button onclick="sendWhatsAppRequest()">📲 WhatsApp Request</button>
     </div>
-    <div class="vip-input-group">
-      <input id="vipCodeInput" placeholder="VIP code: WEEK2025 / MONTH2025">
-      <button onclick="unlockVIPAccess()">🔓 Unlock VIP</button>
+    <div class="vip-row">
+      <input id="vipCodeField" placeholder="VIP code: WEEK2025 / MONTH2025">
+      <button onclick="activateVIP()">🔓 Unlock VIP</button>
     </div>
 
-    <h2>🎬 Free for Everyone</h2>
-    <div id="freeMoviesList" class="movies-vertical"></div>
-
-    <h2 style="margin-top: 30px;">👑 VIP Cinema <span style="background:#e50914; font-size:13px; padding:2px 12px; border-radius:30px; margin-left:12px;">PREMIUM</span></h2>
-    <div id="vipMoviesList" class="movies-vertical"></div>
+    <!-- dynamic horizontal rows will be injected here -->
+    <div id="moviesRowsContainer"></div>
   </div>
 
-  <!-- LIVE TV SECTION (vertical arrangement) -->
+  <!-- LIVE TV SECTION with horizontal rows per category -->
   <div id="liveTvSection" style="display: none;">
-    <div class="categories-bar" id="categoryBar"></div>
-    <div class="channels-vertical" id="channelsVerticalList"></div>
+    <div id="liveRowsContainer"></div>
   </div>
 </div>
-<footer>⚡ Pure black · Red accent · Vertical streams | Request & watch anytime</footer>
-<div id="toastMsg" class="toast-msg"></div>
+<footer>⚡ Horizontal rows · Black & Red · Stream movies & Live TV | Admin: three dots</footer>
+<div id="toastMsg" class="toast"></div>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="authOverlay"></div>
 <div class="modal" id="authModal">
-  <button class="close-icon" id="closeAuthModal">&times;</button>
-  <h3 id="authModalTitle">🔐 Sign In</h3>
-  <input type="email" id="authEmail" placeholder="Email address">
+  <button class="close-icon" id="closeAuthX">&times;</button>
+  <h3 id="authTitle">🔐 Sign In</h3>
+  <input type="email" id="authEmail" placeholder="Email">
   <input type="password" id="authPassword" placeholder="Password">
   <button id="authSubmitBtn" class="btn-red">Sign In</button>
-  <button id="switchAuthModeBtn" style="background:transparent; color:#e50914; margin-top: 12px;">Create new account →</button>
-  <button id="closeAuthFooterBtn" class="btn-red" style="background:#2a2a2a;">Cancel</button>
+  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 12px;">Create new account →</button>
+  <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a;">Cancel</button>
 </div>
 
-<!-- VIP PASSWORD MODAL -->
-<div class="modal-overlay" id="vipPassOverlay"></div>
-<div class="modal" id="vipPassModal">
-  <button class="close-icon" id="closeVipPass">&times;</button>
+<!-- VIP MODAL -->
+<div class="modal-overlay" id="vipModalOverlay"></div>
+<div class="modal" id="vipModal">
+  <button class="close-icon" id="closeVipModalBtn">&times;</button>
   <h3>🔑 VIP Unlock</h3>
-  <input type="password" id="vipPasswordInput" placeholder="WEEK2025 or MONTH2025">
-  <button id="submitVipPass" class="btn-red">Activate</button>
-  <button id="buyVipWhatsapp" style="background:#25D366; margin-top: 12px; padding:12px; border-radius:40px; width:100%; border:none; font-weight:600;">💬 Buy VIP on WhatsApp</button>
+  <input type="password" id="vipCodeModal" placeholder="WEEK2025 or MONTH2025">
+  <button id="confirmVipBtn" class="btn-red">Unlock</button>
+  <button id="buyVipWhatsappBtn" style="background:#25D366; margin-top: 12px; padding:12px; border-radius:40px; width:100%; border:none; font-weight:700;">💬 Buy on WhatsApp</button>
 </div>
 
-<!-- VIDEO PLAYER MODAL (background black) -->
+<!-- VIDEO MODAL -->
 <div class="modal-overlay" id="videoOverlay"></div>
-<div class="modal" id="videoModal">
-  <button class="close-icon" id="closeVideoBtn">&times;</button>
-  <div id="videoPlayer" style="background:#000;"></div>
-</div>
+<div class="modal" id="videoModal"><button class="close-icon" id="closeVideoX">&times;</button><div id="videoPlayer"></div></div>
 
-<!-- ADMIN PANEL (hidden, accessible via user menu + admin123) -->
+<!-- ADMIN PANEL -->
 <div class="modal-overlay" id="adminOverlay"></div>
-<div class="modal" id="adminPanel">
-  <button class="close-icon" id="closeAdmin">&times;</button>
-  <h3>🎬 Admin: Add Movie</h3>
-  <input type="file" id="posterFile" accept="image/*">
-  <input type="text" id="movieName" placeholder="Movie title">
-  <input type="text" id="movieDesc" placeholder="Description">
-  <select id="isVipSelect"><option value="false">Free</option><option value="true">VIP</option></select>
-  <input type="url" id="youtubeUrl" placeholder="YouTube link">
-  <input type="url" id="videoUrl" placeholder="Direct MP4 URL">
-  <button onclick="addMovieFromAdmin()" class="btn-red">➕ Save Movie</button>
-  <h4 style="margin-top: 20px;">🗑️ Manage Movies</h4>
-  <div id="adminMovieList" style="max-height: 260px; overflow-y: auto;"></div>
+<div class="modal" id="adminModal">
+  <button class="close-icon" id="closeAdminX">&times;</button>
+  <h3>🎬 Admin Panel</h3>
+  <input type="file" id="adminPoster" accept="image/*">
+  <input type="text" id="adminTitle" placeholder="Movie title">
+  <input type="text" id="adminDesc" placeholder="Description">
+  <select id="adminVipStatus"><option value="false">Free</option><option value="true">VIP</option></select>
+  <input type="url" id="adminYoutube" placeholder="YouTube link">
+  <input type="url" id="adminVideoUrl" placeholder="MP4 URL">
+  <button onclick="addMovieAdmin()" class="btn-red">➕ Add Movie</button>
+  <h4 style="margin: 20px 0 10px;">🗑️ Delete Movies</h4>
+  <div id="adminMoviesList" style="max-height: 240px; overflow-y: auto;"></div>
 </div>
 
 <script>
-  // FIREBASE
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
@@ -547,320 +523,349 @@
 
   let allMovies = [];
   let currentUser = null;
-  let currentTab = "movies";
-  let carouselInterval = null, currentSlideIdx = 0;
+  let pendingMovieCallback = null;
+  let activeTab = "movies";
+  let carouselInterval = null;
 
-  // Helper
+  // Helpers
   function showToast(msg) {
-    const toast = document.getElementById('toastMsg');
-    toast.innerText = msg;
-    toast.style.display = 'block';
-    setTimeout(() => toast.style.display = 'none', 2800);
+    const t = document.getElementById('toastMsg');
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2800);
   }
 
-  // VIP logic
-  const WEEKLY = 'WEEK2025', MONTHLY = 'MONTH2025';
-  function isVipActive() {
+  // VIP
+  const WEEK = 'WEEK2025', MONTH = 'MONTH2025';
+  function isVIP() {
     const data = localStorage.getItem('vipData');
     if (!data) return false;
     try { const { expiry } = JSON.parse(data); return new Date(expiry) > new Date(); } catch { return false; }
   }
-
-  function unlockVIPAccess() {
-    const code = document.getElementById('vipCodeInput').value.trim();
+  function activateVIP() {
+    let code = document.getElementById('vipCodeField').value.trim();
+    if (!code) code = document.getElementById('vipCodeModal')?.value.trim();
     if (!code) { showToast("Enter code"); return; }
     const expiry = new Date();
-    if (code === WEEKLY) expiry.setDate(expiry.getDate() + 7);
-    else if (code === MONTHLY) expiry.setDate(expiry.getDate() + 30);
+    if (code === WEEK) expiry.setDate(expiry.getDate() + 7);
+    else if (code === MONTH) expiry.setDate(expiry.getDate() + 30);
     else { showToast("Invalid VIP code"); return; }
     localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
-    showToast("✅ VIP unlocked! Refresh VIP content.");
-    renderMoviesVertical(allMovies, document.getElementById('searchInput')?.value || "");
+    showToast("✅ VIP unlocked! Refresh rows.");
+    renderAllMovieRows(allMovies, document.getElementById('searchMovies')?.value || "");
   }
 
-  // render movies (vertical cards, no like/comment)
-  function renderMoviesVertical(movies, searchTerm = "") {
-    const freeContainer = document.getElementById('freeMoviesList');
-    const vipContainer = document.getElementById('vipMoviesList');
-    if (!freeContainer) return;
-    freeContainer.innerHTML = '';
-    vipContainer.innerHTML = '';
+  function promptVipForMovie(callback) {
+    pendingMovieCallback = callback;
+    document.getElementById('vipModalOverlay').style.display = 'block';
+    document.getElementById('vipModal').style.display = 'block';
+  }
+  function closeVipModal() {
+    document.getElementById('vipModalOverlay').style.display = 'none';
+    document.getElementById('vipModal').style.display = 'none';
+    pendingMovieCallback = null;
+  }
+  document.getElementById('confirmVipBtn').onclick = () => {
+    const code = document.getElementById('vipCodeModal').value.trim();
+    const expiry = new Date();
+    if (code === WEEK) expiry.setDate(expiry.getDate() + 7);
+    else if (code === MONTH) expiry.setDate(expiry.getDate() + 30);
+    else { showToast("Wrong code"); return; }
+    localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
+    showToast("VIP active!");
+    closeVipModal();
+    if (pendingMovieCallback) pendingMovieCallback();
+  };
+  document.getElementById('buyVipWhatsappBtn').onclick = () => window.open('https://wa.me/256753747474?text=I%20want%20VIP','_blank');
+  document.getElementById('closeVipModalBtn').onclick = closeVipModal;
 
-    let filtered = movies.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Video player
+  function playVideo(movie) {
+    const src = movie.youtubeUrl || movie.videoUrl;
+    if (!src) { showToast("No video source"); return; }
+    const container = document.getElementById('videoPlayer');
+    container.innerHTML = '';
+    const isYoutube = !!movie.youtubeUrl;
+    if (isYoutube) {
+      let vidId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+      let embed = vidId ? `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0` : src;
+      const iframe = document.createElement('iframe');
+      iframe.src = embed; iframe.allowFullscreen = true; iframe.style.width = '100%'; iframe.style.aspectRatio = '16/9';
+      iframe.allow = 'autoplay; encrypted-media';
+      container.appendChild(iframe);
+    } else {
+      const video = document.createElement('video');
+      video.src = src; video.controls = true; video.autoplay = true; video.style.width = '100%';
+      container.appendChild(video);
+    }
+    document.getElementById('videoModal').style.display = 'block';
+    document.getElementById('videoOverlay').style.display = 'block';
+  }
+
+  // Build horizontal movie rows (categories)
+  function renderAllMovieRows(movies, searchTerm = "") {
+    const container = document.getElementById('moviesRowsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    let filtered = movies;
+    if (searchTerm) filtered = movies.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
     if (filtered.length === 0) {
-      freeContainer.innerHTML = '<div style="padding:30px; text-align:center;">✨ No movies found</div>';
-      vipContainer.innerHTML = '';
+      container.innerHTML = '<div style="padding:40px; text-align:center;">✨ No movies found</div>';
       return;
     }
     const freeMovies = filtered.filter(m => m.vip !== 'true');
     const vipMovies = filtered.filter(m => m.vip === 'true');
-
-    function buildCard(movie) {
-      const cardDiv = document.createElement('div');
-      cardDiv.className = 'movie-card-vertical';
-      cardDiv.innerHTML = `
-        <img class="movie-poster" src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
-        <div class="movie-info-vertical">
-          <div class="movie-title">${escapeHtml(movie.title)}</div>
-          <div class="movie-description">${escapeHtml(movie.description || 'No description')}</div>
-          <button class="play-btn-sm" data-id="${movie.id}">▶ PLAY NOW</button>
-        </div>
+    const trending = [...filtered].sort((a,b) => (b.likes || 0) - (a.likes || 0)).slice(0, 15);
+    const recommendations = filtered.slice(0, 15);
+    
+    const rows = [
+      { title: "🔥 TRENDING NOW", items: trending.length ? trending : filtered.slice(0, 12) },
+      { title: "✨ RECOMMENDED FOR YOU", items: recommendations },
+      { title: "🎬 FREE FOR EVERYONE", items: freeMovies },
+      { title: "👑 VIP EXCLUSIVE", items: vipMovies }
+    ];
+    rows.forEach(row => {
+      if (row.items.length === 0) return;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'category-row';
+      rowDiv.innerHTML = `
+        <div class="row-header"><div class="row-title">${row.title}</div></div>
+        <div class="row-scroll" id="scroll-${Date.now()}-${Math.random()}"></div>
       `;
-      const playBtn = cardDiv.querySelector('.play-btn-sm');
-      playBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (movie.vip === 'true' && !isVipActive()) {
-          openVipModal(() => openVideoPlayer(movie));
-        } else {
-          openVideoPlayer(movie);
-        }
+      const scrollDiv = rowDiv.querySelector('.row-scroll');
+      row.items.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card-h';
+        card.innerHTML = `
+          <img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
+          <div class="movie-info">
+            <div class="movie-title">${escapeHtml(movie.title)}</div>
+            <button class="play-btn-sm" data-id="${movie.id}">▶ PLAY</button>
+          </div>
+        `;
+        const btn = card.querySelector('.play-btn-sm');
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (movie.vip === 'true' && !isVIP()) promptVipForMovie(() => playVideo(movie));
+          else playVideo(movie);
+        });
+        scrollDiv.appendChild(card);
       });
-      return cardDiv;
-    }
-
-    freeMovies.forEach(m => freeContainer.appendChild(buildCard(m)));
-    if (vipMovies.length === 0) vipContainer.innerHTML = '<div style="padding:20px; color:#aaa;">🔒 VIP movies appear after unlocking</div>';
-    else vipMovies.forEach(m => vipContainer.appendChild(buildCard(m)));
+      container.appendChild(rowDiv);
+    });
   }
 
-  function openVideoPlayer(movie) {
-    const videoSrc = movie.youtubeUrl || movie.videoUrl;
-    if (!videoSrc) { showToast("No streaming source available"); return; }
-    const playerDiv = document.getElementById('videoPlayer');
-    playerDiv.innerHTML = '';
-    const isYouTube = !!movie.youtubeUrl;
-    if (isYouTube) {
-      let vidId = videoSrc.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
-      let embedUrl = vidId ? `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0&modestbranding=1` : videoSrc;
-      const iframe = document.createElement('iframe');
-      iframe.src = embedUrl;
-      iframe.allow = "autoplay; fullscreen; encrypted-media";
-      iframe.allowFullscreen = true;
-      iframe.style.width = "100%";
-      iframe.style.aspectRatio = "16/9";
-      iframe.style.border = "none";
-      playerDiv.appendChild(iframe);
-    } else {
-      const video = document.createElement('video');
-      video.src = videoSrc;
-      video.controls = true;
-      video.autoplay = true;
-      video.style.width = "100%";
-      video.style.background = "#000";
-      playerDiv.appendChild(video);
-    }
-    document.getElementById('videoModal').style.display = 'block';
-    document.getElementById('videoOverlay').style.display = 'block';
+  // Hero carousel from movies
+  function buildHero(movies) {
+    const heroDiv = document.getElementById('heroSlider');
+    const existing = heroDiv.querySelectorAll('.hero-slide');
+    existing.forEach(s => s.remove());
+    if (!movies.length) return;
+    const top6 = movies.slice(0, 7);
+    top6.forEach((m, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'hero-slide';
+      if (idx === 0) slide.classList.add('active');
+      slide.style.backgroundImage = `url('${m.poster}')`;
+      heroDiv.appendChild(slide);
+    });
+    let index = 0;
+    if (carouselInterval) clearInterval(carouselInterval);
+    carouselInterval = setInterval(() => {
+      const slides = heroDiv.querySelectorAll('.hero-slide');
+      if (!slides.length) return;
+      slides[index].classList.remove('active');
+      index = (index + 1) % slides.length;
+      slides[index].classList.add('active');
+      if (top6[index]) updateHeroText(top6[index]);
+    }, 5000);
+    if (top6[0]) updateHeroText(top6[0]);
+  }
+  function updateHeroText(movie) {
+    document.getElementById('heroTitle').innerText = movie.title;
+    document.getElementById('heroDesc').innerText = movie.description || "Now streaming in high quality";
+    document.getElementById('heroWatchBtn').onclick = () => {
+      if (movie.vip === 'true' && !isVIP()) promptVipForMovie(() => playVideo(movie));
+      else playVideo(movie);
+    };
   }
 
-  // live tv vertical channels
+  // LIVE TV HORIZONTAL ROWS (by category)
   const LIVE_CHANNELS = [
-    { id: "l1", name: "Sky News", category: "News", thumb: "https://picsum.photos/id/20/300/180", streamUrl: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1", type: "youtube" },
-    { id: "l2", name: "CNN International", category: "News", thumb: "https://picsum.photos/id/30/300/180", streamUrl: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1", type: "youtube" },
-    { id: "l3", name: "NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", streamUrl: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1", type: "youtube" },
-    { id: "l4", name: "Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", streamUrl: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1", type: "youtube" },
-    { id: "l5", name: "FIFA+ Live", category: "Sports", thumb: "https://picsum.photos/id/33/300/180", streamUrl: "https://www.youtube.com/embed/videoseries?list=PLCGIzmTE4d0gHjCakq0Bm2v0fTq0n0QlG", type: "youtube" },
-    { id: "l6", name: "EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", streamUrl: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1", type: "youtube" },
-    { id: "l7", name: "Music Videos 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", streamUrl: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1", type: "youtube" },
-    { id: "l8", name: "Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", streamUrl: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1", type: "youtube" }
+    { id: "n1", name: "🔴 Sky News Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1", type: "yt" },
+    { id: "n2", name: "📡 CNN International", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1", type: "yt" },
+    { id: "n3", name: "🚀 NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1", type: "yt" },
+    { id: "n4", name: "⚽ Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1", type: "yt" },
+    { id: "n5", name: "🎵 Music 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1", type: "yt" },
+    { id: "n6", name: "🐾 EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1", type: "yt" },
+    { id: "n7", name: "💰 Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1", type: "yt" }
   ];
-  let currentChannelCategory = "All";
-
-  function renderVerticalChannels() {
-    const container = document.getElementById('channelsVerticalList');
+  function renderLiveTVRows() {
+    const container = document.getElementById('liveRowsContainer');
     if (!container) return;
-    let filtered = currentChannelCategory === "All" ? LIVE_CHANNELS : LIVE_CHANNELS.filter(ch => ch.category === currentChannelCategory);
-    if (filtered.length === 0) { container.innerHTML = '<div style="padding:30px;text-align:center;">📡 No channels</div>'; return; }
-    container.innerHTML = filtered.map(ch => `
-      <div class="channel-card-vertical" data-channel='${JSON.stringify(ch)}'>
-        <div class="channel-thumb" style="background-image: url('${ch.thumb}'); background-size: cover;"></div>
-        <div class="channel-details">
-          <div class="channel-name">${escapeHtml(ch.name)}</div>
-          <div class="channel-category">${ch.category}</div>
-        </div>
-      </div>
-    `).join('');
-    document.querySelectorAll('.channel-card-vertical').forEach(card => {
+    container.innerHTML = '';
+    const categories = [...new Set(LIVE_CHANNELS.map(ch => ch.category))];
+    categories.forEach(cat => {
+      const filtered = LIVE_CHANNELS.filter(ch => ch.category === cat);
+      if (filtered.length === 0) return;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'category-row';
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">📺 ${cat}</div></div><div class="row-scroll" id="live-${cat.replace(/\s/g,'')}"></div>`;
+      const scroll = rowDiv.querySelector('.row-scroll');
+      filtered.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = 'channel-card-h';
+        card.innerHTML = `
+          <div class="channel-thumb-h" style="background-image: url('${ch.thumb}');"></div>
+          <div class="channel-info-h">
+            <div class="channel-name-h">${escapeHtml(ch.name)}</div>
+            <div class="channel-cat-h">${ch.category}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          const playerDiv = document.getElementById('videoPlayer');
+          playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:24px;"></iframe>`;
+          document.getElementById('videoModal').style.display = 'block';
+          document.getElementById('videoOverlay').style.display = 'block';
+        });
+        scroll.appendChild(card);
+      });
+      container.appendChild(rowDiv);
+    });
+    // also add "All Channels" row
+    const allRow = document.createElement('div');
+    allRow.className = 'category-row';
+    allRow.innerHTML = `<div class="row-header"><div class="row-title">🌟 ALL CHANNELS</div></div><div class="row-scroll" id="allChannelsRow"></div>`;
+    const allScroll = allRow.querySelector('.row-scroll');
+    LIVE_CHANNELS.forEach(ch => {
+      const card = document.createElement('div');
+      card.className = 'channel-card-h';
+      card.innerHTML = `<div class="channel-thumb-h" style="background-image: url('${ch.thumb}');"></div><div class="channel-info-h"><div class="channel-name-h">${escapeHtml(ch.name)}</div><div class="channel-cat-h">${ch.category}</div></div>`;
       card.addEventListener('click', () => {
-        const ch = JSON.parse(card.dataset.channel);
-        playLiveChannel(ch);
+        const playerDiv = document.getElementById('videoPlayer');
+        playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:24px;"></iframe>`;
+        document.getElementById('videoModal').style.display = 'block';
+        document.getElementById('videoOverlay').style.display = 'block';
       });
+      allScroll.appendChild(card);
     });
-  }
-
-  function playLiveChannel(channel) {
-    const playerDiv = document.getElementById('videoPlayer');
-    playerDiv.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.src = channel.streamUrl;
-    iframe.allow = "autoplay; fullscreen";
-    iframe.allowFullscreen = true;
-    iframe.style.width = "100%";
-    iframe.style.aspectRatio = "16/9";
-    iframe.style.border = "none";
-    playerDiv.appendChild(iframe);
-    document.getElementById('videoModal').style.display = 'block';
-    document.getElementById('videoOverlay').style.display = 'block';
-  }
-
-  function renderCategoryFilters() {
-    const cats = ["All", ...new Set(LIVE_CHANNELS.map(c => c.category))];
-    const bar = document.getElementById("categoryBar");
-    if (!bar) return;
-    bar.innerHTML = cats.map(cat => `<button class="category-pill ${currentChannelCategory === cat ? 'active' : ''}" data-cat="${cat}">${cat}</button>`).join('');
-    document.querySelectorAll('.category-pill').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        currentChannelCategory = btn.dataset.cat;
-        renderCategoryFilters();
-        renderVerticalChannels();
-      });
-    });
+    container.appendChild(allRow);
   }
 
   // Firestore listener
   moviesCol.onSnapshot(snap => {
     let movies = [];
-    snap.forEach(doc => {
-      let data = doc.data();
-      movies.push({ id: doc.id, ...data, vip: data.vip || 'false', likes: 0 });
-    });
+    snap.forEach(doc => { let d = doc.data(); movies.push({ id: doc.id, ...d, vip: d.vip || 'false', likes: d.likes || 0 }); });
     allMovies = movies;
-    renderMoviesVertical(allMovies, document.getElementById('searchInput')?.value || "");
-    initHeroCarousel(movies);
-    updateAdminList(movies);
+    const searchVal = document.getElementById('searchMovies')?.value || "";
+    renderAllMovieRows(movies, searchVal);
+    buildHero(movies);
+    updateAdminMovieList(movies);
   });
-
-  function initHeroCarousel(movies) {
-    const heroDiv = document.getElementById('heroCarousel');
-    const existing = heroDiv.querySelectorAll('.hero-slide');
-    existing.forEach(s => s.remove());
-    if (!movies.length) return;
-    const top5 = movies.slice(0, 7);
-    top5.forEach((m, idx) => {
-      const slide = document.createElement('div'); slide.className = 'hero-slide'; if(idx===0) slide.classList.add('active');
-      slide.style.backgroundImage = `url('${m.poster}')`; heroDiv.appendChild(slide);
-    });
-    currentSlideIdx = 0;
-    if (top5[0]) updateHeroContent(top5[0]);
-    if (carouselInterval) clearInterval(carouselInterval);
-    carouselInterval = setInterval(() => {
-      const slides = heroDiv.querySelectorAll('.hero-slide');
-      if (!slides.length) return;
-      slides[currentSlideIdx].classList.remove('active');
-      currentSlideIdx = (currentSlideIdx + 1) % slides.length;
-      slides[currentSlideIdx].classList.add('active');
-      if (top5[currentSlideIdx]) updateHeroContent(top5[currentSlideIdx]);
-    }, 4500);
-  }
-
-  function updateHeroContent(movie) {
-    document.getElementById('heroTitle').innerText = movie.title;
-    document.getElementById('heroDesc').innerText = movie.description || "🔥 Exclusive streaming";
-    document.getElementById('heroPlayBtn').onclick = () => {
-      if (movie.vip === 'true' && !isVipActive()) openVipModal(() => openVideoPlayer(movie));
-      else openVideoPlayer(movie);
-    };
-  }
-
-  // helper vip modal
-  let pendingVipCallback = null;
-  function openVipModal(callback) { pendingVipCallback = callback; document.getElementById('vipPassOverlay').style.display = 'block'; document.getElementById('vipPassModal').style.display = 'block'; }
-  function closeVipModal() { document.getElementById('vipPassOverlay').style.display = 'none'; document.getElementById('vipPassModal').style.display = 'none'; pendingVipCallback = null; }
-  document.getElementById('submitVipPass').addEventListener('click', () => {
-    const code = document.getElementById('vipPasswordInput').value.trim();
-    const expiry = new Date();
-    if (code === WEEKLY) expiry.setDate(expiry.getDate()+7);
-    else if (code === MONTHLY) expiry.setDate(expiry.getDate()+30);
-    else { showToast("Invalid code"); return; }
-    localStorage.setItem('vipData', JSON.stringify({ code, expiry: expiry.toISOString() }));
-    showToast("VIP access granted!");
-    closeVipModal();
-    if (pendingVipCallback) pendingVipCallback();
-  });
-  document.getElementById('buyVipWhatsapp').addEventListener('click', () => { window.open('https://wa.me/256753747474?text=I%20want%20VIP','_blank'); });
-  document.getElementById('closeVipPass').addEventListener('click', closeVipModal);
-
-  // Auth UI
-  function updateAuthUI() {
-    const userDiv = document.getElementById('userStatusBtn');
-    const loginBtn = document.getElementById('loginSignupBtn');
-    if (currentUser) {
-      userDiv.style.display = 'flex';
-      loginBtn.style.display = 'none';
-      document.getElementById('userEmailSpan').innerText = currentUser.email.split('@')[0];
-    } else {
-      userDiv.style.display = 'none';
-      loginBtn.style.display = 'block';
-    }
-  }
-  let authMode = "login";
-  function openAuthModal() {
-    document.getElementById('authModalTitle').innerText = authMode === "login" ? "🔐 Sign In" : "📝 Create Account";
-    document.getElementById('authSubmitBtn').innerText = authMode === "login" ? "Sign In" : "Sign Up";
-    document.getElementById('switchAuthModeBtn').innerText = authMode === "login" ? "Create new account →" : "← Back to Sign In";
-    document.getElementById('authOverlay').style.display = 'block';
-    document.getElementById('authModal').style.display = 'block';
-  }
-  async function handleAuth() {
-    const email = document.getElementById('authEmail').value.trim();
-    const pass = document.getElementById('authPassword').value.trim();
-    if (!email || !pass) { showToast("Enter credentials"); return; }
-    try {
-      if (authMode === "login") await auth.signInWithEmailAndPassword(email, pass);
-      else await auth.createUserWithEmailAndPassword(email, pass);
-      showToast(`Welcome ${email.split('@')[0]}!`);
-      closeAuthModal();
-    } catch(err) { showToast(err.message); }
-  }
-  function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; document.getElementById('authModal').style.display = 'none'; }
-  auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
 
   // Admin functions
-  window.addMovieFromAdmin = function() {
-    const file = document.getElementById('posterFile').files[0];
-    const title = document.getElementById('movieName').value.trim();
+  function updateAdminMovieList(movies) {
+    const container = document.getElementById('adminMoviesList');
+    if (!container) return;
+    container.innerHTML = movies.map(m => `<div style="display:flex; justify-content:space-between; background:#1a1a1a; padding:8px 15px; border-radius:40px; margin:6px 0;"><span>${escapeHtml(m.title)}</span><button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:4px 14px; border-radius:30px; color:white;">🗑️</button></div>`).join('');
+  }
+  window.deleteMovie = async (id) => { await moviesCol.doc(id).delete(); showToast("Deleted"); };
+  window.addMovieAdmin = () => {
+    const file = document.getElementById('adminPoster').files[0];
+    const title = document.getElementById('adminTitle').value.trim();
     if (!file || !title) { showToast("Poster and title required"); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
       moviesCol.add({
-        title, poster: e.target.result, description: document.getElementById('movieDesc').value,
-        vip: document.getElementById('isVipSelect').value, youtubeUrl: document.getElementById('youtubeUrl').value,
-        videoUrl: document.getElementById('videoUrl').value, likes: 0
-      }).then(() => { showToast("Movie added"); document.getElementById('movieName').value = ''; document.getElementById('posterFile').value = ''; });
+        title, poster: e.target.result, description: document.getElementById('adminDesc').value,
+        vip: document.getElementById('adminVipStatus').value, youtubeUrl: document.getElementById('adminYoutube').value,
+        videoUrl: document.getElementById('adminVideoUrl').value, likes: 0
+      }).then(() => { showToast("Movie added!"); document.getElementById('adminTitle').value = ''; document.getElementById('adminPoster').value = ''; });
     };
     reader.readAsDataURL(file);
   };
-  window.deleteMovie = async (id) => { await moviesCol.doc(id).delete(); showToast("Deleted"); };
-  function updateAdminList(movies) {
-    const container = document.getElementById('adminMovieList');
-    if (container) container.innerHTML = movies.map(m => `<div style="display:flex; justify-content:space-between; background:#1c1c1c; margin:6px 0; padding:8px 12px; border-radius:40px;"><span>${escapeHtml(m.title)}</span><button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:2px 12px; border-radius:40px; color:white;">✖</button></div>`).join('');
+
+  // Authentication
+  function updateAuthUI() {
+    const userDiv = document.getElementById('userBtn');
+    const signInBtn = document.getElementById('signInBtn');
+    if (currentUser) {
+      userDiv.style.display = 'flex';
+      signInBtn.style.display = 'none';
+      document.getElementById('userEmailLabel').innerText = currentUser.email.split('@')[0];
+    } else {
+      userDiv.style.display = 'none';
+      signInBtn.style.display = 'block';
+    }
   }
-  document.getElementById('userStatusBtn')?.addEventListener('click', () => { if(prompt("Admin code?") === 'admin123') { document.getElementById('adminOverlay').style.display='block'; document.getElementById('adminPanel').style.display='block'; } else showToast("Wrong code"); });
-  document.getElementById('closeAdmin').addEventListener('click', () => { document.getElementById('adminOverlay').style.display='none'; document.getElementById('adminPanel').style.display='none'; });
-  document.getElementById('closeVideoBtn').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML=''; document.getElementById('videoOverlay').style.display='none'; document.getElementById('videoModal').style.display='none'; });
-  document.getElementById('videoOverlay').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML=''; document.getElementById('videoOverlay').style.display='none'; document.getElementById('videoModal').style.display='none'; });
-  window.requestMovieWhatsApp = () => { const req = document.getElementById('requestMovieInput').value; if(req) window.open(`https://wa.me/256753747474?text=Request:%20${encodeURIComponent(req)}`,'_blank'); };
-  
-  // Tabs switch
+  let authMode = 'login';
+  function openAuthModal() {
+    document.getElementById('authTitle').innerText = authMode === 'login' ? '🔐 Sign In' : '📝 Create Account';
+    document.getElementById('authSubmitBtn').innerText = authMode === 'login' ? 'Sign In' : 'Sign Up';
+    document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create new account →' : '← Back to Sign In';
+    document.getElementById('authOverlay').style.display = 'block';
+    document.getElementById('authModal').style.display = 'block';
+  }
+  async function handleAuthSubmit() {
+    const email = document.getElementById('authEmail').value.trim();
+    const pass = document.getElementById('authPassword').value.trim();
+    if (!email || !pass) { showToast("Enter credentials"); return; }
+    try {
+      if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
+      else await auth.createUserWithEmailAndPassword(email, pass);
+      showToast(`Welcome ${email.split('@')[0]}!`);
+      closeAuthModal();
+    } catch (err) { showToast(err.message); }
+  }
+  function closeAuthModal() {
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('authModal').style.display = 'none';
+  }
+  auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
+
+  // Tab switching
   function switchTab(tab) {
-    currentTab = tab;
+    activeTab = tab;
     const moviesDiv = document.getElementById('moviesSection');
     const liveDiv = document.getElementById('liveTvSection');
-    if (tab === 'movies') { moviesDiv.style.display = 'block'; liveDiv.style.display = 'none'; renderMoviesVertical(allMovies, document.getElementById('searchInput').value); }
-    else { moviesDiv.style.display = 'none'; liveDiv.style.display = 'block'; renderCategoryFilters(); renderVerticalChannels(); }
-    document.querySelectorAll('.nav-tab').forEach(btn => { if(btn.dataset.tab === tab) btn.classList.add('active'); else btn.classList.remove('active'); });
+    if (tab === 'movies') {
+      moviesDiv.style.display = 'block';
+      liveDiv.style.display = 'none';
+      renderAllMovieRows(allMovies, document.getElementById('searchMovies').value);
+    } else {
+      moviesDiv.style.display = 'none';
+      liveDiv.style.display = 'block';
+      renderLiveTVRows();
+    }
+    document.querySelectorAll('.nav-tab').forEach(btn => { if (btn.dataset.tab === tab) btn.classList.add('active'); else btn.classList.remove('active'); });
   }
-  document.querySelectorAll('.nav-tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-  document.getElementById('loginSignupBtn').addEventListener('click', () => { authMode = "login"; openAuthModal(); });
-  document.getElementById('switchAuthModeBtn').addEventListener('click', () => { authMode = authMode === "login" ? "signup" : "login"; openAuthModal(); });
-  document.getElementById('authSubmitBtn').addEventListener('click', handleAuth);
-  document.getElementById('closeAuthModal').addEventListener('click', closeAuthModal);
-  document.getElementById('closeAuthFooterBtn').addEventListener('click', closeAuthModal);
+
+  // UI event listeners
+  const dotsBtn = document.getElementById('threeDotsBtn');
+  const dropdown = document.getElementById('dropdownMenu');
+  dotsBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+  document.addEventListener('click', () => dropdown.style.display = 'none');
+  document.getElementById('adminPanelBtn').addEventListener('click', () => {
+    if (prompt("Admin password:") === 'admin123') {
+      document.getElementById('adminOverlay').style.display = 'block';
+      document.getElementById('adminModal').style.display = 'block';
+      dropdown.style.display = 'none';
+    } else showToast("Wrong admin code");
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => { auth.signOut(); showToast("Signed out"); dropdown.style.display = 'none'; });
+  document.getElementById('closeAdminX').addEventListener('click', () => { document.getElementById('adminOverlay').style.display = 'none'; document.getElementById('adminModal').style.display = 'none'; });
+  document.getElementById('closeVideoX').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
+  document.getElementById('videoOverlay').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
+  document.getElementById('signInBtn').addEventListener('click', () => { authMode = 'login'; openAuthModal(); });
+  document.getElementById('switchAuthBtn').addEventListener('click', () => { authMode = authMode === 'login' ? 'signup' : 'login'; openAuthModal(); });
+  document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
+  document.getElementById('closeAuthX').addEventListener('click', closeAuthModal);
+  document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authOverlay').addEventListener('click', closeAuthModal);
-  document.getElementById('searchInput').addEventListener('input', (e) => { if(currentTab === "movies") renderMoviesVertical(allMovies, e.target.value); });
-  
-  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-  switchTab("movies");
+  document.getElementById('searchMovies').addEventListener('input', (e) => { if (activeTab === 'movies') renderAllMovieRows(allMovies, e.target.value); });
+  window.sendWhatsAppRequest = () => { const req = document.getElementById('requestMovieInput').value; if (req) window.open(`https://wa.me/256753747474?text=Request:%20${encodeURIComponent(req)}`, '_blank'); };
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+  switchTab('movies');
 </script>
 </body>
-</html>
+  </html>
