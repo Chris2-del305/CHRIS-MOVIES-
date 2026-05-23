@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Netflix-Style · CHRIS STREAM</title>
+  <title>ChrisFlix · Netflix Style with Categories</title>
   <style>
     * {
       margin: 0;
@@ -18,12 +18,10 @@
       overflow-x: hidden;
     }
 
-    /* scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #111; }
     ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
-    /* header netflix style */
     header {
       position: fixed;
       top: 0;
@@ -36,7 +34,6 @@
       padding: 0 40px;
       height: 70px;
       z-index: 1100;
-      transition: 0.3s;
     }
 
     .logo {
@@ -46,7 +43,7 @@
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      letter-spacing: -0.5px;
+      cursor: pointer;
     }
 
     .nav-links {
@@ -64,8 +61,6 @@
       color: #e50914;
       font-weight: 700;
     }
-    .nav-link:hover { color: white; }
-
     .right-controls {
       display: flex;
       align-items: center;
@@ -126,17 +121,51 @@
     }
     .dropdown-menu button:hover { background: #e50914; }
 
-    /* main container */
-    .main-container {
-      margin-top: 70px;
-      padding-bottom: 40px;
+    /* search + categories bar */
+    .search-category-area {
+      margin: 90px 40px 20px 40px;
+    }
+    .search-input {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      border-radius: 40px;
+      background: #1f1f1f;
+      border: 1px solid #333;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 20px;
+    }
+    .search-input:focus {
+      border-color: #e50914;
+    }
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .category-pill {
+      background: #1f1f1f;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: #e5e5e5;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .category-pill.active, .category-pill:hover {
+      background: #e50914;
+      color: white;
     }
 
-    /* HERO SECTION (netflix style) */
+    /* hero */
     .hero {
       position: relative;
       width: 100%;
-      height: 85vh;
+      height: 80vh;
       min-height: 550px;
       margin-bottom: 30px;
       overflow: hidden;
@@ -196,24 +225,22 @@
       background: white;
       color: black;
     }
-    .hero-btn.play:hover { background: #e5e5e5; }
 
     /* rows */
     .row-container {
       margin-bottom: 50px;
-      padding-left: 50px;
+      padding-left: 40px;
     }
     .row-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       margin-bottom: 16px;
-      padding-right: 50px;
+      padding-right: 40px;
     }
     .row-title {
       font-size: 1.7rem;
       font-weight: 700;
-      letter-spacing: -0.3px;
     }
     .horizontal-scroll {
       display: flex;
@@ -225,7 +252,6 @@
     .horizontal-scroll::-webkit-scrollbar {
       height: 6px;
     }
-    /* netflix card */
     .movie-card {
       flex: 0 0 220px;
       cursor: pointer;
@@ -242,7 +268,6 @@
       width: 100%;
       height: 310px;
       object-fit: cover;
-      display: block;
     }
     .movie-card-info {
       padding: 10px;
@@ -254,7 +279,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    /* live tv channel card */
     .channel-card {
       flex: 0 0 200px;
       background: #141414;
@@ -372,6 +396,7 @@
       .movie-card img { height: 230px; }
       .hero { height: 65vh; }
       header { padding: 0 20px; }
+      .search-category-area { margin: 90px 20px 20px 20px; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -397,13 +422,16 @@
   </div>
 </header>
 
+<!-- Search + Categories -->
+<div class="search-category-area">
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search movies...">
+  <div class="category-filters" id="categoryFilterBar"></div>
+</div>
+
 <div class="main-container">
   <!-- MOVIES TAB -->
   <div id="moviesTab">
-    <!-- Hero carousel -->
     <div class="hero" id="heroCarousel"></div>
-
-    <!-- Dynamic rows will be injected here -->
     <div id="moviesRowsContainer"></div>
   </div>
 
@@ -412,7 +440,7 @@
     <div id="liveRowsContainer" style="padding-top: 20px;"></div>
   </div>
 </div>
-<footer>© ChrisFlix · Stream unlimited movies & live TV</footer>
+<footer>© ChrisFlix · Admin: three-dots (⋮) → Admin Panel | Categories filter above</footer>
 
 <div id="toastMsg" class="toast"></div>
 
@@ -428,14 +456,14 @@
   <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a;">Cancel</button>
 </div>
 
-<!-- Video Player Modal -->
+<!-- Video Modal -->
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal">
   <button class="close-icon" id="closeVideoX">&times;</button>
   <div id="videoPlayer"></div>
 </div>
 
-<!-- Admin Panel -->
+<!-- Admin Panel Modal -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminModal">
   <button class="close-icon" id="closeAdminX">&times;</button>
@@ -443,12 +471,12 @@
   <input type="file" id="adminPoster" accept="image/*">
   <input type="text" id="adminTitle" placeholder="Movie title">
   <input type="text" id="adminDesc" placeholder="Short description">
-  <select id="adminGenre" style="background:#222;">
+  <select id="adminGenre">
     <option value="Trending">Trending</option>
+    <option value="New Releases">New Releases</option>
     <option value="Action">Action</option>
     <option value="Comedy">Comedy</option>
     <option value="Drama">Drama</option>
-    <option value="New Releases">New Releases</option>
   </select>
   <input type="url" id="adminYoutube" placeholder="YouTube link">
   <input type="url" id="adminVideoUrl" placeholder="Direct MP4 URL">
@@ -476,8 +504,8 @@
   let currentUser = null;
   let activeTab = "movies";
   let carouselInterval = null;
+  let currentCategoryFilter = "All";
 
-  // Helper: toast
   function showToast(msg) {
     const t = document.getElementById('toastMsg');
     t.innerText = msg;
@@ -485,7 +513,6 @@
     setTimeout(() => t.style.display = 'none', 2500);
   }
 
-  // Video player
   function playVideo(movie) {
     const src = movie.youtubeUrl || movie.videoUrl;
     if (!src) { showToast("No video source"); return; }
@@ -514,15 +541,15 @@
     document.getElementById('videoOverlay').style.display = 'block';
   }
 
-  // Build hero carousel from movies (first 6)
+  // Hero carousel
   function buildHero(movies) {
     const heroDiv = document.getElementById('heroCarousel');
     heroDiv.innerHTML = '<div class="hero-overlay"></div><div class="hero-content" id="heroContent"></div>';
-    const existingSlides = heroDiv.querySelectorAll('.hero-slide');
-    existingSlides.forEach(s => s.remove());
+    const existing = heroDiv.querySelectorAll('.hero-slide');
+    existing.forEach(s => s.remove());
     if (!movies.length) {
       heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://placehold.co/1200x700?text=CHRISFLIX')"></div>`;
-      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via admin panel</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via admin panel (⋮ menu)</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
       return;
     }
     const topMovies = movies.slice(0, 6);
@@ -559,35 +586,39 @@
     }, 6000);
   }
 
-  // Render rows based on genres/categories from movie data
-  function renderRows(movies) {
+  // Render rows with category + search filter
+  function renderRows(movies, searchTerm = "", category = "All") {
     const container = document.getElementById('moviesRowsContainer');
     if (!container) return;
-    container.innerHTML = '';
-    if (movies.length === 0) {
-      container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies yet. Use admin panel to add.</div>';
+    container.innerHTML = "";
+    let filtered = movies;
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    if (category !== "All") {
+      filtered = filtered.filter(m => (m.genre || "Trending") === category);
+    }
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies match your selection.</div>';
       return;
     }
-    // Define row categories using movie custom field 'genre' or fallback
+    // group by genre for rows
     const genreMap = new Map();
-    movies.forEach(m => {
+    filtered.forEach(m => {
       const genre = m.genre || "Trending";
       if (!genreMap.has(genre)) genreMap.set(genre, []);
       genreMap.get(genre).push(m);
     });
-    // Order: Trending first, then others
     const orderedGenres = ["Trending", "New Releases", "Action", "Comedy", "Drama"];
-    const remainingGenres = Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g));
-    const allGenres = [...orderedGenres, ...remainingGenres];
+    const remaining = Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g));
+    const allGenres = [...orderedGenres, ...remaining];
     allGenres.forEach(genre => {
       const moviesInGenre = genreMap.get(genre);
       if (!moviesInGenre || moviesInGenre.length === 0) return;
       const rowDiv = document.createElement('div');
       rowDiv.className = 'row-container';
       rowDiv.innerHTML = `
-        <div class="row-header">
-          <div class="row-title">${genre}</div>
-        </div>
+        <div class="row-header"><div class="row-title">${genre}</div></div>
         <div class="horizontal-scroll" id="scroll-${genre.replace(/\s/g,'')}"></div>
       `;
       const scrollDiv = rowDiv.querySelector('.horizontal-scroll');
@@ -596,9 +627,7 @@
         card.className = 'movie-card';
         card.innerHTML = `
           <img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
-          <div class="movie-card-info">
-            <div class="movie-title">${escapeHtml(movie.title)}</div>
-          </div>
+          <div class="movie-card-info"><div class="movie-title">${escapeHtml(movie.title)}</div></div>
         `;
         card.addEventListener('click', () => playVideo(movie));
         scrollDiv.appendChild(card);
@@ -607,7 +636,24 @@
     });
   }
 
-  // LIVE TV (horizontal rows by category)
+  // Build category filter pills
+  function buildCategoryFilters() {
+    const categories = ["All", "Trending", "New Releases", "Action", "Comedy", "Drama"];
+    const bar = document.getElementById('categoryFilterBar');
+    bar.innerHTML = categories.map(cat => `
+      <button class="category-pill ${currentCategoryFilter === cat ? 'active' : ''}" data-cat="${cat}">${cat}</button>
+    `).join('');
+    bar.querySelectorAll('.category-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentCategoryFilter = btn.dataset.cat;
+        buildCategoryFilters(); // re-render active state
+        const searchVal = document.getElementById('searchInput').value;
+        renderRows(allMovies, searchVal, currentCategoryFilter);
+      });
+    });
+  }
+
+  // Live TV
   const LIVE_CHANNELS = [
     { id: "l1", name: "Sky News Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
     { id: "l2", name: "CNN Intl", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
@@ -626,18 +672,12 @@
       const filtered = LIVE_CHANNELS.filter(ch => ch.category === cat);
       const rowDiv = document.createElement('div');
       rowDiv.className = 'row-container';
-      rowDiv.innerHTML = `
-        <div class="row-header"><div class="row-title">${cat}</div></div>
-        <div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>
-      `;
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">${cat}</div></div><div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>`;
       const scroll = rowDiv.querySelector('.horizontal-scroll');
       filtered.forEach(ch => {
         const card = document.createElement('div');
         card.className = 'channel-card';
-        card.innerHTML = `
-          <div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div>
-          <div class="channel-name">${escapeHtml(ch.name)}</div>
-        `;
+        card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
         card.addEventListener('click', () => {
           const playerDiv = document.getElementById('videoPlayer');
           playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:20px;"></iframe>`;
@@ -678,7 +718,8 @@
     allMovies = movies;
     if (activeTab === 'movies') {
       buildHero(movies);
-      renderRows(movies);
+      const searchVal = document.getElementById('searchInput').value;
+      renderRows(movies, searchVal, currentCategoryFilter);
     }
     updateAdminList(movies);
   });
@@ -696,7 +737,7 @@
   }
   window.deleteMovie = async (id) => {
     await moviesCol.doc(id).delete();
-    showToast("Deleted");
+    showToast("Movie deleted");
   };
   window.addMovieFromAdmin = () => {
     const file = document.getElementById('adminPoster').files[0];
@@ -718,12 +759,12 @@
         document.getElementById('adminDesc').value = '';
         document.getElementById('adminYoutube').value = '';
         document.getElementById('adminVideoUrl').value = '';
-      });
+      }).catch(err => showToast("Error: " + err.message));
     };
     reader.readAsDataURL(file);
   };
 
-  // Auth UI
+  // Auth
   function updateAuthUI() {
     const userDiv = document.getElementById('userBtn');
     const signInBtn = document.getElementById('signInBtn');
@@ -747,7 +788,7 @@
   async function handleAuthSubmit() {
     const email = document.getElementById('authEmail').value.trim();
     const pass = document.getElementById('authPassword').value.trim();
-    if (!email || !pass) { showToast("Enter email/password"); return; }
+    if (!email || !pass) { showToast("Enter credentials"); return; }
     try {
       if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
       else await auth.createUserWithEmailAndPassword(email, pass);
@@ -761,7 +802,7 @@
   }
   auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
 
-  // Tabs
+  // Tabs and search
   function switchTab(tab) {
     activeTab = tab;
     const moviesDiv = document.getElementById('moviesTab');
@@ -770,7 +811,8 @@
       moviesDiv.style.display = 'block';
       liveDiv.style.display = 'none';
       buildHero(allMovies);
-      renderRows(allMovies);
+      const searchVal = document.getElementById('searchInput').value;
+      renderRows(allMovies, searchVal, currentCategoryFilter);
     } else {
       moviesDiv.style.display = 'none';
       liveDiv.style.display = 'block';
@@ -807,7 +849,15 @@
   document.getElementById('closeAuthX').addEventListener('click', closeAuthModal);
   document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authOverlay').addEventListener('click', closeAuthModal);
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    if (activeTab === 'movies') {
+      renderRows(allMovies, e.target.value, currentCategoryFilter);
+    }
+  });
   function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+  
+  // Initialize
+  buildCategoryFilters();
   switchTab('movies');
 </script>
 </body>
