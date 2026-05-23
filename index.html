@@ -3,183 +3,211 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>CHRISFLIX · Movies & Live TV</title>
+  <title>CHRISFLIX · Cinema & Live TV</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
 
     body {
-      background: #000000;
-      color: #ffffff;
+      background: radial-gradient(circle at 10% 20%, #0a0a0a, #000000);
+      color: #f0f0f0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'SF Pro Text', sans-serif;
       overflow-x: hidden;
+      scroll-behavior: smooth;
     }
 
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
+    ::-webkit-scrollbar { width: 8px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; transition: 0.2s; }
+    ::-webkit-scrollbar-thumb:hover { background: #ff3b3b; }
 
-    /* header */
+    /* GLASS HEADER */
     header {
       position: fixed;
       top: 0;
       width: 100%;
-      background: linear-gradient(180deg, #000000 0%, rgba(0,0,0,0.85) 100%);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(229, 9, 20, 0.3);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 40px;
-      height: 70px;
+      padding: 0 48px;
+      height: 74px;
       z-index: 1100;
+      transition: all 0.2s ease;
     }
 
     .logo {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 800;
-      background: linear-gradient(135deg, #e50914, #ff4d4d);
+      letter-spacing: -0.5px;
+      background: linear-gradient(130deg, #e50914, #ff6b6b, #ffffff);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
       cursor: pointer;
+      filter: drop-shadow(0 2px 6px rgba(229,9,20,0.3));
     }
 
     .nav-links {
       display: flex;
-      gap: 28px;
+      gap: 32px;
     }
     .nav-link {
-      color: #e5e5e5;
-      font-size: 14px;
-      font-weight: 500;
+      color: #dddddd;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
+      padding: 6px 0;
+      position: relative;
     }
     .nav-link.active {
       color: #e50914;
-      font-weight: 700;
+    }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #e50914;
+      border-radius: 4px;
     }
     .right-controls {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
     }
     .user-badge {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #1a1a1a;
-      padding: 6px 14px;
-      border-radius: 30px;
-      cursor: pointer;
-      border: 1px solid #333;
-    }
-    .three-dots {
-      background: #1a1a1a;
-      width: 40px;
-      height: 40px;
+      background: rgba(20, 20, 20, 0.7);
+      backdrop-filter: blur(4px);
+      padding: 6px 16px;
       border-radius: 40px;
+      cursor: pointer;
+      border: 1px solid #2c2c2c;
+      transition: all 0.2s;
+    }
+    .user-badge:hover { border-color: #e50914; background: #1f1f1f; }
+    .three-dots {
+      background: #141414;
+      width: 42px;
+      height: 42px;
+      border-radius: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       cursor: pointer;
       border: 1px solid #e50914;
       transition: 0.2s;
+      box-shadow: 0 0 6px rgba(229,9,20,0.3);
     }
-    .three-dots:hover {
-      background: #e50914;
-      transform: scale(1.05);
-    }
+    .three-dots:hover { background: #e50914; transform: scale(1.05); color: white; }
     .auth-btn {
       background: #e50914;
       border: none;
-      padding: 6px 18px;
-      border-radius: 30px;
+      padding: 8px 22px;
+      border-radius: 32px;
       color: white;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(229,9,20,0.3);
     }
+    .auth-btn:hover { background: #ff1a2c; transform: scale(1.02); }
     .dropdown-menu {
       position: absolute;
-      top: 70px;
-      right: 40px;
-      background: #0a0a0a;
-      border-radius: 12px;
-      width: 200px;
+      top: 74px;
+      right: 48px;
+      background: #0e0e0e;
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      width: 210px;
       display: none;
       z-index: 1200;
-      border: 1px solid #e50914;
+      border: 1px solid rgba(229,9,20,0.6);
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 35px -12px black;
     }
     .dropdown-menu button {
       background: none;
       border: none;
       width: 100%;
       text-align: left;
-      padding: 12px 18px;
-      color: white;
+      padding: 14px 20px;
+      color: #f5f5f5;
       font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      transition: 0.1s;
+      transition: 0.15s;
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
-    .dropdown-menu button:hover {
-      background: #e50914;
-    }
+    .dropdown-menu button:hover { background: #e50914; padding-left: 26px; }
 
-    /* search + category bar */
+    /* search + pills */
     .search-category-area {
-      margin: 90px 40px 20px 40px;
+      margin: 100px 48px 24px 48px;
     }
     .search-input {
       width: 100%;
-      max-width: 500px;
-      padding: 12px 20px;
-      border-radius: 40px;
-      background: #1f1f1f;
-      border: 1px solid #333;
+      max-width: 520px;
+      padding: 14px 24px;
+      border-radius: 60px;
+      background: #181818;
+      border: 1px solid #2a2a2a;
       color: white;
       font-size: 16px;
       outline: none;
-      margin-bottom: 20px;
+      transition: all 0.2s;
+      margin-bottom: 24px;
     }
-    .search-input:focus {
-      border-color: #e50914;
-    }
+    .search-input:focus { border-color: #e50914; background: #202020; box-shadow: 0 0 12px rgba(229,9,20,0.2); }
     .category-filters {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 28px;
     }
     .category-pill {
-      background: #1f1f1f;
+      background: #1e1e1e;
       border: none;
-      padding: 8px 20px;
+      padding: 8px 24px;
       border-radius: 40px;
-      color: #e5e5e5;
-      font-weight: 500;
+      color: #e0e0e0;
+      font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
+      backdrop-filter: blur(4px);
     }
     .category-pill.active, .category-pill:hover {
       background: #e50914;
       color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(229,9,20,0.3);
     }
 
-    /* hero */
+    /* HERO CAROUSEL */
     .hero {
       position: relative;
       width: 100%;
-      height: 80vh;
-      min-height: 550px;
-      margin-bottom: 30px;
+      height: 78vh;
+      min-height: 560px;
+      margin-bottom: 32px;
       overflow: hidden;
+      border-radius: 28px;
+      margin-top: 8px;
     }
     .hero-slide {
       position: absolute;
@@ -188,46 +216,49 @@
       width: 100%;
       height: 100%;
       background-size: cover;
-      background-position: center top;
+      background-position: center 20%;
       opacity: 0;
-      transition: opacity 1.2s ease;
+      transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
     .hero-slide.active { opacity: 1; }
     .hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(0deg, #000000 10%, rgba(0,0,0,0.5) 70%);
+      background: linear-gradient(0deg, #000000 5%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
       z-index: 1;
     }
     .hero-content {
       position: absolute;
-      bottom: 28%;
+      bottom: 22%;
       left: 6%;
       z-index: 2;
       max-width: 55%;
+      text-shadow: 0 2px 18px black;
     }
     .hero-content h1 {
-      font-size: 3.5rem;
+      font-size: 3.8rem;
       font-weight: 800;
-      margin-bottom: 12px;
-      text-shadow: 0 2px 8px black;
+      margin-bottom: 14px;
+      letter-spacing: -1px;
     }
     .hero-content p {
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-      opacity: 0.9;
+      font-size: 1.15rem;
+      margin-bottom: 24px;
+      opacity: 0.92;
+      line-height: 1.4;
+      max-width: 90%;
     }
     .hero-buttons {
       display: flex;
-      gap: 16px;
+      gap: 18px;
     }
     .hero-btn {
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      border: none;
-      padding: 10px 28px;
-      border-radius: 8px;
-      font-weight: 600;
+      background: rgba(30,30,30,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 12px 32px;
+      border-radius: 50px;
+      font-weight: 700;
       color: white;
       cursor: pointer;
       transition: 0.2s;
@@ -235,147 +266,172 @@
     .hero-btn.play {
       background: white;
       color: black;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
+    .hero-btn.play:hover { background: #e0e0e0; transform: scale(1.02); }
 
-    /* rows */
+    /* ROWS */
     .row-container {
-      margin-bottom: 50px;
-      padding-left: 40px;
+      margin-bottom: 56px;
+      padding-left: 48px;
     }
     .row-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 16px;
-      padding-right: 40px;
+      margin-bottom: 18px;
+      padding-right: 48px;
     }
     .row-title {
-      font-size: 1.7rem;
+      font-size: 1.9rem;
       font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(120deg, #fff, #ccc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
     }
     .horizontal-scroll {
       display: flex;
       overflow-x: auto;
-      gap: 16px;
+      gap: 20px;
       scroll-behavior: smooth;
-      padding-bottom: 12px;
-    }
-    .horizontal-scroll::-webkit-scrollbar {
-      height: 6px;
+      padding-bottom: 20px;
     }
     .movie-card {
-      flex: 0 0 220px;
+      flex: 0 0 230px;
       cursor: pointer;
-      transition: transform 0.25s ease;
-      border-radius: 12px;
+      transition: all 0.28s ease;
+      border-radius: 20px;
       overflow: hidden;
-      background: #141414;
+      background: #121212;
+      box-shadow: 0 12px 20px -10px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.05);
     }
     .movie-card:hover {
-      transform: scale(1.05);
-      z-index: 10;
+      transform: scale(1.06) translateY(-8px);
+      box-shadow: 0 25px 30px -12px black;
+      border-color: #e50914;
     }
     .movie-card img {
       width: 100%;
-      height: 310px;
+      height: 320px;
       object-fit: cover;
+      transition: 0.2s;
     }
     .movie-card-info {
-      padding: 10px;
+      padding: 14px 12px;
     }
     .movie-title {
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .channel-card {
-      flex: 0 0 200px;
-      background: #141414;
-      border-radius: 12px;
+      flex: 0 0 210px;
+      background: #0f0f0f;
+      border-radius: 24px;
       overflow: hidden;
       cursor: pointer;
-      transition: 0.2s;
+      transition: all 0.25s;
+      border: 1px solid #262626;
     }
-    .channel-card:hover { transform: scale(1.03); }
+    .channel-card:hover {
+      transform: translateY(-8px);
+      border-color: #e50914;
+      box-shadow: 0 20px 25px -12px black;
+    }
     .channel-thumb {
       width: 100%;
-      height: 120px;
+      height: 130px;
       background-size: cover;
       background-position: center;
+      position: relative;
+    }
+    .live-badge {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      background: #e50914;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
     }
     .channel-name {
-      padding: 12px;
-      font-weight: 500;
+      padding: 14px;
+      font-weight: 600;
       text-align: center;
       font-size: 0.85rem;
     }
 
-    /* modals */
+    /* MODAL MODERN */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.96);
-      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(14px);
       z-index: 2000;
       display: none;
+      transition: 0.2s;
     }
     .modal {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: #141414;
-      padding: 28px;
-      border-radius: 32px;
-      width: 440px;
+      padding: 32px;
+      border-radius: 40px;
+      width: 460px;
       max-width: 92%;
       z-index: 2100;
       border: 1px solid #e50914;
       display: none;
+      box-shadow: 0 30px 50px rgba(0,0,0,0.7);
     }
-    .modal h3 { color: #e50914; margin-bottom: 20px; }
+    .modal h3 { color: #e50914; margin-bottom: 24px; font-size: 28px; font-weight: 700; }
     .modal input, .modal select {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 16px;
-      background: #222;
-      border: 1px solid #3a3a3a;
-      border-radius: 30px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      background: #262626;
+      border: 1px solid #3f3f3f;
+      border-radius: 34px;
       color: white;
+      font-size: 14px;
     }
     .btn-red {
       background: #e50914;
       border: none;
-      padding: 12px;
-      border-radius: 40px;
+      padding: 14px;
+      border-radius: 60px;
       color: white;
-      font-weight: 700;
+      font-weight: 800;
       width: 100%;
       margin-top: 8px;
       cursor: pointer;
     }
     .close-icon {
       position: absolute;
-      top: 14px;
-      right: 18px;
-      font-size: 28px;
+      top: 20px;
+      right: 24px;
+      font-size: 32px;
       cursor: pointer;
       color: #aaa;
+      transition: 0.1s;
     }
     #videoModal {
       width: 90%;
-      max-width: 1100px;
-      background: #000;
-      padding: 8px;
-      border-radius: 28px;
-    }
-    #videoPlayer iframe, #videoPlayer video {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 20px;
-      background: #000;
+      max-width: 1200px;
+      background: #000000cc;
+      backdrop-filter: blur(20px);
+      padding: 12px;
+      border-radius: 48px;
     }
     .toast {
       position: fixed;
@@ -383,32 +439,37 @@
       left: 50%;
       transform: translateX(-50%);
       background: #1f1f1f;
-      padding: 10px 24px;
+      padding: 12px 28px;
       border-radius: 60px;
       display: none;
       z-index: 3000;
-      border-left: 4px solid #e50914;
+      border-left: 6px solid #e50914;
       color: white;
+      font-weight: 500;
       font-size: 14px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 20px black;
     }
     footer {
       text-align: center;
-      padding: 30px;
-      color: #555;
+      padding: 34px;
+      color: #5f5f5f;
       border-top: 1px solid #1f1f1f;
       margin-top: 20px;
+      font-size: 13px;
     }
     @media (max-width: 768px) {
-      .hero-content h1 { font-size: 2rem; }
-      .hero-content { max-width: 80%; bottom: 20%; }
+      header { padding: 0 20px; }
+      .hero-content h1 { font-size: 2.2rem; }
+      .hero-content { max-width: 85%; bottom: 18%; }
       .row-container { padding-left: 20px; }
       .row-header { padding-right: 20px; }
       .movie-card { flex: 0 0 160px; }
       .movie-card img { height: 230px; }
-      .hero { height: 65vh; }
-      header { padding: 0 20px; }
-      .search-category-area { margin: 90px 20px 20px 20px; }
-      .three-dots { width: 36px; height: 36px; font-size: 20px; }
+      .hero { height: 58vh; min-height: 420px; }
+      .search-category-area { margin: 100px 20px 24px 20px; }
+      .three-dots { width: 38px; height: 38px; }
+      .dropdown-menu { right: 20px; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -418,10 +479,10 @@
 <body>
 
 <header>
-  <div class="logo">CHRISFLIX</div>
+  <div class="logo">⚡ CHRISFLIX</div>
   <div class="nav-links">
-    <span class="nav-link active" data-tab="movies">Movies</span>
-    <span class="nav-link" data-tab="live">Live TV</span>
+    <span class="nav-link active" data-tab="movies">🎬 Movies</span>
+    <span class="nav-link" data-tab="live">📺 Live TV</span>
   </div>
   <div class="right-controls">
     <div class="user-badge" id="userBtn" style="display: none;">👤 <span id="userEmailSpan"></span></div>
@@ -429,34 +490,30 @@
     <div class="three-dots" id="threeDotsBtn">⋮</div>
   </div>
   <div class="dropdown-menu" id="dropdownMenu">
-    <button id="adminPanelBtn">🔧 Admin Panel</button>
+    <button id="adminPanelBtn">🔧 Admin Studio</button>
     <button id="logoutBtn">🚪 Sign Out</button>
   </div>
 </header>
 
-<!-- Search + Category Bar -->
 <div class="search-category-area">
-  <input type="text" id="searchInput" class="search-input" placeholder="Search movies...">
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search movies...">
   <div class="category-filters" id="categoryFilterBar"></div>
 </div>
 
 <div class="main-container">
-  <!-- MOVIES TAB -->
   <div id="moviesTab">
     <div class="hero" id="heroCarousel"></div>
     <div id="moviesRowsContainer"></div>
   </div>
-
-  <!-- LIVE TV TAB -->
   <div id="liveTab" style="display: none;">
-    <div id="liveRowsContainer" style="padding-top: 20px;"></div>
+    <div id="liveRowsContainer" style="padding-top: 8px;"></div>
   </div>
 </div>
-<footer>© ChrisFlix · Click ⋮ (three dots) → Admin Panel (password: admin123) | Stream movies & live TV</footer>
+<footer>🎥 CHRISFLIX · premium vibes | Click ⋮ → Admin Panel (password: admin123) | Stream the best</footer>
 
 <div id="toastMsg" class="toast"></div>
 
-<!-- Auth Modal -->
+<!-- Modals -->
 <div class="modal-overlay" id="authOverlay"></div>
 <div class="modal" id="authModal">
   <button class="close-icon" id="closeAuthX">&times;</button>
@@ -464,22 +521,20 @@
   <input type="email" id="authEmail" placeholder="Email">
   <input type="password" id="authPassword" placeholder="Password">
   <button id="authSubmitBtn" class="btn-red">Sign In</button>
-  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 10px;">Create account →</button>
+  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 12px;">✨ Create account →</button>
   <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a;">Cancel</button>
 </div>
 
-<!-- Video Modal -->
 <div class="modal-overlay" id="videoOverlay"></div>
 <div class="modal" id="videoModal">
   <button class="close-icon" id="closeVideoX">&times;</button>
   <div id="videoPlayer"></div>
 </div>
 
-<!-- Admin Panel Modal -->
 <div class="modal-overlay" id="adminOverlay"></div>
 <div class="modal" id="adminModal">
   <button class="close-icon" id="closeAdminX">&times;</button>
-  <h3>Admin Panel · Add Movie</h3>
+  <h3>🎬 Admin Panel</h3>
   <input type="file" id="adminPoster" accept="image/*">
   <input type="text" id="adminTitle" placeholder="Movie title">
   <input type="text" id="adminDesc" placeholder="Short description">
@@ -493,12 +548,12 @@
   <input type="url" id="adminYoutube" placeholder="YouTube link">
   <input type="url" id="adminVideoUrl" placeholder="Direct MP4 URL">
   <button onclick="addMovieFromAdmin()" class="btn-red">➕ Add Movie</button>
-  <h4 style="margin: 20px 0 10px;">🗑️ Delete Movies</h4>
-  <div id="adminMovieList" style="max-height: 240px; overflow-y: auto;"></div>
+  <h4 style="margin: 24px 0 10px;">🗑️ Manage Catalog</h4>
+  <div id="adminMovieList" style="max-height: 260px; overflow-y: auto; border-radius: 24px;"></div>
 </div>
 
 <script>
-  // Firebase config (same as before)
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
@@ -517,30 +572,42 @@
   let activeTab = "movies";
   let carouselInterval = null;
   let currentCategoryFilter = "All";
+  let currentSearchTerm = "";
 
-  // Fallback sample movies if Firestore is empty (for demo)
+  // Enhanced sample movies with better aesthetics
   const sampleMovies = [
-    { title: "Forever My Girl", description: "A country music star returns to his hometown.", genre: "Trending", poster: "https://image.tmdb.org/t/p/w500/8s9h7q0kLxZrQ8yZxYqVpLcE8gM.jpg", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { title: "Action Hero", description: "Non-stop action thriller.", genre: "Action", poster: "https://picsum.photos/id/104/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { title: "Laugh Factory", description: "Stand-up comedy special.", genre: "Comedy", poster: "https://picsum.photos/id/20/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { title: "Deep Drama", description: "Emotional journey of a family.", genre: "Drama", poster: "https://picsum.photos/id/22/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { title: "New Release 2025", description: "Latest blockbuster.", genre: "New Releases", poster: "https://picsum.photos/id/26/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+    { title: "Neon Dreams", description: "A synthwave journey through lost memories.", genre: "Trending", poster: "https://picsum.photos/id/104/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Last Signal", description: "Edge of sci-fi thriller.", genre: "Action", poster: "https://picsum.photos/id/26/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Laugh Riot", description: "Stand-up explosion.", genre: "Comedy", poster: "https://picsum.photos/id/20/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "The Last Letter", description: "Heartfelt drama.", genre: "Drama", poster: "https://picsum.photos/id/22/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Midnight Racer", description: "New release blockbuster.", genre: "New Releases", poster: "https://picsum.photos/id/111/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+  ];
+
+  // LIVE TV CHANNELS - upgraded visuals
+  const LIVE_CHANNELS = [
+    { id: "l0", name: "Channels TV Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/d4zDorDl5UE?autoplay=1" },
+    { id: "l1", name: "Global News 24", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
+    { id: "l2", name: "Cinema One", category: "Entertainment", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
+    { id: "l3", name: "NASA Space Live", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
+    { id: "l4", name: "Xtreme Sports", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
+    { id: "l5", name: "Rhythm Live", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
+    { id: "l6", name: "Earth VR", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
+    { id: "l7", name: "Bloomberg West", category: "News", thumb: "https://picsum.photos/id/101/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" }
   ];
 
   function showToast(msg) {
     const t = document.getElementById('toastMsg');
     t.innerText = msg;
     t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 2500);
+    setTimeout(() => t.style.display = 'none', 2600);
   }
 
   function playVideo(movie) {
     const src = movie.youtubeUrl || movie.videoUrl;
-    if (!src) { showToast("No video source"); return; }
+    if (!src) { showToast("No video source available"); return; }
     const container = document.getElementById('videoPlayer');
     container.innerHTML = '';
-    const isYoutube = !!movie.youtubeUrl;
-    if (isYoutube) {
+    if (movie.youtubeUrl) {
       let vidId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
       let embed = vidId ? `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0` : src;
       const iframe = document.createElement('iframe');
@@ -548,6 +615,7 @@
       iframe.allowFullscreen = true;
       iframe.style.width = '100%';
       iframe.style.aspectRatio = '16/9';
+      iframe.style.borderRadius = '28px';
       iframe.allow = 'autoplay; encrypted-media';
       container.appendChild(iframe);
     } else {
@@ -556,6 +624,7 @@
       video.controls = true;
       video.autoplay = true;
       video.style.width = '100%';
+      video.style.borderRadius = '28px';
       container.appendChild(video);
     }
     document.getElementById('videoModal').style.display = 'block';
@@ -565,11 +634,11 @@
   function buildHero(movies) {
     const heroDiv = document.getElementById('heroCarousel');
     heroDiv.innerHTML = '<div class="hero-overlay"></div><div class="hero-content" id="heroContent"></div>';
-    const existing = heroDiv.querySelectorAll('.hero-slide');
-    existing.forEach(s => s.remove());
+    const existingSlides = heroDiv.querySelectorAll('.hero-slide');
+    existingSlides.forEach(s => s.remove());
     if (!movies.length) {
-      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://picsum.photos/id/104/1200/700')"></div>`;
-      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via Admin Panel (⋮)</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
+      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://picsum.photos/id/104/1400/700')"></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to CHRISFLIX</h1><p>Your cinematic universe</p><div class="hero-buttons"><button class="hero-btn play">▶ Explore</button></div>`;
       return;
     }
     const topMovies = movies.slice(0, 6);
@@ -577,7 +646,7 @@
       const slide = document.createElement('div');
       slide.className = 'hero-slide';
       if (idx === 0) slide.classList.add('active');
-      slide.style.backgroundImage = `url('${m.poster}')`;
+      slide.style.backgroundImage = `url('${m.poster || 'https://picsum.photos/id/104/1400/700'}')`;
       heroDiv.appendChild(slide);
     });
     let currentIndex = 0;
@@ -585,14 +654,13 @@
       const heroContent = document.getElementById('heroContent');
       heroContent.innerHTML = `
         <h1>${escapeHtml(movie.title)}</h1>
-        <p>${escapeHtml(movie.description || 'Now streaming')}</p>
-        <div class="hero-buttons">
-          <button class="hero-btn play" data-id="${movie.id}">▶ Play</button>
-          <button class="hero-btn">More Info</button>
-        </div>
+        <p>${escapeHtml(movie.description || 'Now streaming on CHRISFLIX')}</p>
+        <div class="hero-buttons"><button class="hero-btn play" data-id="${movie.id}">▶ Play Now</button><button class="hero-btn info-btn">ℹ️ Details</button></div>
       `;
       const playBtn = heroContent.querySelector('.hero-btn.play');
       playBtn.addEventListener('click', () => playVideo(movie));
+      const infoBtn = heroContent.querySelector('.info-btn');
+      infoBtn.addEventListener('click', () => showToast(movie.description || "Amazing movie!"));
     };
     if (topMovies[0]) updateHeroText(topMovies[0]);
     if (carouselInterval) clearInterval(carouselInterval);
@@ -611,42 +679,22 @@
     if (!container) return;
     container.innerHTML = "";
     let filtered = movies;
-    if (searchTerm.trim() !== "") {
-      filtered = filtered.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
-    }
-    if (category !== "All") {
-      filtered = filtered.filter(m => (m.genre || "Trending") === category);
-    }
-    if (filtered.length === 0) {
-      container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies match your selection.</div>';
-      return;
-    }
+    if (searchTerm.trim() !== "") filtered = filtered.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+    if (category !== "All") filtered = filtered.filter(m => (m.genre || "Trending") === category);
+    if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center; padding:80px; opacity:0.7;">✨ No movies match. Add some via Admin Panel!</div>'; return; }
     const genreMap = new Map();
-    filtered.forEach(m => {
-      const genre = m.genre || "Trending";
-      if (!genreMap.has(genre)) genreMap.set(genre, []);
-      genreMap.get(genre).push(m);
-    });
+    filtered.forEach(m => { const genre = m.genre || "Trending"; if (!genreMap.has(genre)) genreMap.set(genre, []); genreMap.get(genre).push(m); });
     const orderedGenres = ["Trending", "New Releases", "Action", "Comedy", "Drama"];
-    const remaining = Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g));
-    const allGenres = [...orderedGenres, ...remaining];
+    const allGenres = [...orderedGenres, ...Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g))];
     allGenres.forEach(genre => {
       const moviesInGenre = genreMap.get(genre);
       if (!moviesInGenre || moviesInGenre.length === 0) return;
-      const rowDiv = document.createElement('div');
-      rowDiv.className = 'row-container';
-      rowDiv.innerHTML = `
-        <div class="row-header"><div class="row-title">${genre}</div></div>
-        <div class="horizontal-scroll" id="scroll-${genre.replace(/\s/g,'')}"></div>
-      `;
+      const rowDiv = document.createElement('div'); rowDiv.className = 'row-container';
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">🔥 ${genre}</div><div style="font-size:12px;"></div></div><div class="horizontal-scroll" id="scroll-${genre.replace(/\s/g,'')}"></div>`;
       const scrollDiv = rowDiv.querySelector('.horizontal-scroll');
       moviesInGenre.forEach(movie => {
-        const card = document.createElement('div');
-        card.className = 'movie-card';
-        card.innerHTML = `
-          <img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
-          <div class="movie-card-info"><div class="movie-title">${escapeHtml(movie.title)}</div></div>
-        `;
+        const card = document.createElement('div'); card.className = 'movie-card';
+        card.innerHTML = `<img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}"><div class="movie-card-info"><div class="movie-title">${escapeHtml(movie.title)}</div></div>`;
         card.addEventListener('click', () => playVideo(movie));
         scrollDiv.appendChild(card);
       });
@@ -654,50 +702,37 @@
     });
   }
 
-  function buildCategoryFilters() {
-    const categories = ["All", "Trending", "New Releases", "Action", "Comedy", "Drama"];
+  function buildDynamicFilters() {
+    const genresSet = new Set(["All"]);
+    allMovies.forEach(m => { if (m.genre) genresSet.add(m.genre); });
+    const categories = Array.from(genresSet);
     const bar = document.getElementById('categoryFilterBar');
-    bar.innerHTML = categories.map(cat => `
-      <button class="category-pill ${currentCategoryFilter === cat ? 'active' : ''}" data-cat="${cat}">${cat}</button>
-    `).join('');
+    bar.innerHTML = categories.map(cat => `<button class="category-pill ${currentCategoryFilter === cat ? 'active' : ''}" data-cat="${cat}">${cat}</button>`).join('');
     bar.querySelectorAll('.category-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         currentCategoryFilter = btn.dataset.cat;
-        buildCategoryFilters();
-        const searchVal = document.getElementById('searchInput').value;
-        renderRows(allMovies, searchVal, currentCategoryFilter);
+        buildDynamicFilters();
+        renderRows(allMovies, document.getElementById('searchInput').value, currentCategoryFilter);
       });
     });
   }
 
-  // Live TV
-  const LIVE_CHANNELS = [
-    { id: "l1", name: "Sky News Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
-    { id: "l2", name: "CNN Intl", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
-    { id: "l3", name: "NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
-    { id: "l4", name: "Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
-    { id: "l5", name: "Music 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
-    { id: "l6", name: "EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
-    { id: "l7", name: "Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" }
-  ];
   function renderLiveTV() {
     const container = document.getElementById('liveRowsContainer');
     if (!container) return;
     container.innerHTML = '';
-    const categories = [...new Set(LIVE_CHANNELS.map(ch => ch.category))];
+    const categories = [...new Map(LIVE_CHANNELS.map(ch => [ch.category, ch])).keys()];
     categories.forEach(cat => {
       const filtered = LIVE_CHANNELS.filter(ch => ch.category === cat);
-      const rowDiv = document.createElement('div');
-      rowDiv.className = 'row-container';
-      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">${cat}</div></div><div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>`;
+      const rowDiv = document.createElement('div'); rowDiv.className = 'row-container';
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">📡 ${cat}</div></div><div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>`;
       const scroll = rowDiv.querySelector('.horizontal-scroll');
       filtered.forEach(ch => {
-        const card = document.createElement('div');
-        card.className = 'channel-card';
-        card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
+        const card = document.createElement('div'); card.className = 'channel-card';
+        card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}'); position:relative;"><span class="live-badge">LIVE</span></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
         card.addEventListener('click', () => {
           const playerDiv = document.getElementById('videoPlayer');
-          playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:20px;"></iframe>`;
+          playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:28px;"></iframe>`;
           document.getElementById('videoModal').style.display = 'block';
           document.getElementById('videoOverlay').style.display = 'block';
         });
@@ -705,17 +740,15 @@
       });
       container.appendChild(rowDiv);
     });
-    const allRow = document.createElement('div');
-    allRow.className = 'row-container';
-    allRow.innerHTML = `<div class="row-header"><div class="row-title">All Channels</div></div><div class="horizontal-scroll" id="allChannelsScroll"></div>`;
+    const allRow = document.createElement('div'); allRow.className = 'row-container';
+    allRow.innerHTML = `<div class="row-header"><div class="row-title">🌍 All Channels</div></div><div class="horizontal-scroll" id="allChannelsLive"></div>`;
     const allScroll = allRow.querySelector('.horizontal-scroll');
     LIVE_CHANNELS.forEach(ch => {
-      const card = document.createElement('div');
-      card.className = 'channel-card';
-      card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
+      const card = document.createElement('div'); card.className = 'channel-card';
+      card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"><span class="live-badge">LIVE</span></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
       card.addEventListener('click', () => {
         const playerDiv = document.getElementById('videoPlayer');
-        playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:20px;"></iframe>`;
+        playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:28px;"></iframe>`;
         document.getElementById('videoModal').style.display = 'block';
         document.getElementById('videoOverlay').style.display = 'block';
       });
@@ -724,24 +757,19 @@
     container.appendChild(allRow);
   }
 
-  // Firestore realtime + fallback
-  moviesCol.onSnapshot(snap => {
-    let movies = [];
-    snap.forEach(doc => {
-      let data = doc.data();
-      movies.push({ id: doc.id, ...data });
-    });
-    if (movies.length === 0) {
-      // Use sample movies for demo (but don't write to Firestore)
-      allMovies = sampleMovies.map((m, idx) => ({ id: `sample-${idx}`, ...m }));
-    } else {
-      allMovies = movies;
-    }
+  function refreshMoviesUI() {
+    buildDynamicFilters();
     if (activeTab === 'movies') {
       buildHero(allMovies);
-      const searchVal = document.getElementById('searchInput').value;
-      renderRows(allMovies, searchVal, currentCategoryFilter);
+      renderRows(allMovies, currentSearchTerm, currentCategoryFilter);
     }
+  }
+
+  moviesCol.onSnapshot(snap => {
+    let movies = [];
+    snap.forEach(doc => movies.push({ id: doc.id, ...doc.data() }));
+    allMovies = movies.length ? movies : sampleMovies.map((m, idx) => ({ id: `sample-${idx}`, ...m }));
+    refreshMoviesUI();
     updateAdminList(allMovies);
   });
 
@@ -749,119 +777,46 @@
     const container = document.getElementById('adminMovieList');
     if (!container) return;
     container.innerHTML = movies.map(m => `
-      <div style="display:flex; justify-content:space-between; background:#1a1a1a; margin:8px 0; padding:8px 12px; border-radius:30px;">
-        <span style="font-size:13px;">${escapeHtml(m.title)}</span>
-        <button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:4px 12px; border-radius:30px; color:white; cursor:pointer;">Delete</button>
+      <div style="display:flex; justify-content:space-between; background:#1e1e1e; margin:8px 0; padding:12px 16px; border-radius:40px; align-items:center;">
+        <span style="font-size:13px; font-weight:500;">${escapeHtml(m.title)}</span>
+        <button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:6px 20px; border-radius:40px; color:white; cursor:pointer;">Delete</button>
       </div>
     `).join('');
   }
   window.deleteMovie = async (id) => {
-    if (id.startsWith('sample-')) {
-      showToast("Sample movie cannot be deleted from Firebase. Add real movies.");
-      return;
-    }
+    if (id.startsWith('sample-')) { showToast("Sample movie demo, create real movies"); return; }
     await moviesCol.doc(id).delete();
-    showToast("Movie deleted");
+    showToast("Deleted");
   };
   window.addMovieFromAdmin = () => {
     const file = document.getElementById('adminPoster').files[0];
     const title = document.getElementById('adminTitle').value.trim();
-    if (!file || !title) { showToast("Poster and title required"); return; }
+    if (!file || !title) { showToast("Poster image + title required"); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
       moviesCol.add({
-        title: title,
-        poster: e.target.result,
-        description: document.getElementById('adminDesc').value || "",
-        genre: document.getElementById('adminGenre').value,
-        youtubeUrl: document.getElementById('adminYoutube').value || null,
+        title, poster: e.target.result, description: document.getElementById('adminDesc').value || "",
+        genre: document.getElementById('adminGenre').value, youtubeUrl: document.getElementById('adminYoutube').value || null,
         videoUrl: document.getElementById('adminVideoUrl').value || null
-      }).then(() => {
-        showToast("Movie added!");
-        document.getElementById('adminTitle').value = '';
-        document.getElementById('adminPoster').value = '';
-        document.getElementById('adminDesc').value = '';
-        document.getElementById('adminYoutube').value = '';
-        document.getElementById('adminVideoUrl').value = '';
-      }).catch(err => showToast("Error: " + err.message));
+      }).then(() => { showToast("Movie added!"); document.getElementById('adminTitle').value = ''; document.getElementById('adminPoster').value = ''; document.getElementById('adminDesc').value = ''; document.getElementById('adminYoutube').value = ''; document.getElementById('adminVideoUrl').value = ''; })
+      .catch(err => showToast("Error: " + err.message));
     };
     reader.readAsDataURL(file);
   };
 
-  // Auth
-  function updateAuthUI() {
-    const userDiv = document.getElementById('userBtn');
-    const signInBtn = document.getElementById('signInBtn');
-    if (currentUser) {
-      userDiv.style.display = 'flex';
-      signInBtn.style.display = 'none';
-      document.getElementById('userEmailSpan').innerText = currentUser.email.split('@')[0];
-    } else {
-      userDiv.style.display = 'none';
-      signInBtn.style.display = 'block';
-    }
-  }
+  function updateAuthUI() { const userDiv = document.getElementById('userBtn'); const signInBtn = document.getElementById('signInBtn'); if (currentUser) { userDiv.style.display = 'flex'; signInBtn.style.display = 'none'; document.getElementById('userEmailSpan').innerText = currentUser.email.split('@')[0]; } else { userDiv.style.display = 'none'; signInBtn.style.display = 'block'; } }
   let authMode = 'login';
-  function openAuthModal() {
-    document.getElementById('authTitle').innerText = authMode === 'login' ? 'Sign In' : 'Create Account';
-    document.getElementById('authSubmitBtn').innerText = authMode === 'login' ? 'Sign In' : 'Sign Up';
-    document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create account →' : '← Back to Sign In';
-    document.getElementById('authOverlay').style.display = 'block';
-    document.getElementById('authModal').style.display = 'block';
-  }
-  async function handleAuthSubmit() {
-    const email = document.getElementById('authEmail').value.trim();
-    const pass = document.getElementById('authPassword').value.trim();
-    if (!email || !pass) { showToast("Enter credentials"); return; }
-    try {
-      if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
-      else await auth.createUserWithEmailAndPassword(email, pass);
-      showToast(`Welcome ${email.split('@')[0]}!`);
-      closeAuthModal();
-    } catch (err) { showToast(err.message); }
-  }
-  function closeAuthModal() {
-    document.getElementById('authOverlay').style.display = 'none';
-    document.getElementById('authModal').style.display = 'none';
-  }
+  function openAuthModal() { document.getElementById('authTitle').innerText = authMode === 'login' ? 'Sign In' : 'Create Account'; document.getElementById('authSubmitBtn').innerText = authMode === 'login' ? 'Sign In' : 'Sign Up'; document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create account →' : '← Back'; document.getElementById('authOverlay').style.display = 'block'; document.getElementById('authModal').style.display = 'block'; }
+  async function handleAuthSubmit() { const email = document.getElementById('authEmail').value.trim(); const pass = document.getElementById('authPassword').value.trim(); if (!email || !pass) { showToast("Enter credentials"); return; } try { if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass); else await auth.createUserWithEmailAndPassword(email, pass); showToast(`Welcome ${email.split('@')[0]}!`); closeAuthModal(); } catch (err) { showToast(err.message); } }
+  function closeAuthModal() { document.getElementById('authOverlay').style.display = 'none'; document.getElementById('authModal').style.display = 'none'; }
   auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
-
-  function switchTab(tab) {
-    activeTab = tab;
-    const moviesDiv = document.getElementById('moviesTab');
-    const liveDiv = document.getElementById('liveTab');
-    if (tab === 'movies') {
-      moviesDiv.style.display = 'block';
-      liveDiv.style.display = 'none';
-      buildHero(allMovies);
-      const searchVal = document.getElementById('searchInput').value;
-      renderRows(allMovies, searchVal, currentCategoryFilter);
-    } else {
-      moviesDiv.style.display = 'none';
-      liveDiv.style.display = 'block';
-      renderLiveTV();
-    }
-    document.querySelectorAll('.nav-link').forEach(link => {
-      if (link.dataset.tab === tab) link.classList.add('active');
-      else link.classList.remove('active');
-    });
-  }
-
-  // Event listeners
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => switchTab(link.dataset.tab));
-  });
-  const dotsBtn = document.getElementById('threeDotsBtn');
-  const dropdown = document.getElementById('dropdownMenu');
+  function switchTab(tab) { activeTab = tab; const moviesDiv = document.getElementById('moviesTab'); const liveDiv = document.getElementById('liveTab'); if (tab === 'movies') { moviesDiv.style.display = 'block'; liveDiv.style.display = 'none'; refreshMoviesUI(); } else { moviesDiv.style.display = 'none'; liveDiv.style.display = 'block'; renderLiveTV(); } document.querySelectorAll('.nav-link').forEach(link => { if (link.dataset.tab === tab) link.classList.add('active'); else link.classList.remove('active'); }); }
+  document.getElementById('searchInput').addEventListener('input', (e) => { currentSearchTerm = e.target.value; if (activeTab === 'movies') renderRows(allMovies, currentSearchTerm, currentCategoryFilter); });
+  document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => switchTab(link.dataset.tab)));
+  const dotsBtn = document.getElementById('threeDotsBtn'), dropdown = document.getElementById('dropdownMenu');
   dotsBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
   document.addEventListener('click', () => dropdown.style.display = 'none');
-  document.getElementById('adminPanelBtn').addEventListener('click', () => {
-    if (prompt("Admin password:") === 'admin123') {
-      document.getElementById('adminOverlay').style.display = 'block';
-      document.getElementById('adminModal').style.display = 'block';
-      dropdown.style.display = 'none';
-    } else showToast("Wrong password");
-  });
+  document.getElementById('adminPanelBtn').addEventListener('click', () => { if (prompt("Admin password:") === 'admin123') { document.getElementById('adminOverlay').style.display = 'block'; document.getElementById('adminModal').style.display = 'block'; dropdown.style.display = 'none'; } else showToast("Wrong pass"); });
   document.getElementById('logoutBtn').addEventListener('click', () => { auth.signOut(); showToast("Signed out"); dropdown.style.display = 'none'; });
   document.getElementById('closeAdminX').addEventListener('click', () => { document.getElementById('adminOverlay').style.display = 'none'; document.getElementById('adminModal').style.display = 'none'; });
   document.getElementById('closeVideoX').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
@@ -872,14 +827,7 @@
   document.getElementById('closeAuthX').addEventListener('click', closeAuthModal);
   document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authOverlay').addEventListener('click', closeAuthModal);
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    if (activeTab === 'movies') {
-      renderRows(allMovies, e.target.value, currentCategoryFilter);
-    }
-  });
   function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-  
-  buildCategoryFilters();
   switchTab('movies');
 </script>
 </body>
