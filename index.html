@@ -1,9 +1,9 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>ChrisFlix · Netflix Style with Categories</title>
+  <title>CHRISFLIX · Movies & Live TV</title>
   <style>
     * {
       margin: 0;
@@ -22,6 +22,7 @@
     ::-webkit-scrollbar-track { background: #111; }
     ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
+    /* header */
     header {
       position: fixed;
       top: 0;
@@ -78,17 +79,22 @@
     }
     .three-dots {
       background: #1a1a1a;
-      width: 36px;
-      height: 36px;
-      border-radius: 36px;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
+      font-weight: bold;
       cursor: pointer;
-      border: 1px solid #333;
+      border: 1px solid #e50914;
+      transition: 0.2s;
     }
-    .three-dots:hover { background: #e50914; }
+    .three-dots:hover {
+      background: #e50914;
+      transform: scale(1.05);
+    }
     .auth-btn {
       background: #e50914;
       border: none;
@@ -104,11 +110,12 @@
       right: 40px;
       background: #0a0a0a;
       border-radius: 12px;
-      width: 180px;
+      width: 200px;
       display: none;
       z-index: 1200;
       border: 1px solid #e50914;
       overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .dropdown-menu button {
       background: none;
@@ -117,11 +124,15 @@
       text-align: left;
       padding: 12px 18px;
       color: white;
+      font-size: 14px;
       cursor: pointer;
+      transition: 0.1s;
     }
-    .dropdown-menu button:hover { background: #e50914; }
+    .dropdown-menu button:hover {
+      background: #e50914;
+    }
 
-    /* search + categories bar */
+    /* search + category bar */
     .search-category-area {
       margin: 90px 40px 20px 40px;
     }
@@ -397,6 +408,7 @@
       .hero { height: 65vh; }
       header { padding: 0 20px; }
       .search-category-area { margin: 90px 20px 20px 20px; }
+      .three-dots { width: 36px; height: 36px; font-size: 20px; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -422,7 +434,7 @@
   </div>
 </header>
 
-<!-- Search + Categories -->
+<!-- Search + Category Bar -->
 <div class="search-category-area">
   <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search movies...">
   <div class="category-filters" id="categoryFilterBar"></div>
@@ -440,7 +452,7 @@
     <div id="liveRowsContainer" style="padding-top: 20px;"></div>
   </div>
 </div>
-<footer>© ChrisFlix · Admin: three-dots (⋮) → Admin Panel | Categories filter above</footer>
+<footer>© ChrisFlix · Click ⋮ (three dots) → Admin Panel (password: admin123) | Stream movies & live TV</footer>
 
 <div id="toastMsg" class="toast"></div>
 
@@ -602,7 +614,7 @@
       container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies match your selection.</div>';
       return;
     }
-    // group by genre for rows
+    // group by genre
     const genreMap = new Map();
     filtered.forEach(m => {
       const genre = m.genre || "Trending";
@@ -646,7 +658,7 @@
     bar.querySelectorAll('.category-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         currentCategoryFilter = btn.dataset.cat;
-        buildCategoryFilters(); // re-render active state
+        buildCategoryFilters();
         const searchVal = document.getElementById('searchInput').value;
         renderRows(allMovies, searchVal, currentCategoryFilter);
       });
@@ -861,4 +873,4 @@
   switchTab('movies');
 </script>
 </body>
-</html>
+  </html>
