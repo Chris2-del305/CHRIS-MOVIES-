@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>CHRISFLIX · Cinema & Live TV</title>
+  <title>CHRISFLIX · Cinema & 31 Live Channels</title>
   <style>
     * {
       margin: 0;
@@ -479,7 +479,7 @@
 <body>
 
 <header>
-  <div class="logo">⚡ CHRISFLIX</div>
+  <div class="logo">⚡ CHRISFLIX · 31 LIVE</div>
   <div class="nav-links">
     <span class="nav-link active" data-tab="movies">🎬 Movies</span>
     <span class="nav-link" data-tab="live">📺 Live TV</span>
@@ -509,7 +509,7 @@
     <div id="liveRowsContainer" style="padding-top: 8px;"></div>
   </div>
 </div>
-<footer>🎥 CHRISFLIX · premium vibes | Click ⋮ → Admin Panel (password: admin123) | Stream the best</footer>
+<footer>🎥 CHRISFLIX · 31 LIVE channels + Movies | Click ⋮ → Admin Panel (password: admin123)</footer>
 
 <div id="toastMsg" class="toast"></div>
 
@@ -574,7 +574,7 @@
   let currentCategoryFilter = "All";
   let currentSearchTerm = "";
 
-  // Enhanced sample movies with better aesthetics
+  // Sample movies (firestore fallback)
   const sampleMovies = [
     { title: "Neon Dreams", description: "A synthwave journey through lost memories.", genre: "Trending", poster: "https://picsum.photos/id/104/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
     { title: "Last Signal", description: "Edge of sci-fi thriller.", genre: "Action", poster: "https://picsum.photos/id/26/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
@@ -583,16 +583,39 @@
     { title: "Midnight Racer", description: "New release blockbuster.", genre: "New Releases", poster: "https://picsum.photos/id/111/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
   ];
 
-  // LIVE TV CHANNELS - upgraded visuals
+  // ===================== ALL 31 LIVE CHANNELS =====================
   const LIVE_CHANNELS = [
-    { id: "l0", name: "Channels TV Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/d4zDorDl5UE?autoplay=1" },
-    { id: "l1", name: "Global News 24", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
-    { id: "l2", name: "Cinema One", category: "Entertainment", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
-    { id: "l3", name: "NASA Space Live", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
-    { id: "l4", name: "Xtreme Sports", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
-    { id: "l5", name: "Rhythm Live", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
-    { id: "l6", name: "Earth VR", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
-    { id: "l7", name: "Bloomberg West", category: "News", thumb: "https://picsum.photos/id/101/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" }
+    { id: "l0", name: "Channels Television Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/d4zDorDl5UE?autoplay=1" },
+    { id: "l1", name: "Sky News Live (Classic)", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
+    { id: "l2", name: "CNN Intl", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
+    { id: "l3", name: "NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
+    { id: "l4", name: "Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
+    { id: "l5", name: "Music 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
+    { id: "l6", name: "EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
+    { id: "l7", name: "Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" },
+    { id: "l8", name: "Citizen TV Kenya Live", category: "News", thumb: "https://picsum.photos/id/104/300/180", stream: "https://www.youtube.com/embed/Cy2Pc0X1P7w?autoplay=1" },
+    { id: "l9", name: "TV47 Kenya Live", category: "News", thumb: "https://picsum.photos/id/99/300/180", stream: "https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=1" },
+    { id: "l10", name: "KBC Channel 1 Live", category: "News", thumb: "https://picsum.photos/id/100/300/180", stream: "https://www.youtube.com/embed/ZRDj5GXNezw?autoplay=1" },
+    { id: "l11", name: "NOW Canlı Yayın", category: "News", thumb: "https://picsum.photos/id/101/300/180", stream: "https://www.youtube.com/embed/8vlyTcrcchc?autoplay=1" },
+    { id: "l12", name: "KTN News Kenya Live", category: "News", thumb: "https://picsum.photos/id/102/300/180", stream: "https://www.youtube.com/embed/vfnHjFpn1-c?autoplay=1" },
+    { id: "l13", name: "KBS KOREA On-Air", category: "News", thumb: "https://picsum.photos/id/103/300/180", stream: "https://www.youtube.com/embed/OxQQsIvJTTU?autoplay=1" },
+    { id: "l14", name: "NBC News NOW", category: "News", thumb: "https://picsum.photos/id/105/300/180", stream: "https://www.youtube.com/embed/hHpdHz5i3z4?autoplay=1" },
+    { id: "l15", name: "Sky News (Alternate)", category: "News", thumb: "https://picsum.photos/id/106/300/180", stream: "https://www.youtube.com/embed/YDvsBbKfLPA?autoplay=1" },
+    { id: "l16", name: "Sports Live Stream", category: "Sports", thumb: "https://picsum.photos/id/107/300/180", stream: "https://www.youtube.com/embed/MiJIODpKngw?autoplay=1" },
+    { id: "l17", name: "Sports Extra", category: "Sports", thumb: "https://picsum.photos/id/108/300/180", stream: "https://www.youtube.com/embed/LuKwFajn37U?autoplay=1" },
+    { id: "l18", name: "United Nations - LIVE", category: "News", thumb: "https://picsum.photos/id/26/300/180", stream: "https://www.youtube.com/embed/vYRfQo6JMxc?autoplay=1" },
+    { id: "l19", name: "Global News Stream", category: "News", thumb: "https://picsum.photos/id/27/300/180", stream: "https://www.youtube.com/embed/NQjabLGdP5g?autoplay=1" },
+    { id: "l20", name: "Live News Feed", category: "News", thumb: "https://picsum.photos/id/28/300/180", stream: "https://www.youtube.com/embed/dsmA_9cv7iw?autoplay=1" },
+    { id: "l21", name: "Live Broadcast", category: "News", thumb: "https://picsum.photos/id/31/300/180", stream: "https://www.youtube.com/embed/Mv14aabg4mA?autoplay=1" },
+    { id: "l22", name: "Live Stream", category: "News", thumb: "https://picsum.photos/id/32/300/180", stream: "https://www.youtube.com/embed/cm43uXjfvZY?autoplay=1" },
+    { id: "l23", name: "Hits Radio 1", category: "Music", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/3MOrgUjiigE?autoplay=1" },
+    { id: "l24", name: "The Good Life Radio", category: "Music", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/36YnV9STBqc?autoplay=1" },
+    { id: "l25", name: "CoComelon - Nursery Rhymes", category: "Kids", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/F4Tnje7wi-o?autoplay=1" },
+    { id: "l26", name: "JJ's 24/7 Animal Time", category: "Kids", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/bpTReg8lwmQ?autoplay=1" },
+    { id: "l27", name: "Miraculous: Tales of Ladybug & Cat Noir", category: "Kids", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/WuS3O7AcciE?autoplay=1" },
+    { id: "l28", name: "Wizards of Waverly Place LIVE", category: "Kids", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/s1Ylmj87gXY?autoplay=1" },
+    { id: "l29", name: "Disney Channel Live", category: "Kids", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/dt6dEz1rDzo?autoplay=1" },
+    { id: "l30", name: "Live Entertainment Stream", category: "Entertainment", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/ME6mXNmI-Jk?autoplay=1" }
   ];
 
   function showToast(msg) {
@@ -638,7 +661,7 @@
     existingSlides.forEach(s => s.remove());
     if (!movies.length) {
       heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://picsum.photos/id/104/1400/700')"></div>`;
-      document.getElementById('heroContent').innerHTML = `<h1>Welcome to CHRISFLIX</h1><p>Your cinematic universe</p><div class="hero-buttons"><button class="hero-btn play">▶ Explore</button></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to CHRISFLIX</h1><p>Your cinematic universe + 31 live channels</p><div class="hero-buttons"><button class="hero-btn play">▶ Explore</button></div>`;
       return;
     }
     const topMovies = movies.slice(0, 6);
@@ -741,7 +764,7 @@
       container.appendChild(rowDiv);
     });
     const allRow = document.createElement('div'); allRow.className = 'row-container';
-    allRow.innerHTML = `<div class="row-header"><div class="row-title">🌍 All Channels</div></div><div class="horizontal-scroll" id="allChannelsLive"></div>`;
+    allRow.innerHTML = `<div class="row-header"><div class="row-title">🌍 All Channels (31)</div></div><div class="horizontal-scroll" id="allChannelsLive"></div>`;
     const allScroll = allRow.querySelector('.horizontal-scroll');
     LIVE_CHANNELS.forEach(ch => {
       const card = document.createElement('div'); card.className = 'channel-card';
