@@ -436,7 +436,7 @@
 
 <!-- Search + Category Bar -->
 <div class="search-category-area">
-  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search movies...">
+  <input type="text" id="searchInput" class="search-input" placeholder="Search movies...">
   <div class="category-filters" id="categoryFilterBar"></div>
 </div>
 
@@ -498,7 +498,7 @@
 </div>
 
 <script>
-  // Firebase config
+  // Firebase config (same as before)
   const firebaseConfig = {
     apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
     authDomain: "chris-movies-7ba0f.firebaseapp.com",
@@ -517,6 +517,15 @@
   let activeTab = "movies";
   let carouselInterval = null;
   let currentCategoryFilter = "All";
+
+  // Fallback sample movies if Firestore is empty (for demo)
+  const sampleMovies = [
+    { title: "Forever My Girl", description: "A country music star returns to his hometown.", genre: "Trending", poster: "https://image.tmdb.org/t/p/w500/8s9h7q0kLxZrQ8yZxYqVpLcE8gM.jpg", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Action Hero", description: "Non-stop action thriller.", genre: "Action", poster: "https://picsum.photos/id/104/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Laugh Factory", description: "Stand-up comedy special.", genre: "Comedy", poster: "https://picsum.photos/id/20/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Deep Drama", description: "Emotional journey of a family.", genre: "Drama", poster: "https://picsum.photos/id/22/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "New Release 2025", description: "Latest blockbuster.", genre: "New Releases", poster: "https://picsum.photos/id/26/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+  ];
 
   function showToast(msg) {
     const t = document.getElementById('toastMsg');
@@ -553,15 +562,14 @@
     document.getElementById('videoOverlay').style.display = 'block';
   }
 
-  // Hero carousel
   function buildHero(movies) {
     const heroDiv = document.getElementById('heroCarousel');
     heroDiv.innerHTML = '<div class="hero-overlay"></div><div class="hero-content" id="heroContent"></div>';
     const existing = heroDiv.querySelectorAll('.hero-slide');
     existing.forEach(s => s.remove());
     if (!movies.length) {
-      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://placehold.co/1200x700?text=CHRISFLIX')"></div>`;
-      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via admin panel (⋮ menu)</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
+      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://picsum.photos/id/104/1200/700')"></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via Admin Panel (⋮)</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
       return;
     }
     const topMovies = movies.slice(0, 6);
@@ -598,7 +606,6 @@
     }, 6000);
   }
 
-  // Render rows with category + search filter
   function renderRows(movies, searchTerm = "", category = "All") {
     const container = document.getElementById('moviesRowsContainer');
     if (!container) return;
@@ -614,7 +621,6 @@
       container.innerHTML = '<div style="text-align:center; padding:80px;">🎬 No movies match your selection.</div>';
       return;
     }
-    // group by genre
     const genreMap = new Map();
     filtered.forEach(m => {
       const genre = m.genre || "Trending";
@@ -648,7 +654,6 @@
     });
   }
 
-  // Build category filter pills
   function buildCategoryFilters() {
     const categories = ["All", "Trending", "New Releases", "Action", "Comedy", "Drama"];
     const bar = document.getElementById('categoryFilterBar');
@@ -700,7 +705,6 @@
       });
       container.appendChild(rowDiv);
     });
-    // All channels row
     const allRow = document.createElement('div');
     allRow.className = 'row-container';
     allRow.innerHTML = `<div class="row-header"><div class="row-title">All Channels</div></div><div class="horizontal-scroll" id="allChannelsScroll"></div>`;
@@ -720,23 +724,27 @@
     container.appendChild(allRow);
   }
 
-  // Firestore realtime
+  // Firestore realtime + fallback
   moviesCol.onSnapshot(snap => {
     let movies = [];
     snap.forEach(doc => {
       let data = doc.data();
       movies.push({ id: doc.id, ...data });
     });
-    allMovies = movies;
-    if (activeTab === 'movies') {
-      buildHero(movies);
-      const searchVal = document.getElementById('searchInput').value;
-      renderRows(movies, searchVal, currentCategoryFilter);
+    if (movies.length === 0) {
+      // Use sample movies for demo (but don't write to Firestore)
+      allMovies = sampleMovies.map((m, idx) => ({ id: `sample-${idx}`, ...m }));
+    } else {
+      allMovies = movies;
     }
-    updateAdminList(movies);
+    if (activeTab === 'movies') {
+      buildHero(allMovies);
+      const searchVal = document.getElementById('searchInput').value;
+      renderRows(allMovies, searchVal, currentCategoryFilter);
+    }
+    updateAdminList(allMovies);
   });
 
-  // Admin functions
   function updateAdminList(movies) {
     const container = document.getElementById('adminMovieList');
     if (!container) return;
@@ -748,6 +756,10 @@
     `).join('');
   }
   window.deleteMovie = async (id) => {
+    if (id.startsWith('sample-')) {
+      showToast("Sample movie cannot be deleted from Firebase. Add real movies.");
+      return;
+    }
     await moviesCol.doc(id).delete();
     showToast("Movie deleted");
   };
@@ -814,7 +826,6 @@
   }
   auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
 
-  // Tabs and search
   function switchTab(tab) {
     activeTab = tab;
     const moviesDiv = document.getElementById('moviesTab');
@@ -868,9 +879,8 @@
   });
   function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
   
-  // Initialize
   buildCategoryFilters();
   switchTab('movies');
 </script>
 </body>
-  </html>
+</html>
