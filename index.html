@@ -1,661 +1,938 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Netflix Style UI | Stream now</title>
-    <!-- Google Fonts and simple CSS reset -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (free icons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>CHRISFLIX · Movies & Live TV</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            background-color: #141414;
-            font-family: 'Inter', sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-        }
+    body {
+      background-color: #141414;
+      color: #ffffff;
+      font-family: 'Netflix Sans', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
+      overflow-x: hidden;
+    }
 
-        /* Netflix-style scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #222;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #e50914;
-            border-radius: 6px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #f40612;
-        }
+    /* Custom scrollbar — Netflix style */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #2c2c2c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #e50914;
+      border-radius: 8px;
+    }
 
-        /* navigation bar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem 4%;
-            background: linear-gradient(to bottom, #000000cc 0%, #00000000 100%);
-            z-index: 100;
-            transition: background 0.3s ease;
-        }
-        /* background solid after scroll */
-        .navbar.scrolled {
-            background: #0a0a0a;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-        .netflix-logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #e50914;
-            letter-spacing: -1px;
-            text-transform: uppercase;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-        .netflix-logo span {
-            font-weight: 900;
-            background: #e50914;
-            color: #000;
-            border-radius: 4px;
-            padding: 0 4px;
-            margin-right: 2px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 1.2rem;
-            list-style: none;
-        }
-        .nav-links li a {
-            color: #e5e5e5;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-        .nav-links li a:hover {
-            color: #b3b3b3;
-        }
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 1.3rem;
-        }
-        .nav-right i {
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #e5e5e5;
-            transition: 0.2s;
-        }
-        .nav-right i:hover {
-            color: #fff;
-        }
-        .avatar {
-            width: 32px;
-            height: 32px;
-            background: #b20710;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    /* Netflix-style header */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: linear-gradient(to bottom, #000000 0%, rgba(0, 0, 0, 0.85) 100%);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4%;
+      height: 70px;
+      z-index: 1100;
+      transition: background 0.3s ease;
+    }
 
-        /* hero section (featured) */
-        .hero {
-            position: relative;
-            height: 85vh;
-            min-height: 560px;
-            background: linear-gradient(77deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 85%), url('https://assets.nflxext.com/ffe/siteui/vlv3/ff5582c4-d42e-45f1-b3d0-bc6c7c3a0f65/4034b1fe-2d4b-414a-aaac-afd1672a384b/BR-pt-20250106-TRIFECTA-perspective_WEB_3ba0b6d1-3b67-4742-9e7b-0876f8e3fd51_large.jpg') center/cover no-repeat;
-        }
-        .hero-content {
-            position: absolute;
-            bottom: 20%;
-            left: 4%;
-            max-width: 550px;
-            width: 90%;
-        }
-        .badge {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(4px);
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-        }
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 800;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-            letter-spacing: -0.5px;
-        }
-        .hero-desc {
-            font-size: 1rem;
-            line-height: 1.4;
-            margin: 1rem 0 1.5rem;
-            color: #ddd;
-            max-width: 500px;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .btn-primary {
-            background: white;
-            color: black;
-            border: none;
-            padding: 0.6rem 2rem;
-            border-radius: 4px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-        .btn-primary i {
-            font-size: 1.1rem;
-        }
-        .btn-primary:hover {
-            background: rgba(255,255,255,0.85);
-        }
-        .btn-secondary {
-            background: rgba(109,109,110,0.7);
-            backdrop-filter: blur(4px);
-            border: none;
-            color: white;
-            padding: 0.6rem 2rem;
-            border-radius: 4px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .btn-secondary:hover {
-            background: rgba(109,109,110,0.9);
-        }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e50914, #ff4d4d);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      cursor: pointer;
+      font-family: inherit;
+    }
 
-        /* movie rows */
-        .row {
-            margin: 2rem 0 2rem 2.5rem;
-        }
-        .row-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 0.8rem;
-            margin-right: 2rem;
-        }
-        .row-header h2 {
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-        .row-header a {
-            color: #a3a3a3;
-            font-size: 0.85rem;
-            text-decoration: none;
-        }
-        .row-header a:hover {
-            text-decoration: underline;
-        }
-        .slider {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-behavior: smooth;
-            padding-bottom: 1rem;
-        }
-        .slider::-webkit-scrollbar {
-            height: 4px;
-        }
-        .movie-card {
-            flex: 0 0 auto;
-            width: 210px;
-            transition: transform 0.3s ease, box-shadow 0.2s;
-            border-radius: 6px;
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
-        }
-        .movie-card:hover {
-            transform: scale(1.05);
-            z-index: 2;
-        }
-        .movie-img {
-            width: 210px;
-            height: 118px;
-            object-fit: cover;
-            display: block;
-            border-radius: 6px;
-            background: #1f1f1f;
-        }
-        .movie-info {
-            padding: 6px 4px;
-        }
-        .movie-title {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .movie-year {
-            font-size: 0.7rem;
-            color: #aaa;
-        }
-        /* for larger cards (trending) optional different sizing */
-        .large-card {
-            width: 250px;
-        }
-        .large-card .movie-img {
-            width: 250px;
-            height: 140px;
-        }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      margin-left: 40px;
+    }
+    .nav-link {
+      color: #e5e5e5;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .nav-link.active {
+      color: #e50914;
+      font-weight: 600;
+    }
+    .nav-link:hover {
+      color: #b3b3b3;
+    }
 
-        /* footer / netflix style */
-        .footer {
-            margin-top: 3rem;
-            background: #0a0a0a;
-            padding: 2rem 4%;
-            color: #808080;
-            font-size: 0.75rem;
-            border-top: 1px solid #222;
-        }
-        .footer-icons {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1.2rem;
-        }
-        .footer-icons i {
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        .footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem 2rem;
-            max-width: 800px;
-            margin-bottom: 1rem;
-        }
-        .footer-links a {
-            color: #808080;
-            text-decoration: none;
-            font-size: 0.7rem;
-        }
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-        .service-code {
-            border: 1px solid #808080;
-            padding: 6px 12px;
-            display: inline-block;
-            margin: 1rem 0;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-        .copyright {
-            font-size: 0.65rem;
-        }
+    .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
 
-        /* responsiveness */
-        @media (max-width: 800px) {
-            .nav-links {
-                display: none;
-            }
-            .hero-title {
-                font-size: 2rem;
-            }
-            .row {
-                margin-left: 1rem;
-            }
-            .movie-card {
-                width: 150px;
-            }
-            .movie-img {
-                width: 150px;
-                height: 84px;
-            }
-            .large-card {
-                width: 180px;
-            }
-            .large-card .movie-img {
-                width: 180px;
-                height: 101px;
-            }
-        }
-        @media (max-width: 500px) {
-            .hero-buttons {
-                flex-direction: column;
-                width: 80%;
-            }
-        }
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 6px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      border: 1px solid #2f2f2f;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
 
-        /* floating gradient */
-        .overlay-blur {
-            pointer-events: none;
-        }
-        .row h2 {
-            margin-left: 0;
-        }
-    </style>
+    .auth-btn {
+      background: #e50914;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .auth-btn:hover {
+      background: #f6121d;
+    }
+
+    .three-dots {
+      background: #1a1a1a;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #e50914;
+    }
+    .three-dots:hover {
+      background: #e50914;
+      transform: scale(1.02);
+    }
+
+    /* Netflix-style dropdown */
+    .dropdown-menu {
+      position: absolute;
+      top: 70px;
+      right: 4%;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 8px;
+      width: 210px;
+      display: none;
+      z-index: 1200;
+      border: 1px solid #2f2f2f;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    }
+    .dropdown-menu button {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 12px 20px;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .dropdown-menu button:hover {
+      background: #e50914;
+    }
+
+    /* Search + category row (Netflix style) */
+    .search-category-area {
+      margin: 90px 4% 20px 4%;
+    }
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 18px;
+      border-radius: 30px;
+      background: #1f1f1f;
+      border: 1px solid #333;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+    .search-input:focus {
+      border-color: #e50914;
+      background: #2a2a2a;
+    }
+
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .category-pill {
+      background: #1f1f1f;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 30px;
+      color: #e5e5e5;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .category-pill.active, .category-pill:hover {
+      background: #e50914;
+      color: white;
+    }
+
+    /* Hero Carousel — Netflix hero style */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      min-height: 550px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    .hero-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center 20%;
+      opacity: 0;
+      transition: opacity 1s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .hero-slide.active {
+      opacity: 1;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, #141414 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.2) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: absolute;
+      bottom: 30%;
+      left: 4%;
+      z-index: 2;
+      max-width: 50%;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    }
+    .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+    .hero-content p {
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+      opacity: 0.9;
+      max-width: 550px;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+    }
+    .hero-btn {
+      background: rgba(109, 109, 110, 0.7);
+      backdrop-filter: blur(8px);
+      border: none;
+      padding: 10px 28px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .hero-btn.play {
+      background: white;
+      color: black;
+    }
+    .hero-btn.play:hover {
+      background: rgba(255,255,255,0.85);
+    }
+    .hero-btn:hover {
+      background: rgba(80,80,80,0.8);
+    }
+
+    /* Netflix-style rows */
+    .row-container {
+      margin-bottom: 50px;
+      padding-left: 4%;
+    }
+    .row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      padding-right: 4%;
+    }
+    .row-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .horizontal-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      scroll-behavior: smooth;
+      padding-bottom: 12px;
+    }
+    .horizontal-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    /* Movie card — Netflix hover effect + sleek design */
+    .movie-card {
+      flex: 0 0 200px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.2s;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #141414;
+      position: relative;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      z-index: 20;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      transition: opacity 0.2s;
+    }
+    .movie-card-info {
+      padding: 8px 6px;
+    }
+    .movie-title {
+      font-weight: 500;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #e5e5e5;
+    }
+
+    /* Live TV card netflix style */
+    .channel-card {
+      flex: 0 0 200px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+    }
+    .channel-card:hover {
+      transform: scale(1.03);
+    }
+    .channel-thumb {
+      width: 100%;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .channel-thumb::after {
+      content: "LIVE";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #e50914;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+    .channel-name {
+      padding: 12px;
+      font-weight: 500;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* Netflix modal style (video) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.98);
+      backdrop-filter: blur(20px);
+      z-index: 2000;
+      display: none;
+    }
+    .modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #181818;
+      padding: 28px;
+      border-radius: 16px;
+      width: 460px;
+      max-width: 92%;
+      z-index: 2100;
+      border: 1px solid #333;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.8);
+    }
+    .modal h3 {
+      color: #e50914;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    .modal input, .modal select {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      background: #2c2c2c;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.9rem;
+    }
+    .btn-red {
+      background: #e50914;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      color: white;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .close-icon {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #aaa;
+      transition: 0.2s;
+    }
+    .close-icon:hover {
+      color: white;
+    }
+    #videoModal {
+      width: 90%;
+      max-width: 1100px;
+      background: #000;
+      padding: 6px;
+      border-radius: 12px;
+    }
+    #videoPlayer iframe, #videoPlayer video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      background: black;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f1f1f;
+      padding: 10px 24px;
+      border-radius: 40px;
+      display: none;
+      z-index: 3000;
+      border-left: 4px solid #e50914;
+      color: white;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+    }
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #6c6c6c;
+      border-top: 1px solid #262626;
+      margin-top: 20px;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-content h1 { font-size: 2rem; }
+      .hero-content { max-width: 80%; bottom: 20%; }
+      .movie-card { flex: 0 0 150px; }
+      .movie-card img { height: 220px; }
+      .hero { height: 65vh; }
+      .row-title { font-size: 1.2rem; }
+      .nav-links { gap: 16px; margin-left: 15px; }
+      .category-pill { padding: 6px 16px; font-size: 0.75rem; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-<!-- Navigation: authentic netflix look -->
-<nav class="navbar" id="navbar">
-    <div class="nav-left">
-        <div class="netflix-logo"><span>N</span>ETFLIX</div>
-        <ul class="nav-links">
-            <li><a href="#">Início</a></li>
-            <li><a href="#">Séries</a></li>
-            <li><a href="#">Filmes</a></li>
-            <li><a href="#">Bombando</a></li>
-            <li><a href="#">Minha lista</a></li>
-            <li><a href="#">Explorar por idiomas</a></li>
-        </ul>
-    </div>
-    <div class="nav-right">
-        <i class="fas fa-search"></i>
-        <i class="fas fa-bell"></i>
-        <div class="avatar"><i class="fas fa-user" style="font-size: 1rem;"></i></div>
-    </div>
-</nav>
+<header>
+  <div class="logo">CHRISFLIX</div>
+  <div class="nav-links">
+    <span class="nav-link active" data-tab="movies">Movies</span>
+    <span class="nav-link" data-tab="live">Live TV</span>
+  </div>
+  <div class="right-controls">
+    <div class="user-badge" id="userBtn" style="display: none;">👤 <span id="userEmailSpan"></span></div>
+    <button class="auth-btn" id="signInBtn">Sign In</button>
+    <div class="three-dots" id="threeDotsBtn">⋮</div>
+  </div>
+  <div class="dropdown-menu" id="dropdownMenu">
+    <button id="adminPanelBtn">🔧 Admin Panel</button>
+    <button id="logoutBtn">🚪 Sign Out</button>
+  </div>
+</header>
 
-<!-- Hero banner / featured content -->
-<div class="hero">
-    <div class="hero-content">
-        <div class="badge">LANÇAMENTO MAIS ESPERADO</div>
-        <div class="hero-title">STRANGER THINGS</div>
-        <div class="hero-desc">O grupo de amigos enfrenta o Mundo Invertido e criaturas aterrorizantes. A quinta e última temporada em breve.</div>
-        <div class="hero-buttons">
-            <button class="btn-primary"><i class="fas fa-play"></i> Assistir</button>
-            <button class="btn-secondary"><i class="fas fa-info-circle"></i> Mais informações</button>
-        </div>
-    </div>
+<div class="search-category-area">
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search movies...">
+  <div class="category-filters" id="categoryFilterBar"></div>
 </div>
 
-<!-- MAIN ROWS: netflix style rows with categories -->
-<main style="margin-top: -80px; position: relative; background: #141414;">
-    <!-- Row 1: Trending Now -->
-    <div class="row">
-        <div class="row-header">
-            <h2>🔥 Trending Agora</h2>
-            <a href="#">Ver tudo <i class="fas fa-chevron-right"></i></a>
-        </div>
-        <div class="slider" id="trendingRow">
-            <!-- cards added via js dynamic + fallback -->
-        </div>
-    </div>
+<div class="main-container">
+  <div id="moviesTab">
+    <div class="hero" id="heroCarousel"></div>
+    <div id="moviesRowsContainer"></div>
+  </div>
+  <div id="liveTab" style="display: none;">
+    <div id="liveRowsContainer" style="padding-top: 20px;"></div>
+  </div>
+</div>
+<footer>© ChrisFlix — The ultimate streaming experience. Click ⋮ (three dots) → Admin Panel (password: admin123) to add movies.</footer>
 
-    <!-- Row 2: Original Netflix (large cards) -->
-    <div class="row">
-        <div class="row-header">
-            <h2>Originais Netflix</h2>
-            <a href="#">Ver tudo <i class="fas fa-chevron-right"></i></a>
-        </div>
-        <div class="slider" id="originalsRow"></div>
-    </div>
+<div id="toastMsg" class="toast"></div>
 
-    <!-- Row 3: Top 10 no Brasil hoje -->
-    <div class="row">
-        <div class="row-header">
-            <h2>Top 10 no Brasil hoje</h2>
-            <a href="#">Veja o ranking <i class="fas fa-chevron-right"></i></a>
-        </div>
-        <div class="slider" id="top10Row"></div>
-    </div>
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authOverlay"></div>
+<div class="modal" id="authModal">
+  <button class="close-icon" id="closeAuthX">&times;</button>
+  <h3 id="authTitle">Sign In</h3>
+  <input type="email" id="authEmail" placeholder="Email">
+  <input type="password" id="authPassword" placeholder="Password">
+  <button id="authSubmitBtn" class="btn-red">Sign In</button>
+  <button id="switchAuthBtn" style="background:transparent; color:#e50914; margin-top: 12px; border:none; cursor:pointer;">Create account →</button>
+  <button id="cancelAuthBtn" class="btn-red" style="background:#2a2a2a; margin-top: 12px;">Cancel</button>
+</div>
 
-    <!-- Row 4: Ação e aventura -->
-    <div class="row">
-        <div class="row-header">
-            <h2>Ação & Aventura</h2>
-            <a href="#">Mais <i class="fas fa-chevron-right"></i></a>
-        </div>
-        <div class="slider" id="actionRow"></div>
-    </div>
-</main>
+<!-- Video Modal -->
+<div class="modal-overlay" id="videoOverlay"></div>
+<div class="modal" id="videoModal">
+  <button class="close-icon" id="closeVideoX">&times;</button>
+  <div id="videoPlayer"></div>
+</div>
 
-<!-- Footer similar to Netflix -->
-<footer class="footer">
-    <div class="footer-icons">
-        <i class="fab fa-instagram"></i>
-        <i class="fab fa-twitter"></i>
-        <i class="fab fa-youtube"></i>
-        <i class="fab fa-facebook"></i>
-    </div>
-    <div class="footer-links">
-        <a href="#">Audiodescrição</a>
-        <a href="#">Relações com investidores</a>
-        <a href="#">Avisos legais</a>
-        <a href="#">Central de Ajuda</a>
-        <a href="#">Carreiras</a>
-        <a href="#">Privacidade</a>
-        <a href="#">Preferências de cookies</a>
-        <a href="#">Informações corporativas</a>
-        <a href="#">Termos de uso</a>
-        <a href="#">Entre em contato</a>
-    </div>
-    <div class="service-code">Código do serviço</div>
-    <div class="copyright">© 1997-2025 Netflix, Inc.  - interface inspirada | streaming simulação</div>
-</footer>
+<!-- Admin Panel Modal -->
+<div class="modal-overlay" id="adminOverlay"></div>
+<div class="modal" id="adminModal">
+  <button class="close-icon" id="closeAdminX">&times;</button>
+  <h3>Admin Panel · Add Movie</h3>
+  <input type="file" id="adminPoster" accept="image/*">
+  <input type="text" id="adminTitle" placeholder="Movie title">
+  <input type="text" id="adminDesc" placeholder="Short description">
+  <select id="adminGenre">
+    <option value="Trending">Trending</option>
+    <option value="New Releases">New Releases</option>
+    <option value="Action">Action</option>
+    <option value="Comedy">Comedy</option>
+    <option value="Drama">Drama</option>
+  </select>
+  <input type="url" id="adminYoutube" placeholder="YouTube link">
+  <input type="url" id="adminVideoUrl" placeholder="Direct MP4 URL">
+  <button onclick="addMovieFromAdmin()" class="btn-red">➕ Add Movie</button>
+  <h4 style="margin: 20px 0 10px;">🗑️ Delete Movies</h4>
+  <div id="adminMovieList" style="max-height: 240px; overflow-y: auto;"></div>
+</div>
 
 <script>
-    // ---------- NETFLIX-LIKE DATA (movies / series placeholder) ----------
-    // Using high quality placeholder images from unsplash / themoviedb style but using reliable placeholder service: 
-    // Using loremflick? For safety we use placeholder images from "picsum" but with cinematic ratio + netflix mock.
-    // We'll use images that look like movie posters using placeholder cat? no, better: placeholder image with 16:9 ratio and overlay text.
-    // Use "via.placeholder.com" doesn't look netflix, so I'll use images from "picsum" with id based + netflix vibe.
-    // Also using some streaming-themed: random images but each card gets a cinematic "tv show" look.
-    const defaultImages = [
-        'https://picsum.photos/id/104/300/168', // nature but looks cinematic
-        'https://picsum.photos/id/20/300/168',
-        'https://picsum.photos/id/155/300/168',
-        'https://picsum.photos/id/163/300/168',
-        'https://picsum.photos/id/177/300/168',
-        'https://picsum.photos/id/29/300/168',
-        'https://picsum.photos/id/91/300/168',
-        'https://picsum.photos/id/36/300/168',
-        'https://picsum.photos/id/96/300/168',
-        'https://picsum.photos/id/106/300/168'
-    ];
+  // Firebase config (same as original)
+  const firebaseConfig = {
+    apiKey: "AIzaSyASC5piaFqMnPbuXspM1c6_KE8A1sPLq2s",
+    authDomain: "chris-movies-7ba0f.firebaseapp.com",
+    projectId: "chris-movies-7ba0f",
+    storageBucket: "chris-movies-7ba0f.firebasestorage.app",
+    messagingSenderId: "867998448675",
+    appId: "1:867998448675:web:8798f2286ca8d1b3e78596"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const moviesCol = db.collection('movies');
 
-    // Trending data (names & years)
-    const trendingTitles = [
-        { title: "Round 6", year: "2024", imgIdx: 0 },
-        { title: "The Crown", year: "2023", imgIdx: 1 },
-        { title: "Wednesday", year: "2022", imgIdx: 2 },
-        { title: "Lupin", year: "2023", imgIdx: 3 },
-        { title: "Avatar: Fogo e Cinzas", year: "2025", imgIdx: 4 },
-        { title: "One Piece", year: "2023", imgIdx: 5 },
-        { title: "Bridgerton", year: "2024", imgIdx: 6 },
-        { title: "Dark", year: "2020", imgIdx: 7 },
-        { title: "La Casa de Papel", year: "2021", imgIdx: 8 },
-        { title: "Griselda", year: "2024", imgIdx: 9 }
-    ];
+  let allMovies = [];
+  let currentUser = null;
+  let activeTab = "movies";
+  let carouselInterval = null;
+  let currentCategoryFilter = "All";
 
-    const originalsTitles = [
-        { title: "Stranger Things 5", year: "2025", imgIdx: 2 },
-        { title: "The Witcher", year: "2023", imgIdx: 0 },
-        { title: "Emily in Paris", year: "2024", imgIdx: 4 },
-        { title: "Squid Game 2", year: "2024", imgIdx: 1 },
-        { title: "Glass Onion", year: "2022", imgIdx: 6 },
-        { title: "The Gray Man", year: "2022", imgIdx: 8 },
-        { title: "Rebel Moon", year: "2023", imgIdx: 5 },
-        { title: "Berlin", year: "2023", imgIdx: 3 }
-    ];
+  // sample demo movies fallback
+  const sampleMovies = [
+    { title: "Forever My Girl", description: "A country music star returns to his hometown.", genre: "Trending", poster: "https://image.tmdb.org/t/p/w500/8s9h7q0kLxZrQ8yZxYqVpLcE8gM.jpg", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Action Hero", description: "Non-stop action thriller.", genre: "Action", poster: "https://picsum.photos/id/104/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Laugh Factory", description: "Stand-up comedy special.", genre: "Comedy", poster: "https://picsum.photos/id/20/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "Deep Drama", description: "Emotional journey of a family.", genre: "Drama", poster: "https://picsum.photos/id/22/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { title: "New Release 2025", description: "Latest blockbuster.", genre: "New Releases", poster: "https://picsum.photos/id/26/300/450", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+  ];
 
-    const top10Titles = [
-        { title: "Todo mundo odeia o Chris", year: "2005", imgIdx: 3 },
-        { title: "The Walking Dead", year: "2023", imgIdx: 1 },
-        { title: "Brooklyn 99", year: "2021", imgIdx: 4 },
-        { title: "Arcane", year: "2024", imgIdx: 2 },
-        { title: "Supernatural", year: "2020", imgIdx: 7 },
-        { title: "Rick and Morty", year: "2023", imgIdx: 9 }
-    ];
+  function showToast(msg) {
+    const t = document.getElementById('toastMsg');
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2800);
+  }
 
-    const actionTitles = [
-        { title: "Extraction 2", year: "2023", imgIdx: 0 },
-        { title: "John Wick 4", year: "2023", imgIdx: 1 },
-        { title: "The Killer", year: "2023", imgIdx: 5 },
-        { title: "Mission Impossible 7", year: "2023", imgIdx: 6 },
-        { title: "Bullet Train", year: "2022", imgIdx: 4 },
-        { title: "Nobody 2", year: "2025", imgIdx: 3 },
-        { title: "Heart of Stone", year: "2023", imgIdx: 2 }
-    ];
+  function playVideo(movie) {
+    const src = movie.youtubeUrl || movie.videoUrl;
+    if (!src) { showToast("No video source available"); return; }
+    const container = document.getElementById('videoPlayer');
+    container.innerHTML = '';
+    const isYoutube = !!movie.youtubeUrl;
+    if (isYoutube) {
+      let vidId = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+      let embed = vidId ? `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0&modestbranding=1` : src;
+      const iframe = document.createElement('iframe');
+      iframe.src = embed;
+      iframe.allowFullscreen = true;
+      iframe.style.width = '100%';
+      iframe.style.aspectRatio = '16/9';
+      iframe.allow = 'autoplay; encrypted-media';
+      container.appendChild(iframe);
+    } else {
+      const video = document.createElement('video');
+      video.src = src;
+      video.controls = true;
+      video.autoplay = true;
+      video.style.width = '100%';
+      container.appendChild(video);
+    }
+    document.getElementById('videoModal').style.display = 'block';
+    document.getElementById('videoOverlay').style.display = 'block';
+  }
 
-    // Helper: Build movie cards
-    function buildCard(item, isLarge = false) {
-        const imgUrl = defaultImages[item.imgIdx % defaultImages.length];
-        const cardDiv = document.createElement('div');
-        cardDiv.className = `movie-card ${isLarge ? 'large-card' : ''}`;
-        cardDiv.setAttribute('data-title', item.title);
-        // netflix hover effect simulation with title overlay quick
-        cardDiv.innerHTML = `
-            <img class="movie-img" src="${imgUrl}" alt="${item.title}" loading="lazy" onerror="this.src='https://picsum.photos/id/104/300/168'">
-            <div class="movie-info">
-                <div class="movie-title">${item.title}</div>
-                <div class="movie-year">${item.year}</div>
-            </div>
+  function buildHero(movies) {
+    const heroDiv = document.getElementById('heroCarousel');
+    heroDiv.innerHTML = '<div class="hero-overlay"></div><div class="hero-content" id="heroContent"></div>';
+    const existing = heroDiv.querySelectorAll('.hero-slide');
+    existing.forEach(s => s.remove());
+    if (!movies.length) {
+      heroDiv.innerHTML += `<div class="hero-slide active" style="background-image: url('https://picsum.photos/id/104/1200/700')"></div>`;
+      document.getElementById('heroContent').innerHTML = `<h1>Welcome to ChrisFlix</h1><p>Add movies via Admin Panel (⋮)</p><div class="hero-buttons"><button class="hero-btn play">▶ Play</button></div>`;
+      return;
+    }
+    const topMovies = movies.slice(0, 6);
+    topMovies.forEach((m, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'hero-slide';
+      if (idx === 0) slide.classList.add('active');
+      slide.style.backgroundImage = `url('${m.poster}')`;
+      heroDiv.appendChild(slide);
+    });
+    let currentIndex = 0;
+    const updateHeroText = (movie) => {
+      const heroContent = document.getElementById('heroContent');
+      heroContent.innerHTML = `
+        <h1>${escapeHtml(movie.title)}</h1>
+        <p>${escapeHtml(movie.description || 'Now streaming exclusively')}</p>
+        <div class="hero-buttons">
+          <button class="hero-btn play" data-id="${movie.id}">▶ Play</button>
+          <button class="hero-btn">More Info</button>
+        </div>
+      `;
+      const playBtn = heroContent.querySelector('.hero-btn.play');
+      playBtn.addEventListener('click', () => playVideo(movie));
+    };
+    if (topMovies[0]) updateHeroText(topMovies[0]);
+    if (carouselInterval) clearInterval(carouselInterval);
+    carouselInterval = setInterval(() => {
+      const slides = heroDiv.querySelectorAll('.hero-slide');
+      if (!slides.length) return;
+      slides[currentIndex].classList.remove('active');
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].classList.add('active');
+      if (topMovies[currentIndex]) updateHeroText(topMovies[currentIndex]);
+    }, 6000);
+  }
+
+  function renderRows(movies, searchTerm = "", category = "All") {
+    const container = document.getElementById('moviesRowsContainer');
+    if (!container) return;
+    container.innerHTML = "";
+    let filtered = movies;
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(m => m.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    if (category !== "All") {
+      filtered = filtered.filter(m => (m.genre || "Trending") === category);
+    }
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:80px; color:#aaa;">🎬 No movies match your selection.</div>';
+      return;
+    }
+    const genreMap = new Map();
+    filtered.forEach(m => {
+      const genre = m.genre || "Trending";
+      if (!genreMap.has(genre)) genreMap.set(genre, []);
+      genreMap.get(genre).push(m);
+    });
+    const orderedGenres = ["Trending", "New Releases", "Action", "Comedy", "Drama"];
+    const allGenres = [...orderedGenres, ...Array.from(genreMap.keys()).filter(g => !orderedGenres.includes(g))];
+    allGenres.forEach(genre => {
+      const moviesInGenre = genreMap.get(genre);
+      if (!moviesInGenre || moviesInGenre.length === 0) return;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row-container';
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">${genre}</div></div><div class="horizontal-scroll" id="scroll-${genre.replace(/\s/g,'')}"></div>`;
+      const scrollDiv = rowDiv.querySelector('.horizontal-scroll');
+      moviesInGenre.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `
+          <img src="${movie.poster || 'https://placehold.co/300x450?text=No+Poster'}" alt="${escapeHtml(movie.title)}">
+          <div class="movie-card-info"><div class="movie-title">${escapeHtml(movie.title)}</div></div>
         `;
-        cardDiv.addEventListener('click', () => {
-            alert(`🎬 Assistir "${item.title}" (simulação Netflix). Streaming não incluído 😉`);
+        card.addEventListener('click', () => playVideo(movie));
+        scrollDiv.appendChild(card);
+      });
+      container.appendChild(rowDiv);
+    });
+  }
+
+  function buildCategoryFilters() {
+    const categories = ["All", "Trending", "New Releases", "Action", "Comedy", "Drama"];
+    const bar = document.getElementById('categoryFilterBar');
+    bar.innerHTML = categories.map(cat => `<button class="category-pill ${currentCategoryFilter === cat ? 'active' : ''}" data-cat="${cat}">${cat}</button>`).join('');
+    bar.querySelectorAll('.category-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentCategoryFilter = btn.dataset.cat;
+        buildCategoryFilters();
+        const searchVal = document.getElementById('searchInput').value;
+        renderRows(allMovies, searchVal, currentCategoryFilter);
+      });
+    });
+  }
+
+  // Live TV channels (Netflix style)
+  const LIVE_CHANNELS = [
+    { id: "l1", name: "Sky News Live", category: "News", thumb: "https://picsum.photos/id/20/300/180", stream: "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1" },
+    { id: "l2", name: "CNN Intl", category: "News", thumb: "https://picsum.photos/id/30/300/180", stream: "https://www.youtube.com/embed/mMFUYw5t-ng?autoplay=1" },
+    { id: "l3", name: "NASA TV", category: "Entertainment", thumb: "https://picsum.photos/id/96/300/180", stream: "https://www.youtube.com/embed/21X5lGlDOfg?autoplay=1" },
+    { id: "l4", name: "Red Bull TV", category: "Sports", thumb: "https://picsum.photos/id/29/300/180", stream: "https://www.youtube.com/embed/6fkJ-tBQfUw?autoplay=1" },
+    { id: "l5", name: "Music 24/7", category: "Music", thumb: "https://picsum.photos/id/44/300/180", stream: "https://www.youtube.com/embed/1w7OgIMMRc4?autoplay=1" },
+    { id: "l6", name: "EarthCam Live", category: "Entertainment", thumb: "https://picsum.photos/id/22/300/180", stream: "https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1" },
+    { id: "l7", name: "Bloomberg Live", category: "News", thumb: "https://picsum.photos/id/15/300/180", stream: "https://www.youtube.com/embed/fjGXs7I_KZo?autoplay=1" }
+  ];
+  function renderLiveTV() {
+    const container = document.getElementById('liveRowsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    const categories = [...new Set(LIVE_CHANNELS.map(ch => ch.category))];
+    categories.forEach(cat => {
+      const filtered = LIVE_CHANNELS.filter(ch => ch.category === cat);
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row-container';
+      rowDiv.innerHTML = `<div class="row-header"><div class="row-title">${cat}</div></div><div class="horizontal-scroll" id="live-${cat.replace(/\s/g,'')}"></div>`;
+      const scroll = rowDiv.querySelector('.horizontal-scroll');
+      filtered.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = 'channel-card';
+        card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
+        card.addEventListener('click', () => {
+          const playerDiv = document.getElementById('videoPlayer');
+          playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9; border-radius:8px;"></iframe>`;
+          document.getElementById('videoModal').style.display = 'block';
+          document.getElementById('videoOverlay').style.display = 'block';
         });
-        return cardDiv;
-    }
-
-    // Populate rows
-    const trendingRow = document.getElementById('trendingRow');
-    trendingTitles.forEach(item => trendingRow.appendChild(buildCard(item, false)));
-
-    const originalsRow = document.getElementById('originalsRow');
-    originalsTitles.forEach(item => originalsRow.appendChild(buildCard(item, true))); // larger style
-
-    const top10Row = document.getElementById('top10Row');
-    top10Titles.forEach(item => top10Row.appendChild(buildCard(item, false)));
-
-    const actionRow = document.getElementById('actionRow');
-    actionTitles.forEach(item => actionRow.appendChild(buildCard(item, false)));
-
-    // optional add more cards to make rows scrollable and netflix rich
-    // duplicate some fake extra to get smooth scrolling? Already fine with 6-10 items.
-
-    // extra: enhance all sliders with gradient ends? Not needed but adds netflix overflow feel
-    const sliders = document.querySelectorAll('.slider');
-    sliders.forEach(slider => {
-        // simulate smooth scrolling with mouse wheel? not mandatory but native overflow is fine
-        // add left/right shadow for style? but will not implement extra
+        scroll.appendChild(card);
+      });
+      container.appendChild(rowDiv);
     });
-
-    // Scroll navbar effect: background turns black after scrolling
-    window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+    const allRow = document.createElement('div');
+    allRow.className = 'row-container';
+    allRow.innerHTML = `<div class="row-header"><div class="row-title">All Channels</div></div><div class="horizontal-scroll" id="allChannelsScroll"></div>`;
+    const allScroll = allRow.querySelector('.horizontal-scroll');
+    LIVE_CHANNELS.forEach(ch => {
+      const card = document.createElement('div');
+      card.className = 'channel-card';
+      card.innerHTML = `<div class="channel-thumb" style="background-image: url('${ch.thumb}');"></div><div class="channel-name">${escapeHtml(ch.name)}</div>`;
+      card.addEventListener('click', () => {
+        const playerDiv = document.getElementById('videoPlayer');
+        playerDiv.innerHTML = `<iframe src="${ch.stream}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen style="width:100%; aspect-ratio:16/9;"></iframe>`;
+        document.getElementById('videoModal').style.display = 'block';
+        document.getElementById('videoOverlay').style.display = 'block';
+      });
+      allScroll.appendChild(card);
     });
+    container.appendChild(allRow);
+  }
 
-    // add dynamic hero backdrop extra effect
-    // interactive search/bell alerts (just console feedback)
-    const searchIcon = document.querySelector('.fa-search');
-    if(searchIcon) {
-        searchIcon.addEventListener('click', () => alert("🔍 Busca estilo Netflix (funcionalidade demo)"));
+  // Firestore realtime sync
+  moviesCol.onSnapshot(snap => {
+    let movies = [];
+    snap.forEach(doc => { movies.push({ id: doc.id, ...doc.data() }); });
+    if (movies.length === 0) allMovies = sampleMovies.map((m, idx) => ({ id: `sample-${idx}`, ...m }));
+    else allMovies = movies;
+    if (activeTab === 'movies') {
+      buildHero(allMovies);
+      const searchVal = document.getElementById('searchInput').value;
+      renderRows(allMovies, searchVal, currentCategoryFilter);
     }
-    const bellIcon = document.querySelector('.fa-bell');
-    if(bellIcon) {
-        bellIcon.addEventListener('click', () => alert("📢 Notificações: 'Stranger Things nova temporada em breve!'"));
-    }
-    const avatarDiv = document.querySelector('.avatar');
-    if(avatarDiv) {
-        avatarDiv.addEventListener('click', () => alert("Perfil: Gerenciar contas, configurações e muito mais."));
-    }
+    updateAdminList(allMovies);
+  });
 
-    // add window resize / responsiveness no extra needed
-    // also minor hero buttons alerts:
-    const playButton = document.querySelector('.btn-primary');
-    const infoButton = document.querySelector('.btn-secondary');
-    if(playButton) {
-        playButton.addEventListener('click', () => alert("▶️ Reproduzindo Stranger Things (demonstração)"));
-    }
-    if(infoButton) {
-        infoButton.addEventListener('click', () => alert("📄 Informações: Série original Netflix, 5 temporadas, classificação: 16+"));
-    }
+  function updateAdminList(movies) {
+    const container = document.getElementById('adminMovieList');
+    if (!container) return;
+    container.innerHTML = movies.map(m => `
+      <div style="display:flex; justify-content:space-between; background:#1f1f1f; margin:8px 0; padding:8px 12px; border-radius:40px;">
+        <span style="font-size:13px;">${escapeHtml(m.title)}</span>
+        <button onclick="deleteMovie('${m.id}')" style="background:#e50914; border:none; padding:4px 12px; border-radius:30px; color:white; cursor:pointer;">Delete</button>
+      </div>
+    `).join('');
+  }
+  window.deleteMovie = async (id) => {
+    if (id.startsWith('sample-')) { showToast("Sample movie cannot be deleted from Firebase. Add real movies."); return; }
+    await moviesCol.doc(id).delete();
+    showToast("Movie deleted");
+  };
+  window.addMovieFromAdmin = () => {
+    const file = document.getElementById('adminPoster').files[0];
+    const title = document.getElementById('adminTitle').value.trim();
+    if (!file || !title) { showToast("Poster and title required"); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      moviesCol.add({
+        title: title,
+        poster: e.target.result,
+        description: document.getElementById('adminDesc').value || "",
+        genre: document.getElementById('adminGenre').value,
+        youtubeUrl: document.getElementById('adminYoutube').value || null,
+        videoUrl: document.getElementById('adminVideoUrl').value || null
+      }).then(() => {
+        showToast("Movie added!");
+        document.getElementById('adminTitle').value = '';
+        document.getElementById('adminPoster').value = '';
+        document.getElementById('adminDesc').value = '';
+        document.getElementById('adminYoutube').value = '';
+        document.getElementById('adminVideoUrl').value = '';
+      }).catch(err => showToast("Error: " + err.message));
+    };
+    reader.readAsDataURL(file);
+  };
 
-    // optional - smoother scroll on horizontal rows mouse wheel? not needed but makes netflix vibe.
-    // enable wheel scroll on any slider horizontally (like netflix)
-    sliders.forEach(slider => {
-        slider.addEventListener('wheel', (e) => {
-            if (e.deltaY !== 0) {
-                e.preventDefault();
-                slider.scrollLeft += e.deltaY + (e.deltaX ? e.deltaX : 0);
-            }
-        });
+  // Auth UI
+  function updateAuthUI() {
+    const userDiv = document.getElementById('userBtn');
+    const signInBtn = document.getElementById('signInBtn');
+    if (currentUser) {
+      userDiv.style.display = 'flex';
+      signInBtn.style.display = 'none';
+      document.getElementById('userEmailSpan').innerText = currentUser.email.split('@')[0];
+    } else {
+      userDiv.style.display = 'none';
+      signInBtn.style.display = 'block';
+    }
+  }
+  let authMode = 'login';
+  function openAuthModal() {
+    document.getElementById('authTitle').innerText = authMode === 'login' ? 'Sign In' : 'Create Account';
+    document.getElementById('authSubmitBtn').innerText = authMode === 'login' ? 'Sign In' : 'Sign Up';
+    document.getElementById('switchAuthBtn').innerText = authMode === 'login' ? 'Create account →' : '← Back to Sign In';
+    document.getElementById('authOverlay').style.display = 'block';
+    document.getElementById('authModal').style.display = 'block';
+  }
+  async function handleAuthSubmit() {
+    const email = document.getElementById('authEmail').value.trim();
+    const pass = document.getElementById('authPassword').value.trim();
+    if (!email || !pass) { showToast("Enter credentials"); return; }
+    try {
+      if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
+      else await auth.createUserWithEmailAndPassword(email, pass);
+      showToast(`Welcome ${email.split('@')[0]}!`);
+      closeAuthModal();
+    } catch (err) { showToast(err.message); }
+  }
+  function closeAuthModal() {
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('authModal').style.display = 'none';
+  }
+  auth.onAuthStateChanged(user => { currentUser = user; updateAuthUI(); });
+
+  function switchTab(tab) {
+    activeTab = tab;
+    const moviesDiv = document.getElementById('moviesTab');
+    const liveDiv = document.getElementById('liveTab');
+    if (tab === 'movies') {
+      moviesDiv.style.display = 'block';
+      liveDiv.style.display = 'none';
+      buildHero(allMovies);
+      renderRows(allMovies, document.getElementById('searchInput').value, currentCategoryFilter);
+    } else {
+      moviesDiv.style.display = 'none';
+      liveDiv.style.display = 'block';
+      renderLiveTV();
+    }
+    document.querySelectorAll('.nav-link').forEach(link => {
+      if (link.dataset.tab === tab) link.classList.add('active');
+      else link.classList.remove('active');
     });
+  }
 
-    // small code to add a couple more cards in trending for extra netflix look (better experience)
-    const extraTrending = [
-        { title: "Manifest", year: "2023", imgIdx: 8 },
-        { title: "The Umbrella Academy", year: "2024", imgIdx: 7 },
-        { title: "Cobra Kai", year: "2025", imgIdx: 6 }
-    ];
-    extraTrending.forEach(item => trendingRow.appendChild(buildCard(item, false)));
-
-    // extras for originals row
-    const extraOriginals = [
-        { title: "3 Body Problem", year: "2024", imgIdx: 9 },
-        { title: "The Night Agent", year: "2023", imgIdx: 4 }
-    ];
-    extraOriginals.forEach(item => originalsRow.appendChild(buildCard(item, true)));
-
-    // top10 extra
-    const extraTop = [
-        { title: "Suits", year: "2019", imgIdx: 2 },
-        { title: "Young Sheldon", year: "2024", imgIdx: 5 }
-    ];
-    extraTop.forEach(item => top10Row.appendChild(buildCard(item, false)));
-
-    // Action extra
-    const extraAction = [
-        { title: "Atômica 2", year: "2025", imgIdx: 1 },
-        { title: "Rápidos e Furiosos X", year: "2023", imgIdx: 0 }
-    ];
-    extraAction.forEach(item => actionRow.appendChild(buildCard(item, false)));
-
-    // Netflix badge style: add class to body after load
-    console.log("Netflix UI Ready — style completely inspired by streaming giant");
-</script>
-
-<!-- small note: the footer service code click -->
-<script>
-    const serviceCode = document.querySelector('.service-code');
-    if(serviceCode) {
-        serviceCode.addEventListener('click', () => alert("Código de serviço: NETFLIX-UI-2025 (apenas demonstração)"));
-    }
-    // made for you - now "this looks like netflix" 
+  // Event listeners
+  document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => switchTab(link.dataset.tab)));
+  const dotsBtn = document.getElementById('threeDotsBtn');
+  const dropdown = document.getElementById('dropdownMenu');
+  dotsBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+  document.addEventListener('click', () => dropdown.style.display = 'none');
+  document.getElementById('adminPanelBtn').addEventListener('click', () => {
+    if (prompt("Admin password:") === 'admin123') {
+      document.getElementById('adminOverlay').style.display = 'block';
+      document.getElementById('adminModal').style.display = 'block';
+      dropdown.style.display = 'none';
+    } else showToast("Wrong password");
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => { auth.signOut(); showToast("Signed out"); dropdown.style.display = 'none'; });
+  document.getElementById('closeAdminX').addEventListener('click', () => { document.getElementById('adminOverlay').style.display = 'none'; document.getElementById('adminModal').style.display = 'none'; });
+  document.getElementById('closeVideoX').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
+  document.getElementById('videoOverlay').addEventListener('click', () => { document.getElementById('videoPlayer').innerHTML = ''; document.getElementById('videoOverlay').style.display = 'none'; document.getElementById('videoModal').style.display = 'none'; });
+  document.getElementById('signInBtn').addEventListener('click', () => { authMode = 'login'; openAuthModal(); });
+  document.getElementById('switchAuthBtn').addEventListener('click', () => { authMode = authMode === 'login' ? 'signup' : 'login'; openAuthModal(); });
+  document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
+  document.getElementById('closeAuthX').addEventListener('click', closeAuthModal);
+  document.getElementById('cancelAuthBtn').addEventListener('click', closeAuthModal);
+  document.getElementById('authOverlay').addEventListener('click', closeAuthModal);
+  document.getElementById('searchInput').addEventListener('input', (e) => { if (activeTab === 'movies') renderRows(allMovies, e.target.value, currentCategoryFilter); });
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+  
+  buildCategoryFilters();
+  switchTab('movies');
 </script>
 </body>
 </html>
